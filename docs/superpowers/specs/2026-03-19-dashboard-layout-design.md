@@ -85,13 +85,26 @@ layouts/base.edge (head, vite, tailwind, alpine)
 
 The Administration section is only visible to users with `user:read` or `role:read` permissions, verified via the existing `PermissionResolver` service.
 
+**View integration:** The dashboard controller resolves the current user's permissions via `PermissionResolver` and passes them to the view as a `permissions` Set (or similar). The dashboard layout uses Edge conditionals to show/hide the admin section:
+
+```edge
+@if(permissions.has('user:read') || permissions.has('role:read'))
+  {{-- Administration section --}}
+@end
+```
+
 ## Tailwind CSS Migration
 
 ### What Changes
 
 - **Total replacement**: all custom CSS in `app.css` is replaced by Tailwind directives + theme
 - **All existing pages** (home, login, signup) are re-styled with Tailwind utility classes
-- **All Edge components** (button, input, alert, avatar, etc.) are updated to use Tailwind classes
+- **All Edge components** are updated to use Tailwind classes:
+  - `button.edge`, `link.edge`, `avatar.edge`
+  - `form/index.edge`, `field/root.edge`, `field/label.edge`, `field/error.edge`
+  - `input/control.edge`, `textarea/control.edge`, `select/control.edge`
+  - `checkbox/group.edge`, `checkbox/control.edge`, `radio/group.edge`, `radio/control.edge`
+  - `alert/root.edge`, `alert/title.edge`, `alert/description.edge`
 - **Partials** (header, flash_alerts) are migrated to Tailwind
 
 ### Theme
@@ -187,13 +200,14 @@ edge.use(edgeIconify)
 | `resources/views/layouts/dashboard.edge` | Dashboard layout (sidebar + content) |
 | `resources/views/pages/dashboard/index.edge` | Empty dashboard page |
 | `start/view.ts` | Edge-iconify configuration |
+| `app/controllers/dashboard_controller.ts` | Dashboard controller (resolves permissions, renders view) |
 
 ### Modified Files
 
 | File | Change |
 |------|--------|
 | `resources/css/app.css` | Replace custom CSS with Tailwind + theme |
-| `resources/views/components/layout.edge` | Migrate to Tailwind, use `layouts/base` |
+| `resources/views/components/layout.edge` | **Removed.** Replaced by `layouts/base.edge` which serves the same purpose (root HTML shell). Existing pages that use `@layout('components/layout')` will be updated to use `@layout('layouts/base')`. |
 | `resources/views/pages/home.edge` | Re-style with Tailwind |
 | `resources/views/pages/auth/login.edge` | Re-style with Tailwind |
 | `resources/views/pages/auth/signup.edge` | Re-style with Tailwind |
@@ -206,7 +220,11 @@ edge.use(edgeIconify)
 ## Routing
 
 ```
-GET /dashboard → renders 'pages/dashboard/index' [auth + tenant middleware]
+GET /dashboard → DashboardController.index [auth + tenant middleware]
 ```
 
-The dashboard route is protected by both `auth` and `tenant` middleware (existing).
+The dashboard route is protected by both `auth` and `tenant` middleware (existing). `DashboardController` resolves the user's permissions and passes them to the view.
+
+## Out of Scope
+
+- **Dark mode toggle**: The dark theme variables are defined in the Tailwind theme for future use, but dark mode activation (class-based or `prefers-color-scheme`) is not part of this iteration.
