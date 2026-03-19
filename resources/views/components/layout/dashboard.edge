@@ -1,152 +1,170 @@
 @layout.base()
-  <div x-data="{ sidebarCollapsed: false, mobileSidebarOpen: false }" class="flex min-h-screen">
+<div x-data="{ sidebarCollapsed: false, mobileSidebarOpen: false }" class="flex min-h-screen">
 
-    {{-- Mobile backdrop --}}
-    <div
-      x-show="mobileSidebarOpen"
-      x-transition.opacity
-      x-on:click="mobileSidebarOpen = false"
-      x-cloak
-      class="fixed inset-0 z-40 bg-black/50 lg:hidden"
-    ></div>
+  {{-- Mobile backdrop --}}
+  <div x-show="mobileSidebarOpen" x-transition.opacity x-on:click="mobileSidebarOpen = false" x-cloak
+    class="fixed inset-0 z-40 bg-black/50 lg:hidden"></div>
 
-    {{-- Sidebar --}}
-    <aside
-      x-cloak
-      :class="[
+  {{-- Sidebar --}}
+  <aside x-cloak :class="[
         sidebarCollapsed ? 'lg:w-16' : 'lg:w-60',
         mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
       ]"
-      class="fixed inset-y-0 left-0 z-50 flex w-60 flex-col border-r border-neutral-200 bg-surface transition-all duration-200 lg:static lg:z-auto"
-    >
+    class="fixed inset-y-0 left-0 z-50 flex w-60 flex-col border-r border-outline bg-surface transition-all duration-200 lg:static lg:z-auto">
 
-      {{-- Logo / App Name --}}
-      <div class="flex h-14 items-center border-b border-neutral-200 px-4">
-        <a href="/" class="flex items-center gap-2 overflow-hidden">
-          <span class="text-lg font-bold text-on-surface-strong" x-show="!sidebarCollapsed" x-cloak>Voyager</span>
-          <span class="text-lg font-bold text-on-surface-strong" x-show="sidebarCollapsed" x-cloak>V</span>
-        </a>
+    {{-- Logo / App Name --}}
+    <div class="flex h-14 items-center border-b border-outline px-4">
+      <a href="/" class="flex items-center gap-2 overflow-hidden">
+        <span class="text-lg font-bold text-on-surface-strong" x-show="!sidebarCollapsed" x-cloak>Voyager</span>
+        <span class="text-lg font-bold text-on-surface-strong" x-show="sidebarCollapsed" x-cloak>V</span>
+      </a>
 
-        {{-- Collapse toggle (desktop only) --}}
-        <button
-          x-on:click="sidebarCollapsed = !sidebarCollapsed"
-          class="ml-auto hidden cursor-pointer text-on-surface hover:text-on-surface-strong lg:block"
-        >
-          <template x-if="sidebarCollapsed">
-            @svg('tabler:chevrons-right', { class: 'size-5' })
-          </template>
-          <template x-if="!sidebarCollapsed">
-            @svg('tabler:chevrons-left', { class: 'size-5' })
-          </template>
-        </button>
+      {{-- Collapse toggle (desktop only) --}}
+      <button x-on:click="sidebarCollapsed = !sidebarCollapsed"
+        class="ml-auto hidden cursor-pointer text-on-surface hover:text-on-surface-strong lg:block">
+        <template x-if="sidebarCollapsed">
+          @svg('tabler:chevrons-right', { class: 'size-5' })
+        </template>
+        <template x-if="!sidebarCollapsed">
+          @svg('tabler:chevrons-left', { class: 'size-5' })
+        </template>
+      </button>
 
-        {{-- Close button (mobile only) --}}
-        <button
-          x-on:click="mobileSidebarOpen = false"
-          class="ml-auto cursor-pointer text-on-surface hover:text-on-surface-strong lg:hidden"
-        >
-          @svg('tabler:x', { class: 'size-5' })
-        </button>
-      </div>
+      {{-- Close button (mobile only) --}}
+      <button x-on:click="mobileSidebarOpen = false"
+        class="ml-auto cursor-pointer text-on-surface hover:text-on-surface-strong lg:hidden">
+        @svg('tabler:x', { class: 'size-5' })
+      </button>
+    </div>
 
-      {{-- Navigation --}}
-      <nav class="flex-1 overflow-y-auto px-3 py-4">
+    {{-- Navigation --}}
+    <nav class="flex-1 overflow-y-auto px-3 py-4">
+      <ul class="space-y-1">
+        @!sidebar.item({
+        href: route('dashboard.index'),
+        icon: 'tabler:layout-dashboard',
+        label: 'Dashboard',
+        })
+        @!sidebar.item({
+        href: '#',
+        icon: 'tabler:bus',
+        label: 'Véhicules',
+        })
+        @!sidebar.item({
+        href: '#',
+        icon: 'tabler:route',
+        label: 'Routes',
+        })
+        @!sidebar.item({
+        href: '#',
+        icon: 'tabler:map-pin',
+        label: 'Arrêts',
+        })
+        @!sidebar.item({
+        href: '#',
+        icon: 'tabler:steering-wheel',
+        label: 'Conducteurs',
+        })
+      </ul>
+
+      {{-- Administration (role-gated) --}}
+      @can('permission', 'user:read')
+      <div class="mt-6">
+        <p class="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-on-surface" x-show="!sidebarCollapsed"
+          x-cloak>Administration</p>
         <ul class="space-y-1">
           @!sidebar.item({
-            href: route('dashboard.index'),
-            icon: 'tabler:layout-dashboard',
-            label: 'Dashboard',
+          href: '#',
+          icon: 'tabler:users',
+          label: 'Utilisateurs',
           })
           @!sidebar.item({
-            href: '#',
-            icon: 'tabler:bus',
-            label: 'Véhicules',
+          href: '#',
+          icon: 'tabler:shield',
+          label: 'Rôles',
           })
           @!sidebar.item({
-            href: '#',
-            icon: 'tabler:route',
-            label: 'Routes',
-          })
-          @!sidebar.item({
-            href: '#',
-            icon: 'tabler:map-pin',
-            label: 'Arrêts',
-          })
-          @!sidebar.item({
-            href: '#',
-            icon: 'tabler:steering-wheel',
-            label: 'Conducteurs',
+          href: '#',
+          icon: 'tabler:settings',
+          label: 'Paramètres',
           })
         </ul>
+      </div>
+      @end
+    </nav>
 
-        {{-- Administration (role-gated) --}}
-        @can('permission', 'user:read')
-          <div class="mt-6">
-            <p
-              class="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-on-surface"
-              x-show="!sidebarCollapsed"
-              x-cloak
-            >Administration</p>
-            <ul class="space-y-1">
-              @!sidebar.item({
-                href: '#',
-                icon: 'tabler:users',
-                label: 'Utilisateurs',
-              })
-              @!sidebar.item({
-                href: '#',
-                icon: 'tabler:shield',
-                label: 'Rôles',
-              })
-              @!sidebar.item({
-                href: '#',
-                icon: 'tabler:settings',
-                label: 'Paramètres',
-              })
-            </ul>
-          </div>
-        @end
-      </nav>
+    {{-- User / profile menu (pinned to bottom, menu opens above) --}}
+    <div x-data="{ menuIsOpen: false }" class="relative p-3" x-on:keydown.esc.window="menuIsOpen = false">
 
-      {{-- User section (pinned to bottom) --}}
-      <div class="border-t border-neutral-200 px-3 py-3">
-        <div class="flex items-center gap-3 overflow-hidden">
-          @!avatar({ initials: auth.user.initials })
-          <div x-show="!sidebarCollapsed" x-cloak class="min-w-0">
-            <p class="truncate text-sm font-medium text-on-surface-strong">{{ auth.user.firstName }} {{ auth.user.lastName }}</p>
-            <p class="truncate text-xs text-on-surface">{{ auth.user.email }}</p>
-          </div>
+      {{-- Popup menu – always above the trigger button --}}
+      <div x-cloak x-show="menuIsOpen"
+        class="absolute bottom-full left-3 right-3 z-20 mb-1 divide-y divide-outline rounded-radius border border-outline bg-surface shadow-lg dark:divide-outline-dark dark:border-outline-dark dark:bg-surface-dark"
+        role="menu" x-on:click.outside="menuIsOpen = false" x-on:keydown.down.prevent="$focus.wrap().next()"
+        x-on:keydown.up.prevent="$focus.wrap().previous()" x-transition x-trap="menuIsOpen">
+        <div class="flex flex-col py-1.5">
+          <a href="#" role="menuitem"
+            class="flex items-center gap-2 px-2 py-1.5 text-sm font-medium text-on-surface underline-offset-2 hover:bg-primary/5 hover:text-on-surface-strong focus-visible:underline focus:outline-hidden dark:text-on-surface-dark dark:hover:bg-primary-dark/5 dark:hover:text-on-surface-dark-strong">
+            @svg('tabler:user', { class: 'size-5 shrink-0' })
+            <span>Profil</span>
+          </a>
         </div>
-        <div x-show="!sidebarCollapsed" x-cloak class="mt-2">
+        <div class="flex flex-col py-1.5">
+          <a href="#" role="menuitem"
+            class="flex items-center gap-2 px-2 py-1.5 text-sm font-medium text-on-surface underline-offset-2 hover:bg-primary/5 hover:text-on-surface-strong focus-visible:underline focus:outline-hidden dark:text-on-surface-dark dark:hover:bg-primary-dark/5 dark:hover:text-on-surface-dark-strong">
+            @svg('tabler:settings', { class: 'size-5 shrink-0' })
+            <span>Paramètres</span>
+          </a>
+        </div>
+        <div class="flex flex-col py-1.5">
           @form({ route: 'session.destroy', method: 'POST' })
-            <button type="submit" class="flex w-full cursor-pointer items-center gap-2 rounded-radius px-3 py-2 text-sm text-on-surface transition-colors hover:bg-surface-alt hover:text-on-surface-strong">
-              @svg('tabler:logout', { class: 'size-4' })
-              Déconnexion
-            </button>
+          <button type="submit" role="menuitem"
+            class="flex w-full cursor-pointer items-center gap-2 px-2 py-1.5 text-sm font-medium text-on-surface underline-offset-2 hover:bg-primary/5 hover:text-on-surface-strong focus-visible:underline focus:outline-hidden dark:text-on-surface-dark dark:hover:bg-primary-dark/5 dark:hover:text-on-surface-dark-strong">
+            @svg('tabler:logout', { class: 'size-5 shrink-0' })
+            <span>Déconnexion</span>
+          </button>
           @end
         </div>
       </div>
-    </aside>
 
-    {{-- Main content area --}}
-    <div class="flex flex-1 flex-col" :class="sidebarCollapsed ? 'lg:ml-0' : 'lg:ml-0'">
-
-      {{-- Mobile header --}}
-      <header class="flex h-14 items-center border-b border-neutral-200 bg-surface px-4 lg:hidden">
-        <button
-          x-on:click="mobileSidebarOpen = true"
-          class="cursor-pointer text-on-surface hover:text-on-surface-strong"
-        >
-          @svg('tabler:menu-2', { class: 'size-5' })
-        </button>
-        <span class="ml-3 text-lg font-bold text-on-surface-strong">Voyager</span>
-      </header>
-
-      {{-- Page content --}}
-      <main class="flex-1 bg-surface-alt p-6">
-        @include('partials/flash_alerts')
-        {{{ await $slots.main() }}}
-      </main>
+      {{-- Trigger button --}}
+      <button type="button" aria-haspopup="true" x-on:click="menuIsOpen = !menuIsOpen" :aria-expanded="menuIsOpen"
+        :class="menuIsOpen ? 'bg-primary/10 dark:bg-primary-dark/10' : 'hover:bg-primary/5 dark:hover:bg-primary-dark/5'"
+        class="flex w-full items-center gap-2 rounded-radius p-2 text-left text-on-surface hover:text-on-surface-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
+        @!avatar({ initials: auth.user.initials })
+        <div x-show="!sidebarCollapsed" x-cloak class="flex min-w-0 flex-1 flex-col">
+          <span class="truncate text-sm font-semibold">
+            {{ auth.user.firstName }} {{ auth.user.lastName }}
+          </span>
+          <span class="truncate text-xs text-on-surface" aria-hidden="true">{{ auth.user.email }}</span>
+          <span class="sr-only">paramètres du profil</span>
+        </div>
+        <svg x-show="!sidebarCollapsed" x-cloak xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+          fill="currentColor" class="ml-auto size-4 shrink-0 transition-transform"
+          :class="menuIsOpen ? 'rotate-180' : 'rotate-0'" aria-hidden="true">
+          <path fill-rule="evenodd"
+            d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
+            clip-rule="evenodd" />
+        </svg>
+      </button>
     </div>
+  </aside>
+
+  {{-- Main content area --}}
+  <div class="flex flex-1 flex-col" :class="sidebarCollapsed ? 'lg:ml-0' : 'lg:ml-0'">
+
+    {{-- Mobile header --}}
+    <header class="flex h-14 items-center border-b border-outline bg-surface px-4 lg:hidden">
+      <button x-on:click="mobileSidebarOpen = true" class="cursor-pointer text-on-surface hover:text-on-surface-strong">
+        @svg('tabler:menu-2', { class: 'size-5' })
+      </button>
+      <span class="ml-3 text-lg font-bold text-on-surface-strong">Voyager</span>
+    </header>
+
+    {{-- Page content --}}
+    <main class="flex-1 bg-surface-alt p-6">
+      @include('partials/flash_alerts')
+      {{{ await $slots.main() }}}
+    </main>
   </div>
+</div>
 @end

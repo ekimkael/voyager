@@ -1,14 +1,12 @@
 @let(isActive = request.url() === $props.get('href'))
 @let(activeClasses = isActive
-  ? 'bg-surface-alt text-on-surface-strong font-medium'
-  : 'text-on-surface hover:bg-surface-alt hover:text-on-surface-strong'
+? 'bg-primary/10 text-on-surface-strong font-semibold'
+: 'text-on-surface hover:bg-primary/5 hover:text-on-surface-strong'
 )
 
 <li>
-  <a
-    href="{{ $props.get('href') }}"
-    class="flex items-center gap-3 rounded-radius px-3 py-2 text-sm transition-colors {{ activeClasses }}"
-  >
+  <a href="{{ $props.get('href') }}"
+    class="flex items-center gap-3 rounded-radius px-3 py-2 text-sm transition-colors {{ activeClasses }}">
     @svg($props.get('icon'), { class: 'size-5 shrink-0' })
     <span x-show="!sidebarCollapsed" x-cloak>{{ $props.get('label') }}</span>
   </a>
