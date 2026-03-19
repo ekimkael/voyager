@@ -1,4 +1,3 @@
-@let(permissions = $props.get('permissions') || [])
 @layout.base()
   <div x-data="{ sidebarCollapsed: false, mobileSidebarOpen: false }" class="flex min-h-screen">
 
@@ -81,7 +80,7 @@
         </ul>
 
         {{-- Administration (role-gated) --}}
-        @if(permissions.includes('user:read') || permissions.includes('role:read'))
+        @can('permission', 'user:read')
           <div class="mt-6">
             <p
               class="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-on-surface"
