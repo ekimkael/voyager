@@ -13,18 +13,14 @@ test.group('Tenant creation via signup', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
 
   test('POST /signup creates tenant, admin user, and system roles', async ({ assert, client }) => {
-    const response = await client
-      .post('/signup')
-      .withCsrfToken()
-      .redirects(0)
-      .form({
-        companyName: 'Bus Express',
-        firstName: 'Marie',
-        lastName: 'Dupont',
-        email: 'marie@busexpress.com',
-        password: 'securepass123',
-        passwordConfirmation: 'securepass123',
-      })
+    const response = await client.post('/signup').withCsrfToken().redirects(0).form({
+      companyName: 'Bus Express',
+      firstName: 'Marie',
+      lastName: 'Dupont',
+      email: 'marie@busexpress.com',
+      password: 'securepass123',
+      passwordConfirmation: 'securepass123',
+    })
 
     response.assertStatus(302)
 
