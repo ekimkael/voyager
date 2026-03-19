@@ -214,7 +214,8 @@ database/
     ...create_user_role_assignments_table.ts
     ...create_role_permissions_table.ts
     ...create_audit_logs_table.ts
-    ...seed_permissions.ts
+  seeders/
+    permissions_seeder.ts           ← run via `node ace db:seed`
 ```
 
 ### Permission Resolution Flow
@@ -286,7 +287,7 @@ In-memory Map per user, invalidated when:
 - TenantService (tenant creation + system role seeding)
 - PermissionResolver (recursive inheritance, max depth 4)
 - User model refactor + signup flow (create tenant + admin user)
-- Permissions catalog seeder
+- Permissions catalog seeder (`database/seeders/permissions_seeder.ts`, run via `node ace db:seed`)
 - `rbac.ts` config
 
 **Deliverable:** User signs up → tenant created → user is Admin → can create custom roles, assign permissions, invite users.
