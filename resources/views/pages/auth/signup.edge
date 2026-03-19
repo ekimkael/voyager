@@ -1,66 +1,70 @@
-@layout()
-  <div class="form-container">
-    <div>
-      <h1> Signup </h1>
-      <p>
-        Create your company account
-      </p>
+@layout('layouts/base')
+  @include('partials/header')
+  <main class="mx-8 flex min-h-[calc(100vh-65px)] border border-neutral-200 bg-surface">
+    @include('partials/flash_alerts')
+    <div class="m-auto flex w-full max-w-md flex-col justify-center py-12">
+      <div class="mb-8">
+        <h1 class="mb-1 text-3xl font-semibold tracking-tight text-on-surface-strong">Signup</h1>
+        <p class="text-lg text-on-surface">Create your company account</p>
+      </div>
+
+      <div>
+        @form({ route: 'new_account.store', method: 'POST' })
+          <div class="flex flex-col gap-6">
+            <div>
+              @field.root({ name: 'companyName' })
+                @!field.label({ text: 'Company name' })
+                @!input.control({ placeholder: 'Your transport company' })
+                @!field.error()
+              @end
+            </div>
+
+            <div>
+              @field.root({ name: 'firstName' })
+                @!field.label({ text: 'First name' })
+                @!input.control()
+                @!field.error()
+              @end
+            </div>
+
+            <div>
+              @field.root({ name: 'lastName' })
+                @!field.label({ text: 'Last name' })
+                @!input.control()
+                @!field.error()
+              @end
+            </div>
+
+            <div>
+              @field.root({ name: 'email' })
+                @!field.label({ text: 'Email' })
+                @!input.control({ type: 'email', autocomplete: 'email' })
+                @!field.error()
+              @end
+            </div>
+
+            <div>
+              @field.root({ name: 'password' })
+                @!field.label({ text: 'Password' })
+                @!input.control({ type: 'password', autocomplete: 'new-password' })
+                @!field.error()
+              @end
+            </div>
+
+            <div>
+              @field.root({ name: 'passwordConfirmation' })
+                @!field.label({ text: 'Confirm password' })
+                @!input.control({ type: 'password', autocomplete: 'new-password' })
+                @!field.error()
+              @end
+            </div>
+
+            <div>
+              @!button({ text: 'Sign up', type: 'submit' })
+            </div>
+          </div>
+        @end
+      </div>
     </div>
-
-    <div>
-      @form({ route: 'new_account.store', method: 'POST' })
-        <div>
-          @field.root({ name: 'companyName' })
-            @!field.label({ text: 'Company name' })
-            @!input.control({ placeholder: 'Your transport company' })
-            @!field.error()
-          @end
-        </div>
-
-        <div>
-          @field.root({ name: 'firstName' })
-            @!field.label({ text: 'First name' })
-            @!input.control()
-            @!field.error()
-          @end
-        </div>
-
-        <div>
-          @field.root({ name: 'lastName' })
-            @!field.label({ text: 'Last name' })
-            @!input.control()
-            @!field.error()
-          @end
-        </div>
-
-        <div>
-          @field.root({ name: 'email' })
-            @!field.label({ text: 'Email' })
-            @!input.control({ type: 'email', autocomplete: 'email' })
-            @!field.error()
-          @end
-        </div>
-
-        <div>
-          @field.root({ name: 'password' })
-            @!field.label({ text: 'Password' })
-            @!input.control({ type: 'password', autocomplete: 'new-password' })
-            @!field.error()
-          @end
-        </div>
-
-        <div>
-          @field.root({ name: 'passwordConfirmation' })
-            @!field.label({ text: 'Confirm password' })
-            @!input.control({ type: 'password', autocomplete: 'new-password' })
-            @!field.error()
-          @end
-        </div>
-
-        <div>
-          @!button({ text: 'Sign up', type: 'submit' })
-        </div>
-      @end
-    </div>
-  </div>
+  </main>
 @end
