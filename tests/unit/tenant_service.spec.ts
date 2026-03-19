@@ -1,0 +1,72 @@
+import { test } from '@japa/runner'
+import testUtils from '@adonisjs/core/services/test_utils'
+import db from '@adonisjs/lucid/services/db'
+import TenantService from '#services/tenant_service'
+import Tenant from '#models/tenant'
+import Role from '#models/role'
+import RolePermission from '#models/role_permission'
+
+test.group('TenantService', (group) => {
+  group.setup(async () => {
+    // Seed permissions catalog (required by TenantService)
+    const { default: PermissionsSeeder } = await import('#database/seeders/permissions_seeder')
+    await new PermissionsSeeder(db).run()
+  })
+  group.each.setup(() => testUtils.db().withGlobalTransaction())
+
+  test('createWithAdmin creates tenant, admin user, and system roles', async ({ assert }) => {
+    const result = await TenantService.createWithAdmin({
+      companyName: 'TransCo Test',
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'john@transco.test',
+      password: 'password123',
+    })
+
+    assert.exists(result.tenant)
+    assert.exists(result.user)
+    assert.equal(result.tenant.name, 'TransCo Test')
+    assert.equal(result.tenant.slug, 'transco-test')
+    assert.equal(result.user.tenantId, result.tenant.id)
+
+    // Verify system roles were created
+    const roles = await Role.query().where('tenant_id', result.tenant.id)
+    assert.equal(roles.length, 4)
+    const roleNames = roles.map((r) => r.name).sort()
+    assert.deepEqual(roleNames, ['Admin', 'Chauffeur', 'Dispatcher', 'Lecteur'])
+
+    // Verify all system roles are flagged
+    assert.isTrue(roles.every((r) => r.isSystem))
+
+    // Verify admin role has permissions
+    const adminRole = roles.find((r) => r.name === 'Admin')!
+    const adminPermissions = await RolePermission.query().where('role_id', adminRole.id)
+    assert.isAbove(adminPermissions.length, 0)
+
+    // Verify user has admin role
+    const assignments = await result.user.related('roleAssignments').query()
+    assert.equal(assignments.length, 1)
+    assert.equal(assignments[0].roleId, adminRole.id)
+  })
+
+  test('createWithAdmin generates unique slug on conflict', async ({ assert }) => {
+    const first = await TenantService.createWithAdmin({
+      companyName: 'TransCo',
+      firstName: 'A',
+      lastName: 'B',
+      email: 'a@transco.test',
+      password: 'password123',
+    })
+
+    const second = await TenantService.createWithAdmin({
+      companyName: 'TransCo',
+      firstName: 'C',
+      lastName: 'D',
+      email: 'c@transco2.test',
+      password: 'password123',
+    })
+
+    assert.notEqual(first.tenant.slug, second.tenant.slug)
+    assert.isTrue(second.tenant.slug.startsWith('transco-'))
+  })
+})
