@@ -1,0 +1,66 @@
+@layout()
+  <div class="form-container">
+    <div>
+      <h1> Signup </h1>
+      <p>
+        Create your company account
+      </p>
+    </div>
+
+    <div>
+      @form({ route: 'new_account.store', method: 'POST' })
+        <div>
+          @field.root({ name: 'companyName' })
+            @!field.label({ text: 'Company name' })
+            @!input.control({ placeholder: 'Your transport company' })
+            @!field.error()
+          @end
+        </div>
+
+        <div>
+          @field.root({ name: 'firstName' })
+            @!field.label({ text: 'First name' })
+            @!input.control()
+            @!field.error()
+          @end
+        </div>
+
+        <div>
+          @field.root({ name: 'lastName' })
+            @!field.label({ text: 'Last name' })
+            @!input.control()
+            @!field.error()
+          @end
+        </div>
+
+        <div>
+          @field.root({ name: 'email' })
+            @!field.label({ text: 'Email' })
+            @!input.control({ type: 'email', autocomplete: 'email' })
+            @!field.error()
+          @end
+        </div>
+
+        <div>
+          @field.root({ name: 'password' })
+            @!field.label({ text: 'Password' })
+            @!input.control({ type: 'password', autocomplete: 'new-password' })
+            @!field.error()
+          @end
+        </div>
+
+        <div>
+          @field.root({ name: 'passwordConfirmation' })
+            @!field.label({ text: 'Confirm password' })
+            @!input.control({ type: 'password', autocomplete: 'new-password' })
+            @!field.error()
+          @end
+        </div>
+
+        <div>
+          @!button({ text: 'Sign up', type: 'submit' })
+        </div>
+      @end
+    </div>
+  </div>
+@end
