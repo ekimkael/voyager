@@ -1,4 +1,4 @@
-@layout('layouts/base')
+@layout.base()
   <div x-data="{ sidebarCollapsed: false, mobileSidebarOpen: false }" class="flex min-h-screen">
 
     {{-- Mobile backdrop --}}
@@ -52,27 +52,27 @@
       {{-- Navigation --}}
       <nav class="flex-1 overflow-y-auto px-3 py-4">
         <ul class="space-y-1">
-          @!component('layouts/partials/sidebar_item', {
+          @!sidebar.item({
             href: route('dashboard.index'),
             icon: 'tabler:layout-dashboard',
             label: 'Dashboard',
           })
-          @!component('layouts/partials/sidebar_item', {
+          @!sidebar.item({
             href: '#',
             icon: 'tabler:bus',
             label: 'Véhicules',
           })
-          @!component('layouts/partials/sidebar_item', {
+          @!sidebar.item({
             href: '#',
             icon: 'tabler:route',
             label: 'Routes',
           })
-          @!component('layouts/partials/sidebar_item', {
+          @!sidebar.item({
             href: '#',
             icon: 'tabler:map-pin',
             label: 'Arrêts',
           })
-          @!component('layouts/partials/sidebar_item', {
+          @!sidebar.item({
             href: '#',
             icon: 'tabler:steering-wheel',
             label: 'Conducteurs',
@@ -88,17 +88,17 @@
               x-cloak
             >Administration</p>
             <ul class="space-y-1">
-              @!component('layouts/partials/sidebar_item', {
+              @!sidebar.item({
                 href: '#',
                 icon: 'tabler:users',
                 label: 'Utilisateurs',
               })
-              @!component('layouts/partials/sidebar_item', {
+              @!sidebar.item({
                 href: '#',
                 icon: 'tabler:shield',
                 label: 'Rôles',
               })
-              @!component('layouts/partials/sidebar_item', {
+              @!sidebar.item({
                 href: '#',
                 icon: 'tabler:settings',
                 label: 'Paramètres',
