@@ -1,10 +1,11 @@
 import { DateTime } from 'luxon'
-import { BaseModel, belongsTo, column } from '@adonisjs/lucid/orm'
-import type { BelongsTo } from '@adonisjs/lucid/types/relations'
+import { BaseModel, belongsTo, column, hasMany } from '@adonisjs/lucid/orm'
+import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import hash from '@adonisjs/core/services/hash'
 import { compose } from '@adonisjs/core/helpers'
 import { withAuthFinder } from '@adonisjs/auth/mixins/lucid'
 import Tenant from '#models/tenant'
+import UserRoleAssignment from '#models/user_role_assignment'
 
 const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
   uids: ['email'],
@@ -47,6 +48,9 @@ export default class User extends compose(BaseModel, AuthFinder) {
 
   @belongsTo(() => Tenant)
   declare tenant: BelongsTo<typeof Tenant>
+
+  @hasMany(() => UserRoleAssignment)
+  declare roleAssignments: HasMany<typeof UserRoleAssignment>
 
   get fullName() {
     return `${this.firstName} ${this.lastName}`
