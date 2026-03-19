@@ -21,6 +21,9 @@ export default class HttpExceptionHandler extends ExceptionHandler {
    * to return the HTML contents to send as a response.
    */
   protected statusPages: Record<StatusPageRange, StatusPageRenderer> = {
+    '403': (error, { view }) => {
+      return view.render('pages/errors/unauthorized', { error })
+    },
     '404': (error, { view }) => {
       return view.render('pages/errors/not_found', { error })
     },

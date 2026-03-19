@@ -1,0 +1,14 @@
+@layout.base()
+  <div class="flex min-h-screen items-center justify-center bg-surface-alt">
+    <div class="text-center">
+      <h1 class="text-4xl font-bold text-on-surface-strong">403</h1>
+      <p class="mt-2 text-lg text-on-surface">Vous n'avez pas la permission d'effectuer cette action.</p>
+      <a
+        href="{{ route('dashboard.index') }}"
+        class="mt-6 inline-block rounded-radius bg-primary px-4 py-2 text-sm font-medium text-on-primary transition-colors hover:bg-primary/90"
+      >
+        Retour au tableau de bord
+      </a>
+    </div>
+  </div>
+@end
