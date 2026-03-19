@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>
+      Voyager
+    </title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @stack('dumper')
+  </head>
+  <body class="min-h-screen bg-surface-alt font-sans text-on-surface antialiased">
+    {{{ await $slots.main() }}}
+  </body>
+</html>
