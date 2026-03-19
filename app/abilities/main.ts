@@ -1,23 +1,10 @@
-/*
-|--------------------------------------------------------------------------
-| Bouncer abilities
-|--------------------------------------------------------------------------
-|
-| You may export multiple abilities from this file and pre-register them
-| when creating the Bouncer instance.
-|
-| Pre-registered policies and abilities can be referenced as a string by their
-| name. Also they are must if want to perform authorization inside Edge
-| templates.
-|
-*/
-
 import { Bouncer } from '@adonisjs/bouncer'
+import User from '#models/user'
+import PermissionResolver from '#services/permission_resolver'
+import { HttpContext } from '@adonisjs/core/http'
 
-/**
- * Delete the following ability to start from
- * scratch
- */
-export const editUser = Bouncer.ability(() => {
-  return true
+export const permission = Bouncer.ability(async (user: User, key: string) => {
+  const ctx = HttpContext.get()
+  const resolver = ctx?.permissionResolver ?? new PermissionResolver(user)
+  return resolver.can(key)
 })
