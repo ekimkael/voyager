@@ -3,7 +3,7 @@
   ? $context.oldValue || $props.get('value') || ''
   : $props.get('value') || ''
 )
-@let(classes = [])
+@let(classes = ['h-10', 'w-full', 'rounded-radius', 'border', 'border-neutral-300', 'bg-surface', 'px-4', 'text-sm', 'text-on-surface-strong', 'outline-none', 'focus:border-primary', 'focus:ring-1', 'focus:ring-primary', 'aria-[invalid=true]:border-danger'])
 
 <input {{ $props
   .except(['value'])

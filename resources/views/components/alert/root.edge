@@ -1,6 +1,11 @@
 @let(variant = $props.get('variant') || 'default')
 @inject({ variant, autoDismiss: $props.get('autoDismiss') })
-@let(classes = ['alert', `alert-${variant}`])
+@let(variantClasses = {
+  default: 'border-neutral-300 bg-surface text-on-surface-strong',
+  destructive: 'border-danger bg-danger/10 text-danger',
+  success: 'border-success bg-success/10 text-success',
+})
+@let(classes = ['relative', 'min-w-[380px]', 'rounded-radius', 'border', 'px-4', 'py-3', 'text-sm', 'font-medium', 'animate-[scale-up_0.2s_ease-out]', variantClasses[variant] || variantClasses.default])
 
 <div {{ $props
   .except(['variant', 'autoDismiss'])

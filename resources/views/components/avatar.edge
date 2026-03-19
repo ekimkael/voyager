@@ -1,10 +1,10 @@
 @let(nameInitials = $props.get('initials'))
-@let(classes = [])
+@let(classes = ['inline-flex', 'items-center', 'justify-center', 'size-8', 'rounded-full', 'bg-primary', 'text-on-primary', 'text-xs', 'font-medium'])
 
 @if($props.get('src'))
   <img {{ $props
   .except(['initials', 'name'])
-  .merge({ class: classes })
+  .merge({ class: ['size-8', 'rounded-full', 'object-cover'] })
   .toAttrs() }}>
 @elseif(nameInitials)
   <span {{ $props

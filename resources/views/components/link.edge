@@ -10,8 +10,8 @@
     )
     : undefined
 )
-@let(activeClass = request.url() === linkHref ? 'current' : '')
-@let(classes = [activeClass])
+@let(activeClass = request.url() === linkHref ? 'text-on-surface-strong font-semibold' : '')
+@let(classes = ['font-medium', 'text-on-surface', 'hover:text-on-surface-strong', 'transition-colors', activeClass])
 
 <a {{ $props
   .except(['href', 'text', 'route', 'routeParams', 'routeOptions'])
