@@ -1,4 +1,4 @@
-<div class="flash-container">
+<div class="fixed top-20 left-0 right-0 z-50 flex flex-col items-center">
   @if(flashMessages.has('error'))
     @alert.root({ variant: 'destructive', autoDismiss: true })
       @!alert.description({ text: flashMessages.get('error') })
