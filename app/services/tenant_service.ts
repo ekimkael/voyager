@@ -21,10 +21,7 @@ export default class TenantService {
     return db.transaction(async (trx) => {
       const slug = await this.#generateUniqueSlug(input.companyName, trx)
 
-      const tenant = await Tenant.create(
-        { name: input.companyName, slug },
-        { client: trx }
-      )
+      const tenant = await Tenant.create({ name: input.companyName, slug }, { client: trx })
 
       const user = await User.create(
         {
@@ -72,10 +69,7 @@ export default class TenantService {
         adminRole = role
       }
 
-      const permKeys =
-        roleDef.permissions === '*'
-          ? [...permissionMap.keys()]
-          : roleDef.permissions
+      const permKeys = roleDef.permissions === '*' ? [...permissionMap.keys()] : roleDef.permissions
 
       for (const key of permKeys) {
         const permission = permissionMap.get(key)

@@ -6,27 +6,10 @@ export default class extends BaseSchema {
   async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.uuid('id').primary().defaultTo(this.raw('gen_random_uuid()'))
-      table
-        .uuid('user_id')
-        .notNullable()
-        .references('id')
-        .inTable('users')
-        .onDelete('CASCADE')
-      table
-        .uuid('role_id')
-        .notNullable()
-        .references('id')
-        .inTable('roles')
-        .onDelete('CASCADE')
-      table
-        .uuid('resource_id')
-        .nullable()
-      table
-        .uuid('granted_by')
-        .notNullable()
-        .references('id')
-        .inTable('users')
-        .onDelete('CASCADE')
+      table.uuid('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE')
+      table.uuid('role_id').notNullable().references('id').inTable('roles').onDelete('CASCADE')
+      table.uuid('resource_id').nullable()
+      table.uuid('granted_by').notNullable().references('id').inTable('users').onDelete('CASCADE')
       table.timestamp('expires_at').nullable()
       table.boolean('is_temporary').defaultTo(false).notNullable()
       table.timestamp('created_at').notNullable()

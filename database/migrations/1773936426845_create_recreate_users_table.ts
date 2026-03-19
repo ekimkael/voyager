@@ -8,12 +8,7 @@ export default class extends BaseSchema {
 
     this.schema.createTable(this.tableName, (table) => {
       table.uuid('id').primary().defaultTo(this.raw('gen_random_uuid()'))
-      table
-        .uuid('tenant_id')
-        .notNullable()
-        .references('id')
-        .inTable('tenants')
-        .onDelete('CASCADE')
+      table.uuid('tenant_id').notNullable().references('id').inTable('tenants').onDelete('CASCADE')
       table.string('first_name').notNullable()
       table.string('last_name').notNullable()
       table.string('email', 254).notNullable()
@@ -23,7 +18,6 @@ export default class extends BaseSchema {
         .enum('status', ['active', 'inactive', 'suspended'], {
           useNative: true,
           enumName: 'user_status',
-          existsCheck: false,
         })
         .defaultTo('active')
         .notNullable()

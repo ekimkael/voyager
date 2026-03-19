@@ -1,4 +1,4 @@
-import User from '#models/user'
+import type User from '#models/user'
 import Role from '#models/role'
 import RolePermission from '#models/role_permission'
 import UserRoleAssignment from '#models/user_role_assignment'

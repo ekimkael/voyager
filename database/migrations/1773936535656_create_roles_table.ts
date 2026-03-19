@@ -6,24 +6,13 @@ export default class extends BaseSchema {
   async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.uuid('id').primary().defaultTo(this.raw('gen_random_uuid()'))
-      table
-        .uuid('tenant_id')
-        .notNullable()
-        .references('id')
-        .inTable('tenants')
-        .onDelete('CASCADE')
-      table
-        .uuid('parent_role_id')
-        .nullable()
-        .references('id')
-        .inTable('roles')
-        .onDelete('SET NULL')
+      table.uuid('tenant_id').notNullable().references('id').inTable('tenants').onDelete('CASCADE')
+      table.uuid('parent_role_id').nullable().references('id').inTable('roles').onDelete('SET NULL')
       table.string('name').notNullable()
       table
         .enum('scope', ['global', 'resource'], {
           useNative: true,
           enumName: 'role_scope',
-          existsCheck: false,
         })
         .defaultTo('global')
         .notNullable()

@@ -8,7 +8,7 @@ import User from '#models/user'
 test.group('Tenant creation via signup', (group) => {
   group.setup(async () => {
     const { default: PermissionsSeeder } = await import('#database/seeders/permissions_seeder')
-    await new PermissionsSeeder(db).run()
+    await new PermissionsSeeder(db.connection()).run()
   })
   group.each.setup(() => testUtils.db().withGlobalTransaction())
 

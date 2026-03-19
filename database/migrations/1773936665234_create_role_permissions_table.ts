@@ -6,21 +6,14 @@ export default class extends BaseSchema {
   async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.uuid('id').primary().defaultTo(this.raw('gen_random_uuid()'))
-      table
-        .uuid('role_id')
-        .notNullable()
-        .references('id')
-        .inTable('roles')
-        .onDelete('CASCADE')
+      table.uuid('role_id').notNullable().references('id').inTable('roles').onDelete('CASCADE')
       table
         .uuid('permission_id')
         .notNullable()
         .references('id')
         .inTable('permissions')
         .onDelete('CASCADE')
-      table
-        .uuid('policy_id')
-        .nullable()
+      table.uuid('policy_id').nullable()
       table.timestamp('granted_at').notNullable()
 
       table.unique(['role_id', 'permission_id'])

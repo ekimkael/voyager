@@ -56,20 +56,23 @@ export const systemRoles = [
   {
     name: 'Dispatcher',
     permissions: [
-      'route:create', 'route:read', 'route:update', 'route:delete',
-      'stop:create', 'stop:read', 'stop:update', 'stop:delete',
-      'driver:read', 'driver:assign',
-      'vehicle:read', 'vehicle:assign',
+      'route:create',
+      'route:read',
+      'route:update',
+      'route:delete',
+      'stop:create',
+      'stop:read',
+      'stop:update',
+      'stop:delete',
+      'driver:read',
+      'driver:assign',
+      'vehicle:read',
+      'vehicle:assign',
     ],
   },
   {
     name: 'Chauffeur',
-    permissions: [
-      'route:read',
-      'stop:read',
-      'driver:read', 'driver:update',
-      'vehicle:read',
-    ],
+    permissions: ['route:read', 'stop:read', 'driver:read', 'driver:update', 'vehicle:read'],
   },
   {
     name: 'Lecteur',

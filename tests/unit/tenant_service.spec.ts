@@ -2,7 +2,6 @@ import { test } from '@japa/runner'
 import testUtils from '@adonisjs/core/services/test_utils'
 import db from '@adonisjs/lucid/services/db'
 import TenantService from '#services/tenant_service'
-import Tenant from '#models/tenant'
 import Role from '#models/role'
 import RolePermission from '#models/role_permission'
 
@@ -10,7 +9,7 @@ test.group('TenantService', (group) => {
   group.setup(async () => {
     // Seed permissions catalog (required by TenantService)
     const { default: PermissionsSeeder } = await import('#database/seeders/permissions_seeder')
-    await new PermissionsSeeder(db).run()
+    await new PermissionsSeeder(db.connection()).run()
   })
   group.each.setup(() => testUtils.db().withGlobalTransaction())
 

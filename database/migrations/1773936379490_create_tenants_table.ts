@@ -12,7 +12,6 @@ export default class extends BaseSchema {
         .enum('plan', ['free', 'pro', 'enterprise'], {
           useNative: true,
           enumName: 'tenant_plan',
-          existsCheck: false,
         })
         .defaultTo('free')
         .notNullable()

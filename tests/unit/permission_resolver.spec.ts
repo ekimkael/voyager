@@ -11,7 +11,7 @@ import UserRoleAssignment from '#models/user_role_assignment'
 test.group('PermissionResolver', (group) => {
   group.setup(async () => {
     const { default: PermissionsSeeder } = await import('#database/seeders/permissions_seeder')
-    await new PermissionsSeeder(db).run()
+    await new PermissionsSeeder(db.connection()).run()
   })
   group.each.setup(() => testUtils.db().withGlobalTransaction())
 
@@ -39,7 +39,8 @@ test.group('PermissionResolver', (group) => {
       password: 'password123',
     })
 
-    const User = (await import('#models/user')).default
+    const UserModule = await import('#models/user')
+    const User = UserModule.default
     const lecteur = await User.create({
       tenantId: tenant.id,
       firstName: 'C',
@@ -96,7 +97,8 @@ test.group('PermissionResolver', (group) => {
       permissionId: vehicleCreate.id,
     })
 
-    const User = (await import('#models/user')).default
+    const UserModule = await import('#models/user')
+    const User = UserModule.default
     const testUser = await User.create({
       tenantId: tenant.id,
       firstName: 'E',
@@ -127,7 +129,8 @@ test.group('PermissionResolver', (group) => {
       password: 'password123',
     })
 
-    const User = (await import('#models/user')).default
+    const UserModule = await import('#models/user')
+    const User = UserModule.default
     const noRoleUser = await User.create({
       tenantId: tenant.id,
       firstName: 'G',
