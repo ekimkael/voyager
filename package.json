@@ -66,11 +66,15 @@
     "@adonisjs/shield": "^9.0.0",
     "@adonisjs/static": "^2.0.0",
     "@adonisjs/vite": "^5.1.0",
+    "@iconify-json/tabler": "^1.2.31",
+    "@tailwindcss/vite": "^4.2.2",
     "@vinejs/vine": "^4.3.0",
+    "edge-iconify": "^2.0.2",
     "edge.js": "^6.5.0",
     "luxon": "^3.7.2",
     "pg": "^8.20.0",
-    "reflect-metadata": "^0.2.2"
+    "reflect-metadata": "^0.2.2",
+    "tailwindcss": "^4.2.2"
   },
   "hotHook": {
     "boundaries": [
