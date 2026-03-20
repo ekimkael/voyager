@@ -1,4 +1,11 @@
 import Alpine from 'alpinejs'
+import { Transmit } from '@adonisjs/transmit-client'
+
+const transmit = new Transmit({
+  baseUrl: window.location.origin,
+})
+
+window.__transmit = transmit
 
 Alpine.data('alert', function () {
   return {
