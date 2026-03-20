@@ -27,6 +27,7 @@ The Voyager platform has 15 models but no factories and only one seeder (permiss
 - `email`: Derived from name + faker domain
 - `password`: Static `password123` (hashed by model hook)
 - `status`: Default `active`
+- `mfaEnabled`: Default `false`
 - `tenantId`: Must be merged by caller
 
 ### RoleFactory
@@ -39,6 +40,8 @@ The Voyager platform has 15 models but no factories and only one seeder (permiss
 ### UserRoleAssignmentFactory
 
 - `isTemporary`: Default `false`
+- `resourceId`: Default `null`
+- `expiresAt`: Default `null`
 - `userId`, `roleId`, `grantedBy`: Must be merged by caller
 
 ### CityFactory
@@ -56,7 +59,7 @@ The Voyager platform has 15 models but no factories and only one seeder (permiss
 ### RouteFactory
 
 - `code`: Generated from city codes (e.g., `DLA-YDE`)
-- `distanceKm`: Realistic range 50-600 km
+- `distanceKm`: Realistic range 50-1500 km
 - `estimatedDurationMinutes`: Proportional to distance
 - `status`: Default `active`
 - `tenantId`, `departureCityId`, `arrivalCityId`: Must be merged by caller
@@ -68,6 +71,8 @@ The Voyager platform has 15 models but no factories and only one seeder (permiss
 - `capacity`: 30-70 seats
 - `year`: 2015-2025
 - `status`: Default `available`
+- `active`: Default `true` (set to `false` for `out_of_service` buses in seeder)
+- `nextMaintenanceDate`: Default `null` (set to past date for `maintenance` buses, future date for `available`)
 - `tenantId`: Must be merged by caller
 
 ### TripFactory
@@ -88,30 +93,40 @@ The Voyager platform has 15 models but no factories and only one seeder (permiss
 
 ### BookingFactory
 
-- `totalAmount`: Default `0` (computed by seeder based on passengers)
+- `totalAmount`: Must be merged by caller (= trip price x passenger count). No default to avoid Payment CHECK constraint `amount > 0` trap.
 - `status`: Default `pending`
 - `tenantId`, `tripId`, `customerId`, `agentId`, `franchiseId`: Must be merged by caller
 
 ### PassengerFactory
 
 - `firstName` / `lastName`: Curated West African names
+- `phone`: Random `+237 6XX XXX XXX` or `null`
 - `seatNumber`: Sequential, must be merged by caller
-- `code`: Random 6-char alphanumeric uppercase
+- `code`: Counter-based `PAX001`, `PAX002`... (avoids UNIQUE collision vs random)
 - `qrCode`: Random UUID
 - `status`: Default `pending`
+- `boardedAt`: Default `null` (set by seeder for `boarded` passengers)
 - `bookingId`: Must be merged by caller
 
 ### PaymentFactory
 
-- `amount`: Must be merged by caller (matches booking total)
+- `amount`: Must be merged by caller (matches booking total, must be > 0 per DB CHECK constraint)
 - `paymentMethod`: Random from `cash`, `mobile_money`, `card`
 - `operator`: Conditional — `Orange Money` or `MTN MoMo` when mobile_money, `null` otherwise
 - `status`: Default `pending`
+- `paidAt`: Default `null` (set by seeder to a timestamp for `success` payments)
+- `externalReference`: Default `null` (set by seeder to mock transaction ID for `mobile_money` payments)
 - `bookingId`: Must be merged by caller
 
 ## Seeders
 
-10 numbered seeder files in `database/seeders/`. Prefix ensures correct FK execution order via `node ace db:seed`. Each can also run standalone.
+11 numbered seeder files in `database/seeders/`. The existing `permissions_seeder.ts` is renamed to `00_permissions_seeder.ts` to guarantee it runs first. Prefix ensures correct FK execution order via `node ace db:seed`. Each can also run standalone.
+
+All seeders use `updateOrCreate` or `firstOrCreate` on their natural keys for idempotency (safe to re-run).
+
+### 00_permissions_seeder.ts (renamed from permissions_seeder.ts)
+
+Existing seeder, renamed with `00_` prefix. Upserts all Permission records from `#config/rbac` and syncs system role permissions. Must run before `03_role_seeder.ts`.
 
 ### 01_city_seeder.ts
 
@@ -145,9 +160,9 @@ Uses `Tenant.updateOrCreate` on `slug` for idempotency.
 
 ### 03_role_seeder.ts
 
-For each tenant, creates the 4 system roles from `#config/rbac` (Admin, Dispatcher, Chauffeur, Lecteur) with `isSystem: true`. Then runs the permissions sync logic (same as `permissions_seeder`) to attach permissions to each role.
+For each tenant, creates the 4 system roles from `#config/rbac` (Admin, Dispatcher, Chauffeur, Lecteur) with `isSystem: true`. Then attaches permissions (which must already exist via `00_permissions_seeder`) to each role using the `systemRoles` config.
 
-Uses `Role.updateOrCreate` on `(tenantId, name)`.
+Uses `Role.updateOrCreate` on `(tenantId, name)`. Uses `RolePermission.firstOrCreate` on `(roleId, permissionId)`.
 
 ### 04_user_seeder.ts
 
@@ -188,9 +203,11 @@ Per tenant, 6 buses with varied statuses:
 
 Cameroonian plates: `LT-XXXX-XX` for Littoral, `CE-XXXX-XX` for Centre.
 
+Uses `Bus.updateOrCreate` on `(licensePlate)`.
+
 ### 07_route_seeder.ts
 
-Per tenant, 5 routes:
+Per tenant, 5 routes. Uses `Route.updateOrCreate` on `(tenantId, code)`:
 
 | Code | From | To | Distance | Duration |
 |---|---|---|---|---|
@@ -198,7 +215,7 @@ Per tenant, 5 routes:
 | YDE-BFM | Yaoundé | Bafoussam | 300 km | 300 min |
 | DLA-KBI | Douala | Kribi | 150 km | 180 min |
 | DLA-LBE | Douala | Limbé | 80 km | 90 min |
-| YDE-ABJ | Yaoundé | Abidjan | 1200 km | 960 min |
+| YDE-ABJ | Yaoundé | Abidjan | 1450 km | 960 min |
 
 ### 08_trip_seeder.ts
 
@@ -213,7 +230,7 @@ Mix of `standard` and `vip` travel classes. Prices: standard 3000-8000 FCFA, VIP
 
 ### 09_customer_seeder.ts
 
-Per tenant, 15 customers with West African names and `+237` phone numbers. Mix of with/without email addresses.
+Per tenant, 15 customers with West African names and `+237` phone numbers. Mix of with/without email addresses. Uses `Customer.updateOrCreate` on `(tenantId, phone)`.
 
 ### 10_booking_seeder.ts
 
@@ -231,7 +248,9 @@ Status distribution:
 | cancelled | refunded | pending | 3 |
 | confirmed | failed | pending | 2 |
 
-`totalAmount` = trip price x number of passengers. Agent and franchise are set from the seeded users/franchises.
+`totalAmount` = trip price x number of passengers. Agent and franchise are set from the seeded users/franchises. Passengers with `boarded` status get a `boardedAt` timestamp. Payments with `success` status get a `paidAt` timestamp. Mobile money payments get a mock `externalReference`.
+
+Uses `Booking.create` (not idempotent — run after `node ace migration:fresh` for clean state).
 
 ## Execution
 
@@ -265,7 +284,7 @@ database/
 │   ├── passenger_factory.ts
 │   └── payment_factory.ts
 ├── seeders/
-│   ├── permissions_seeder.ts  (existing, unchanged)
+│   ├── 00_permissions_seeder.ts  (existing, renamed)
 │   ├── 01_city_seeder.ts
 │   ├── 02_tenant_seeder.ts
 │   ├── 03_role_seeder.ts
