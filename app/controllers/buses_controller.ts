@@ -7,6 +7,7 @@ export default class BusesController {
   async index({ view, tenant }: HttpContext) {
     const buses = await Bus.query()
       .where('tenantId', tenant!.id)
+      .where('active', true)
       .orderBy('licensePlate')
 
     return view.render('pages/buses/index', { buses })

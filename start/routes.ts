@@ -79,6 +79,7 @@ router
         router.post('/', [controllers.Trips, 'store']).as('trips.store').use(middleware.permission({ keys: ['trip:create'] }))
         router.get('/:id/edit', [controllers.Trips, 'edit']).as('trips.edit').use(middleware.permission({ keys: ['trip:update'] }))
         router.put('/:id', [controllers.Trips, 'update']).as('trips.update').use(middleware.permission({ keys: ['trip:update'] }))
+        router.put('/:id/transition', [controllers.Trips, 'transition']).as('trips.transition').use(middleware.permission({ keys: ['trip:update'] }))
         router.delete('/:id', [controllers.Trips, 'destroy']).as('trips.destroy').use(middleware.permission({ keys: ['trip:delete'] }))
       })
       .prefix('trips')

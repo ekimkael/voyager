@@ -55,6 +55,11 @@ export default class TripsController {
       return response.redirect().back()
     }
 
+    // Verify referenced entities belong to the current tenant
+    await Route.query().where('id', payload.routeId).where('tenantId', tenant!.id).where('status', 'active').firstOrFail()
+    await Bus.query().where('id', payload.busId).where('tenantId', tenant!.id).where('active', true).firstOrFail()
+    await this.verifyDriver(payload.driverId, tenant!.id)
+
     const busOverlap = await this.checkBusOverlap(payload.busId, departureTime, arrivalTime, tenant!.id)
     if (busOverlap) {
       session.flash('error', 'Ce véhicule est déjà assigné à un autre voyage sur cette période.')
@@ -138,6 +143,11 @@ export default class TripsController {
       return response.redirect().back()
     }
 
+    // Verify referenced entities belong to the current tenant
+    await Route.query().where('id', payload.routeId).where('tenantId', tenant!.id).where('status', 'active').firstOrFail()
+    await Bus.query().where('id', payload.busId).where('tenantId', tenant!.id).where('active', true).firstOrFail()
+    await this.verifyDriver(payload.driverId, tenant!.id)
+
     const busOverlap = await this.checkBusOverlap(payload.busId, departureTime, arrivalTime, tenant!.id, trip.id)
     if (busOverlap) {
       session.flash('error', 'Ce véhicule est déjà assigné à un autre voyage sur cette période.')
@@ -162,6 +172,49 @@ export default class TripsController {
     await trip.save()
 
     session.flash('success', 'Voyage mis à jour avec succès')
+    return response.redirect().toRoute('trips.index')
+  }
+
+  async transition({ params, request, response, session, tenant }: HttpContext) {
+    const trip = await Trip.query()
+      .where('id', params.id)
+      .where('tenantId', tenant!.id)
+      .firstOrFail()
+
+    const { status } = request.only(['status'])
+
+    const validTransitions: Record<string, string[]> = {
+      scheduled: ['in_progress', 'cancelled'],
+      in_progress: ['completed', 'cancelled'],
+    }
+
+    const allowed = validTransitions[trip.status]
+    if (!allowed || !allowed.includes(status)) {
+      session.flash('error', `Transition de "${trip.status}" vers "${status}" non autorisée.`)
+      return response.redirect().toRoute('trips.index')
+    }
+
+    const bus = await Bus.find(trip.busId)
+
+    if (status === 'in_progress' && bus) {
+      bus.status = 'on_trip'
+      await bus.save()
+    }
+
+    if ((status === 'completed' || status === 'cancelled') && bus && bus.status === 'on_trip') {
+      bus.status = 'available'
+      await bus.save()
+    }
+
+    trip.status = status
+    await trip.save()
+
+    const labels: Record<string, string> = {
+      in_progress: 'démarré',
+      completed: 'terminé',
+      cancelled: 'annulé',
+    }
+    session.flash('success', `Voyage ${labels[status]} avec succès`)
     return response.redirect().toRoute('trips.index')
   }
 
@@ -228,6 +281,25 @@ export default class TripsController {
 
     const result = await query.count('* as total')
     return Number(result[0].$extras.total) > 0
+  }
+
+  private async verifyDriver(driverId: string, tenantId: string): Promise<void> {
+    const chauffeurRole = await Role.query()
+      .where('tenantId', tenantId)
+      .where('name', 'Chauffeur')
+      .firstOrFail()
+
+    const driver = await User.query()
+      .where('id', driverId)
+      .where('tenantId', tenantId)
+      .whereHas('roleAssignments', (q) => {
+        q.where('roleId', chauffeurRole.id)
+      })
+      .firstOrFail()
+
+    if (!driver) {
+      throw new Error('Driver not found')
+    }
   }
 
   private async getDrivers(tenantId: string, includeDriverId?: string): Promise<User[]> {
