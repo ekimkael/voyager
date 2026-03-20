@@ -3,6 +3,7 @@ import { BaseModel, column, hasMany } from '@adonisjs/lucid/orm'
 import type { HasMany } from '@adonisjs/lucid/types/relations'
 import User from '#models/user'
 import Role from '#models/role'
+import Franchise from '#models/franchise'
 
 export default class Tenant extends BaseModel {
   @column({ isPrimary: true })
@@ -28,4 +29,7 @@ export default class Tenant extends BaseModel {
 
   @hasMany(() => Role)
   declare roles: HasMany<typeof Role>
+
+  @hasMany(() => Franchise)
+  declare franchises: HasMany<typeof Franchise>
 }

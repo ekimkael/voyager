@@ -7,6 +7,7 @@ import { withAuthFinder } from '@adonisjs/auth/mixins/lucid'
 import Tenant from '#models/tenant'
 import UserRoleAssignment from '#models/user_role_assignment'
 import Trip from '#models/trip'
+import Franchise from '#models/franchise'
 
 const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
   uids: ['email'],
@@ -41,6 +42,12 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @column()
   declare mfaEnabled: boolean
 
+  @column()
+  declare franchiseId: string | null
+
+  @column()
+  declare phone: string | null
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 
@@ -55,6 +62,9 @@ export default class User extends compose(BaseModel, AuthFinder) {
 
   @hasMany(() => Trip, { foreignKey: 'driverId' })
   declare driverTrips: HasMany<typeof Trip>
+
+  @belongsTo(() => Franchise)
+  declare franchise: BelongsTo<typeof Franchise>
 
   get fullName() {
     return `${this.firstName} ${this.lastName}`

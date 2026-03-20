@@ -2,6 +2,7 @@ import { DateTime } from 'luxon'
 import { BaseModel, column, hasMany } from '@adonisjs/lucid/orm'
 import type { HasMany } from '@adonisjs/lucid/types/relations'
 import Route from '#models/route'
+import Franchise from '#models/franchise'
 
 export default class City extends BaseModel {
   @column({ isPrimary: true })
@@ -24,4 +25,7 @@ export default class City extends BaseModel {
 
   @hasMany(() => Route, { foreignKey: 'arrivalCityId' })
   declare arrivalRoutes: HasMany<typeof Route>
+
+  @hasMany(() => Franchise)
+  declare franchises: HasMany<typeof Franchise>
 }
