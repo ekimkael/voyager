@@ -71,30 +71,34 @@ export default class TripsController {
     trips.baseUrl('/trips/history')
     trips.queryString(queryFilters)
 
-    const routes = await Route.query()
-      .where('tenantId', tenant!.id)
-      .preload('departureCity')
-      .preload('arrivalCity')
-      .orderBy('code')
-
-    const buses = await Bus.query()
-      .where('tenantId', tenant!.id)
-      .orderBy('licensePlate')
-
+    // Load filter dropdown data in parallel — all queries are independent
+    // Note: drivers query is inlined (not using getDrivers()) because getDrivers()
+    // filters by status='active', but history needs ALL drivers including inactive ones
+    // since historical trips may reference now-inactive drivers.
     const chauffeurRole = await Role.query()
       .where('tenantId', tenant!.id)
       .where('name', 'Chauffeur')
       .first()
 
-    const drivers = chauffeurRole
-      ? await User.query()
-          .where('tenantId', tenant!.id)
-          .whereHas('roleAssignments', (q) => {
-            q.where('roleId', chauffeurRole.id)
-          })
-          .orderBy('firstName')
-          .orderBy('lastName')
-      : []
+    const [routes, buses, drivers] = await Promise.all([
+      Route.query()
+        .where('tenantId', tenant!.id)
+        .preload('departureCity')
+        .preload('arrivalCity')
+        .orderBy('code'),
+      Bus.query()
+        .where('tenantId', tenant!.id)
+        .orderBy('licensePlate'),
+      chauffeurRole
+        ? User.query()
+            .where('tenantId', tenant!.id)
+            .whereHas('roleAssignments', (q) => {
+              q.where('roleId', chauffeurRole.id)
+            })
+            .orderBy('firstName')
+            .orderBy('lastName')
+        : Promise.resolve([] as User[]),
+    ])
 
     return view.render('pages/trips/history', { trips, routes, buses, drivers, filters })
   }
