@@ -10,4 +10,5 @@ export const controllers = {
   Cities: () => import('#controllers/cities_controller'),
   Routes: () => import('#controllers/routes_controller'),
   Buses: () => import('#controllers/buses_controller'),
+  Drivers: () => import('#controllers/drivers_controller'),
 }
