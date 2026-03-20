@@ -75,12 +75,7 @@ export default class TripsController {
     // Note: drivers query is inlined (not using getDrivers()) because getDrivers()
     // filters by status='active', but history needs ALL drivers including inactive ones
     // since historical trips may reference now-inactive drivers.
-    const chauffeurRole = await Role.query()
-      .where('tenantId', tenant!.id)
-      .where('name', 'Chauffeur')
-      .first()
-
-    const [routes, buses, drivers] = await Promise.all([
+    const [routes, buses, chauffeurRole] = await Promise.all([
       Route.query()
         .where('tenantId', tenant!.id)
         .preload('departureCity')
@@ -89,16 +84,21 @@ export default class TripsController {
       Bus.query()
         .where('tenantId', tenant!.id)
         .orderBy('licensePlate'),
-      chauffeurRole
-        ? User.query()
-            .where('tenantId', tenant!.id)
-            .whereHas('roleAssignments', (q) => {
-              q.where('roleId', chauffeurRole.id)
-            })
-            .orderBy('firstName')
-            .orderBy('lastName')
-        : Promise.resolve([] as User[]),
+      Role.query()
+        .where('tenantId', tenant!.id)
+        .where('name', 'Chauffeur')
+        .first(),
     ])
+
+    const drivers = chauffeurRole
+      ? await User.query()
+          .where('tenantId', tenant!.id)
+          .whereHas('roleAssignments', (q) => {
+            q.where('roleId', chauffeurRole.id)
+          })
+          .orderBy('firstName')
+          .orderBy('lastName')
+      : []
 
     return view.render('pages/trips/history', { trips, routes, buses, drivers, filters })
   }
