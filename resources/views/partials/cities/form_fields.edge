@@ -1,0 +1,22 @@
+<div class="flex flex-col gap-6">
+  <div>
+    @field.root({ name: 'name' })
+      @!field.label({ text: 'Nom' })
+      @!input.control({ placeholder: 'Ex: Douala', value: city?.name ?? '' })
+      @!field.error()
+    @end
+  </div>
+
+  <div>
+    @field.root({ name: 'country' })
+      @!field.label({ text: 'Pays' })
+      @!input.control({ placeholder: 'Ex: Cameroun', value: city?.country ?? '' })
+      @!field.error()
+    @end
+  </div>
+
+  <div class="flex items-center gap-3">
+    @!button({ text: city ? 'Mettre à jour' : 'Créer', type: 'submit' })
+    <a href="{{ route('cities.index') }}" class="text-sm text-on-surface hover:text-on-surface-strong transition-colors">Annuler</a>
+  </div>
+</div>

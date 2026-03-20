@@ -1,0 +1,21 @@
+@layout.dashboard()
+  <div class="mx-auto max-w-lg">
+    <div class="mb-6">
+      <h1 class="text-2xl font-bold text-on-surface-strong">
+        {{ city ? 'Modifier la ville' : 'Nouvelle ville' }}
+      </h1>
+    </div>
+
+    <div class="rounded-radius border border-outline bg-surface p-6">
+      @if(city)
+        @form({ route: 'cities.update', routeParams: { id: city.id }, method: 'PUT' })
+          @include('partials/cities/form_fields')
+        @end
+      @else
+        @form({ route: 'cities.store', method: 'POST' })
+          @include('partials/cities/form_fields')
+        @end
+      @end
+    </div>
+  </div>
+@end
