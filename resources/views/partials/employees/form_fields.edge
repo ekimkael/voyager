@@ -1,0 +1,104 @@
+<div class="flex flex-col gap-6">
+  <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+    <div>
+      @field.root({ name: 'firstName' })
+        @!field.label({ text: 'Prénom' })
+        @!input.control({ placeholder: 'Ex: Jean', value: employee?.firstName ?? '' })
+        @!field.error()
+      @end
+    </div>
+
+    <div>
+      @field.root({ name: 'lastName' })
+        @!field.label({ text: 'Nom' })
+        @!input.control({ placeholder: 'Ex: Dupont', value: employee?.lastName ?? '' })
+        @!field.error()
+      @end
+    </div>
+  </div>
+
+  <div>
+    @field.root({ name: 'email' })
+      @!field.label({ text: 'Email' })
+      @!input.control({ type: 'email', placeholder: 'Ex: jean.dupont@example.com', value: employee?.email ?? '' })
+      @!field.error()
+    @end
+  </div>
+
+  <div>
+    @field.root({ name: 'phone' })
+      @!field.label({ text: 'Téléphone' })
+      @!input.control({ placeholder: 'Ex: +237 6XX XXX XXX', value: employee?.phone ?? '' })
+      @!field.error()
+    @end
+  </div>
+
+  <div>
+    @field.root({ name: 'password' })
+      @!field.label({ text: employee ? 'Nouveau mot de passe (laisser vide pour ne pas changer)' : 'Mot de passe' })
+      @!input.control({ type: 'password', placeholder: 'Minimum 8 caractères' })
+      @!field.error()
+    @end
+  </div>
+
+  <div>
+    @field.root({ name: 'franchiseId' })
+      @!field.label({ text: 'Franchise' })
+      @if(isScopedToFranchise)
+        <input type="hidden" name="franchiseId" value="{{ scopedFranchiseId }}" />
+        @!select.control({
+          disabled: true,
+          options: franchises.map((f) => ({
+            value: f.id,
+            name: `${f.name} — ${f.city.name}`,
+            isSelected: f.id === scopedFranchiseId,
+          }))
+        })
+      @else
+        @!select.control({
+          options: franchises.map((f) => ({
+            value: f.id,
+            name: `${f.name} — ${f.city.name}`,
+            isSelected: employee ? employee.franchiseId === f.id : false,
+          }))
+        })
+      @end
+      @!field.error()
+    @end
+  </div>
+
+  <div>
+    @field.root({ name: 'roleId' })
+      @!field.label({ text: 'Rôle' })
+      @!select.control({
+        options: roles.map((r) => ({
+          value: r.id,
+          name: r.name,
+          isSelected: employee?.roleAssignments?.[0]?.roleId === r.id,
+        }))
+      })
+      @!field.error()
+    @end
+  </div>
+
+  @if(employee)
+    <div>
+      @field.root({ name: 'status' })
+        @!field.label({ text: 'Statut' })
+        @!select.control({
+          options: [
+            { value: 'active', name: 'Actif', isSelected: employee.status === 'active' },
+            { value: 'inactive', name: 'Inactif', isSelected: employee.status === 'inactive' },
+            { value: 'suspended', name: 'Suspendu', isSelected: employee.status === 'suspended' },
+          ]
+        })
+        @!field.error()
+      @end
+    </div>
+  @end
+
+  <div class="flex items-center gap-3">
+    @!button({ text: employee ? 'Mettre à jour' : 'Créer', type: 'submit' })
+    <a href="{{ route('employees.index') }}" class="text-sm text-on-surface hover:text-on-surface-strong transition-colors">Annuler</a>
+  </div>
+</div>
