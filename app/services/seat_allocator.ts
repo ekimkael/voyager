@@ -3,6 +3,7 @@ import Passenger from '#models/passenger'
 import Trip from '#models/trip'
 import db from '@adonisjs/lucid/services/db'
 import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
+import transmit from '@adonisjs/transmit/services/main'
 
 interface PassengerData {
   firstName: string
@@ -131,5 +132,10 @@ export default class SeatAllocator {
 
     const taken = Number(result[0].total)
     return trip.bus.capacity - taken
+  }
+
+  async broadcastAvailability(tripId: string): Promise<void> {
+    const availableSeats = await this.getAvailableSeatCount(tripId)
+    transmit.broadcast(`trips/${tripId}/seats`, { availableSeats })
   }
 }
