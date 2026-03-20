@@ -53,7 +53,7 @@ Tous les filtres sont optionnels. Si un paramètre est invalide, il est ignoré 
    - Appliquer conditionnellement chaque filtre valide avec `.where()`
    - Preload : `route` (avec `departureCity` et `arrivalCity`), `bus`, `driver`
    - Tri : `departureTime` DESC
-   - Pagination : `.paginate(page, 20)` puis `.queryString(filters)` sur le paginateur pour conserver les filtres dans les URLs de pagination
+   - Pagination : `.paginate(page, 20)` puis sur le paginateur : `.baseUrl('/trips/history')` et `.queryString(filters)` pour conserver les filtres dans les URLs de pagination
 4. Charger les listes pour les selects de filtres : routes, buses, drivers (filtrés par tenant)
 5. Passer à la vue : `trips` (paginés), `routes`, `buses`, `drivers`, `filters` (valeurs actives)
 
@@ -81,7 +81,12 @@ Fichier : `resources/views/pages/trips/history.edge`
    - Badges de classe : VIP (violet), Standard (neutre)
    - Note : la colonne Arrivée est ajoutée intentionnellement (absente de l'index) car elle est pertinente pour l'analyse historique
 
-4. **Pagination** : composant réutilisable `resources/views/components/pagination.edge` créé pour l'occasion (sera réutilisable par les autres pages de listing). Utilise les méthodes du `SimplePaginator` de Lucid : `getUrl(page)`, `getNextPageUrl()`, `getPreviousPageUrl()`, `hasMorePages`, `currentPage`, `lastPage`, `total`. Affichage : "Page X sur Y — Z résultats" avec liens Précédent/Suivant et numéros de pages.
+4. **Pagination** : composant réutilisable `resources/views/components/pagination.edge` créé pour l'occasion (sera réutilisable par les autres pages de listing). API du paginateur Lucid :
+   - `trips.baseUrl('/trips/history')` — définit l'URL de base pour les liens
+   - `trips.queryString(filters)` — ajoute les filtres aux URLs de pagination
+   - `trips.getUrlsForRange(1, trips.lastPage)` — retourne un tableau d'objets `{ url, page, isActive }` pour le rendu des liens
+   - Métadonnées via `trips.meta` : `total`, `perPage`, `currentPage`, `lastPage`, `firstPage`, `nextPageUrl`, `previousPageUrl`
+   - Affichage : "Page X sur Y — Z résultats" avec liens numérotés (actif mis en surbrillance)
 
 5. **État vide** : message "Aucun voyage trouvé pour les filtres sélectionnés"
 
