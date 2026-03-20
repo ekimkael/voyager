@@ -22,6 +22,83 @@ export default class TripsController {
     return view.render('pages/trips/index', { trips })
   }
 
+  async history({ view, request, tenant }: HttpContext) {
+    const filters = this.parseHistoryFilters(request.qs())
+
+    const query = Trip.query()
+      .where('tenantId', tenant!.id)
+      .whereIn('status', ['completed', 'cancelled'])
+
+    if (filters.status) {
+      query.where('status', filters.status)
+    }
+    if (filters.route_id) {
+      query.where('routeId', filters.route_id)
+    }
+    if (filters.driver_id) {
+      query.where('driverId', filters.driver_id)
+    }
+    if (filters.bus_id) {
+      query.where('busId', filters.bus_id)
+    }
+    if (filters.travel_class) {
+      query.where('travelClass', filters.travel_class)
+    }
+    if (filters.date_from) {
+      query.where('departureTime', '>=', filters.date_from)
+    }
+    if (filters.date_to) {
+      const nextDay = DateTime.fromISO(filters.date_to).plus({ days: 1 }).toISODate()
+      if (nextDay) query.where('departureTime', '<', nextDay)
+    }
+    if (filters.price_min !== undefined) {
+      query.where('price', '>=', filters.price_min)
+    }
+    if (filters.price_max !== undefined) {
+      query.where('price', '<=', filters.price_max)
+    }
+
+    query
+      .preload('route', (q) => {
+        q.preload('departureCity').preload('arrivalCity')
+      })
+      .preload('bus')
+      .preload('driver')
+      .orderBy('departureTime', 'desc')
+
+    const { page, ...queryFilters } = filters
+    const trips = await query.paginate(page, 20)
+    trips.baseUrl('/trips/history')
+    trips.queryString(queryFilters)
+
+    const routes = await Route.query()
+      .where('tenantId', tenant!.id)
+      .preload('departureCity')
+      .preload('arrivalCity')
+      .orderBy('code')
+
+    const buses = await Bus.query()
+      .where('tenantId', tenant!.id)
+      .orderBy('licensePlate')
+
+    const chauffeurRole = await Role.query()
+      .where('tenantId', tenant!.id)
+      .where('name', 'Chauffeur')
+      .first()
+
+    const drivers = chauffeurRole
+      ? await User.query()
+          .where('tenantId', tenant!.id)
+          .whereHas('roleAssignments', (q) => {
+            q.where('roleId', chauffeurRole.id)
+          })
+          .orderBy('firstName')
+          .orderBy('lastName')
+      : []
+
+    return view.render('pages/trips/history', { trips, routes, buses, drivers, filters })
+  }
+
   async create({ view, tenant }: HttpContext) {
     const routes = await Route.query()
       .where('tenantId', tenant!.id)
@@ -344,6 +421,48 @@ export default class TripsController {
     if (!driver) {
       throw new Error('Driver not found')
     }
+  }
+
+  private parseHistoryFilters(qs: Record<string, any>) {
+    const filters: Record<string, any> = {}
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+    if (['completed', 'cancelled'].includes(qs.status)) {
+      filters.status = qs.status
+    }
+    if (typeof qs.route_id === 'string' && uuidRegex.test(qs.route_id)) {
+      filters.route_id = qs.route_id
+    }
+    if (typeof qs.driver_id === 'string' && uuidRegex.test(qs.driver_id)) {
+      filters.driver_id = qs.driver_id
+    }
+    if (typeof qs.bus_id === 'string' && uuidRegex.test(qs.bus_id)) {
+      filters.bus_id = qs.bus_id
+    }
+    if (['standard', 'vip'].includes(qs.travel_class)) {
+      filters.travel_class = qs.travel_class
+    }
+    if (typeof qs.date_from === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(qs.date_from)) {
+      const dt = DateTime.fromISO(qs.date_from)
+      if (dt.isValid) filters.date_from = qs.date_from
+    }
+    if (typeof qs.date_to === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(qs.date_to)) {
+      const dt = DateTime.fromISO(qs.date_to)
+      if (dt.isValid) filters.date_to = qs.date_to
+    }
+    if (qs.price_min !== undefined && qs.price_min !== '') {
+      const n = Number(qs.price_min)
+      if (!Number.isNaN(n) && n >= 0) filters.price_min = n
+    }
+    if (qs.price_max !== undefined && qs.price_max !== '') {
+      const n = Number(qs.price_max)
+      if (!Number.isNaN(n) && n >= 0) filters.price_max = n
+    }
+
+    const page = Number(qs.page)
+    filters.page = Number.isInteger(page) && page >= 1 ? page : 1
+
+    return filters
   }
 
   private async getDrivers(tenantId: string, includeDriverId?: string): Promise<User[]> {
