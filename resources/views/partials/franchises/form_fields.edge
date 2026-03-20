@@ -1,0 +1,44 @@
+<div class="flex flex-col gap-6">
+  <div>
+    @field.root({ name: 'name' })
+      @!field.label({ text: 'Nom de la franchise' })
+      @!input.control({ placeholder: 'Ex: Agence Douala Centre', value: franchise?.name ?? '' })
+      @!field.error()
+    @end
+  </div>
+
+  <div>
+    @field.root({ name: 'cityId' })
+      @!field.label({ text: 'Ville' })
+      @!select.control({
+        options: cities.map((c) => ({
+          value: c.id,
+          name: `${c.name} (${c.country})`,
+          isSelected: franchise ? franchise.cityId === c.id : false,
+        }))
+      })
+      @!field.error()
+    @end
+  </div>
+
+  <div>
+    @field.root({ name: 'address' })
+      @!field.label({ text: 'Adresse' })
+      @!textarea.control({ placeholder: 'Adresse complète de la franchise', value: franchise?.address ?? '', rows: '3' })
+      @!field.error()
+    @end
+  </div>
+
+  <div>
+    @field.root({ name: 'phone' })
+      @!field.label({ text: 'Téléphone' })
+      @!input.control({ placeholder: 'Ex: +237 6XX XXX XXX', value: franchise?.phone ?? '' })
+      @!field.error()
+    @end
+  </div>
+
+  <div class="flex items-center gap-3">
+    @!button({ text: franchise ? 'Mettre à jour' : 'Créer', type: 'submit' })
+    <a href="{{ route('franchises.index') }}" class="text-sm text-on-surface hover:text-on-surface-strong transition-colors">Annuler</a>
+  </div>
+</div>
