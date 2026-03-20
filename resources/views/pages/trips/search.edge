@@ -1,0 +1,88 @@
+@layout.public()
+  <div class="mx-auto max-w-4xl">
+    <h1 class="mb-6 text-2xl font-bold text-on-surface-strong">Rechercher un voyage</h1>
+
+    {{-- Search form --}}
+    <div class="mb-8 rounded-radius border border-outline bg-surface p-6">
+      <form method="GET" action="{{ route('public.trips.index', { tenantSlug }) }}" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div>
+          <label for="from" class="mb-1 block text-sm font-medium text-on-surface-strong">Départ</label>
+          <select id="from" name="from"
+            class="w-full rounded-radius border border-outline bg-surface px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary">
+            <option value="">Sélectionner</option>
+            @each(city in cities)
+              <option value="{{ city.id }}" @if(filters.from === city.id) selected @end>{{ city.name }}</option>
+            @end
+          </select>
+        </div>
+
+        <div>
+          <label for="to" class="mb-1 block text-sm font-medium text-on-surface-strong">Arrivée</label>
+          <select id="to" name="to"
+            class="w-full rounded-radius border border-outline bg-surface px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary">
+            <option value="">Sélectionner</option>
+            @each(city in cities)
+              <option value="{{ city.id }}" @if(filters.to === city.id) selected @end>{{ city.name }}</option>
+            @end
+          </select>
+        </div>
+
+        <div>
+          <label for="date" class="mb-1 block text-sm font-medium text-on-surface-strong">Date</label>
+          <input type="date" id="date" name="date" value="{{ filters.date ?? '' }}"
+            class="w-full rounded-radius border border-outline bg-surface px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
+        </div>
+
+        <div class="flex items-end">
+          <button type="submit"
+            class="w-full rounded-radius bg-primary px-4 py-2.5 text-sm font-medium text-on-primary transition-colors hover:bg-secondary">
+            Rechercher
+          </button>
+        </div>
+      </form>
+    </div>
+
+    {{-- Results --}}
+    @if(filters.from && filters.to && filters.date)
+      @if(trips.length)
+        <div class="space-y-4">
+          <h2 class="text-lg font-semibold text-on-surface-strong">{{ trips.length }} voyage(s) disponible(s)</h2>
+          @each(item in trips)
+            <div class="flex flex-col gap-4 rounded-radius border border-outline bg-surface p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div class="flex-1 space-y-1">
+                <p class="text-base font-semibold text-on-surface-strong">
+                  {{ item.trip.route.departureCity.name }} → {{ item.trip.route.arrivalCity.name }}
+                </p>
+                <p class="text-sm text-on-surface">
+                  Départ&nbsp;: {{ item.trip.departureTime.toFormat('dd/MM/yyyy HH:mm') }}
+                </p>
+                <div class="flex flex-wrap items-center gap-3 text-sm text-on-surface">
+                  <span>
+                    Classe&nbsp;:
+                    @if(item.trip.travelClass === 'vip')
+                      <span class="inline-flex items-center rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800">VIP</span>
+                    @else
+                      <span class="inline-flex items-center rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-medium text-neutral-800">Standard</span>
+                    @end
+                  </span>
+                  <span>Prix&nbsp;: <strong>{{ item.trip.price }} FCFA</strong></span>
+                  <span>Places disponibles&nbsp;: <strong>{{ item.availableSeats }}</strong></span>
+                </div>
+              </div>
+              <div class="shrink-0">
+                <a href="{{ route('public.trips.show', { tenantSlug, id: item.trip.id }) }}"
+                  class="inline-flex items-center rounded-radius border border-outline px-4 py-2 text-sm font-medium text-on-surface transition-colors hover:bg-surface-alt hover:text-on-surface-strong">
+                  Voir
+                </a>
+              </div>
+            </div>
+          @end
+        </div>
+      @else
+        <div class="rounded-radius border border-outline bg-surface px-6 py-12 text-center text-on-surface">
+          Aucun voyage trouvé pour cette recherche.
+        </div>
+      @end
+    @end
+  </div>
+@end

@@ -1,0 +1,29 @@
+@layout.base()
+<div class="flex min-h-screen flex-col">
+
+  {{-- Header --}}
+  <header class="border-b border-outline bg-surface">
+    <div class="mx-auto flex h-14 max-w-7xl items-center px-4">
+      <a href="/" class="text-lg font-bold text-on-surface-strong">Voyager</a>
+    </div>
+  </header>
+
+  {{-- Flash alerts --}}
+  <div class="mx-auto w-full max-w-7xl px-4 pt-4">
+    @include('partials/flash_alerts')
+  </div>
+
+  {{-- Page content --}}
+  <main class="flex-1 bg-surface-alt py-8">
+    <div class="mx-auto max-w-7xl px-4">
+      {{{ await $slots.main() }}}
+    </div>
+  </main>
+
+  {{-- Footer --}}
+  <footer class="border-t border-outline bg-surface py-4 text-center text-sm text-on-surface">
+    &copy; {{ new Date().getFullYear() }} Voyager. Tous droits réservés.
+  </footer>
+
+</div>
+@end
