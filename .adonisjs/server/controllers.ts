@@ -11,4 +11,5 @@ export const controllers = {
   Routes: () => import('#controllers/routes_controller'),
   Buses: () => import('#controllers/buses_controller'),
   Drivers: () => import('#controllers/drivers_controller'),
+  Trips: () => import('#controllers/trips_controller'),
 }
