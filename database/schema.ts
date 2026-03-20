@@ -148,6 +148,35 @@ export class TenantSchema extends BaseModel {
   declare updatedAt: DateTime
 }
 
+export class TripSchema extends BaseModel {
+  static $columns = ['arrivalTime', 'busId', 'createdAt', 'departureTime', 'driverId', 'id', 'price', 'routeId', 'status', 'tenantId', 'travelClass', 'updatedAt'] as const
+  $columns = TripSchema.$columns
+  @column.dateTime()
+  declare arrivalTime: DateTime
+  @column()
+  declare busId: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column.dateTime()
+  declare departureTime: DateTime
+  @column()
+  declare driverId: string
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare price: string
+  @column()
+  declare routeId: string
+  @column()
+  declare status: any
+  @column()
+  declare tenantId: string
+  @column()
+  declare travelClass: any
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+}
+
 export class UserRoleAssignmentSchema extends BaseModel {
   static $columns = ['createdAt', 'expiresAt', 'grantedBy', 'id', 'isTemporary', 'resourceId', 'roleId', 'userId'] as const
   $columns = UserRoleAssignmentSchema.$columns
