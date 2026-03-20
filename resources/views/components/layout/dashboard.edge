@@ -73,6 +73,13 @@
         label: 'Conducteurs',
         })
         @end
+        @can('permission', 'franchise:read')
+        @!sidebar.item({
+        href: route('franchises.index'),
+        icon: 'tabler:building-store',
+        label: 'Franchises',
+        })
+        @end
         @can('permission', 'trip:read')
         @!sidebar.item({
         href: route('trips.index'),
@@ -94,9 +101,9 @@
           x-cloak>Administration</p>
         <ul class="space-y-1">
           @!sidebar.item({
-          href: '#',
+          href: route('employees.index'),
           icon: 'tabler:users',
-          label: 'Utilisateurs',
+          label: 'Employés',
           })
           @!sidebar.item({
           href: '#',
