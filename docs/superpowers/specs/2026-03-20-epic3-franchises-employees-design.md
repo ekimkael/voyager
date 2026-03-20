@@ -8,6 +8,8 @@ Le projet Voyager utilise un modèle multi-tenant où le **Tenant** représente 
 
 Pour cette implémentation, seuls les **employés** sont rattachés aux franchises. Les bus, routes et voyages restent scopés au tenant uniquement — le rattachement aux franchises sera ajouté plus tard si nécessaire.
 
+**Employee management is Admin-only.** Only users with the Admin role can create, edit, or deactivate employees. The agent scoping (US-17) restricts what data non-Admin users see when they have `user:read` permission, not what they can modify.
+
 ## Decisions
 
 | Question | Décision |
@@ -17,7 +19,7 @@ Pour cette implémentation, seuls les **employés** sont rattachés aux franchis
 | Création franchise principale | Manuelle, dans le processus d'onboarding |
 | Rattachement employé ↔ franchise | `franchiseId` directement sur `users`, nullable |
 | Scoping agent (US-17) | Limité aux employés et franchises. Bus/routes/voyages visibles au niveau tenant |
-| Gestion employés | Page admin dédiée avec liste filtrable par franchise + activer/désactiver |
+| Gestion employés | Page admin dédiée avec liste filtrable par franchise + activer/désactiver (Admin-only) |
 | Performances par agence (US-16) | Placeholder "Disponible prochainement" dans le détail d'une franchise |
 | Ville de la franchise | Référence `cities(id)` via FK `cityId`, pas un VARCHAR |
 | Routes | Resource routes (`router.resource()`) avec permissions par action |
@@ -75,8 +77,9 @@ Add to `config/rbac.ts`:
 
 Add to system roles:
 - **Admin**: all franchise permissions (already covered by `'*'`)
-- **Lecteur**: add `franchise:read`
 - **Dispatcher**: add `franchise:read`
+- **Chauffeur**: add `franchise:read` (needs to see their own franchise info)
+- **Lecteur**: add `franchise:read`
 
 ---
 
@@ -145,24 +148,31 @@ router.resource('franchises', '#controllers/franchises_controller')
   .use(['destroy'], middleware.permission({ keys: ['franchise:delete'] }))
 ```
 
-Additional route for performance placeholder (before resource routes):
+Additional route for performance placeholder — defined inside a `router.group()` with auth middleware, before the resource import:
 
 ```typescript
 router
-  .get('/franchises/:id/performance', [FranchisesController, 'performance'])
+  .get('/franchises/:id/performance', [controllers.Franchises, 'performance'])
   .as('franchises.performance')
-  .use(middleware.permission({ keys: ['franchise:read'] }))
+  .use([middleware.auth(), middleware.permission({ keys: ['franchise:read'] })])
 ```
+
+**Important:** Register the new route file in `start/routes.ts` with `import '#start/routes/franchises'`.
 
 ### 3.2 Controller: `FranchisesController`
 
-- `index` — list tenant franchises, preload city, ordered by name
-- `create` — render form with cities select
-- `store` — validate, verify city exists, create with `tenantId`. Handle duplicate `(tenant_id, name)` via error code 23505
-- `edit` — load franchise for tenant + cities for select
-- `update` — same validation, same duplicate handling
-- `destroy` — check no active users are assigned to this franchise. If any, refuse with flash message. Otherwise soft delete (`active = false`)
-- `performance` — load franchise, render placeholder page
+All entity lookups (edit, update, destroy, performance) MUST be tenant-scoped using the pattern:
+```typescript
+Franchise.query().where('id', params.id).where('tenantId', tenant!.id).firstOrFail()
+```
+
+- `index` — list **active** tenant franchises, preload city, ordered by name. Paginated (20 per page) using the existing pagination component
+- `create` — render form with cities select (all cities, ordered by name)
+- `store` — validate, create with `tenantId`. Handle duplicate `(tenant_id, name)` via error code 23505 with flash message "Une franchise avec ce nom existe déjà."
+- `edit` — load franchise scoped to tenant + cities for select
+- `update` — same validation, same duplicate handling, scoped to tenant
+- `destroy` — scoped to tenant. Check no active users are assigned to this franchise. If any, refuse with flash message. Otherwise soft delete (`active = false`)
+- `performance` — load franchise scoped to tenant, render placeholder page
 
 ### 3.3 Validator: `franchise.ts`
 
@@ -176,7 +186,7 @@ phone:   string, trim, maxLength(20), optional
 
 ### 3.4 Views
 
-- `pages/franchises/index.edge` — table (name, city, address, phone, active status, actions including "Performances" link)
+- `pages/franchises/index.edge` — table (name, city, address, phone, active status, actions including "Performances" link). Paginated
 - `pages/franchises/form.edge` — create/edit form with city select
 - `partials/franchises/form_fields.edge` — shared form fields
 - `pages/franchises/performance.edge` — title "Performances — [franchise name]", centered "Disponible prochainement" message with icon
@@ -203,13 +213,20 @@ router.resource('employees', '#controllers/employees_controller')
   .use(['destroy'], middleware.permission({ keys: ['user:delete'] }))
 ```
 
+**Important:** Register the new route file in `start/routes.ts` with `import '#start/routes/employees'`.
+
 ### 4.2 Controller: `EmployeesController`
 
-- `index` — list all tenant users with preload franchise + roleAssignments (→ role). Optional filter by `franchise_id` query param. Ordered by firstName, lastName. Scoping logic for agents (see section 5).
+All entity lookups MUST be tenant-scoped:
+```typescript
+User.query().where('id', params.id).where('tenantId', tenant!.id).firstOrFail()
+```
+
+- `index` — list all tenant users with preload franchise + roleAssignments (→ role). Optional filter by `franchise_id` query param. Ordered by firstName, lastName. Paginated (20 per page). Scoping logic for agents (see section 5)
 - `create` — form with select franchise (active franchises of tenant) + select role (system roles of tenant)
-- `store` — validate, create user with `tenantId` + `franchiseId`, create `UserRoleAssignment`. Password auto-hashed via AuthFinder mixin
-- `edit` — load user with roles and franchise
-- `update` — update info (firstName, lastName, email, phone, franchiseId, status). Allow role and franchise change. Only touch password if a new one is provided
+- `store` — validate, create user with `tenantId` + `franchiseId`, create `UserRoleAssignment` with `grantedBy: auth.user!.id`. Password auto-hashed via AuthFinder mixin. Handle duplicate email via error code 23505 with flash message "Un employé avec cet email existe déjà."
+- `edit` — load user scoped to tenant with roles and franchise
+- `update` — update info (firstName, lastName, email, phone, franchiseId, status). Allow role and franchise change. Only touch password if a new one is provided. Handle duplicate email via 23505
 - `destroy` — soft delete via `status = 'inactive'`. Refuse if user is the last active admin of the tenant
 
 ### 4.3 Validator: `employee.ts`
@@ -235,9 +252,11 @@ status:       enum('active', 'inactive', 'suspended')
 password:     string, minLength(8), optional  // empty = no change
 ```
 
+Note: When a scoped agent has the franchise select disabled in the form, a hidden `<input type="hidden" name="franchiseId" value="...">` is included alongside the disabled select so the value is always submitted.
+
 ### 4.4 Views
 
-- `pages/employees/index.edge` — table (name, email, phone, franchise, role, status, actions). Franchise filter select at top. Status badges: active=green, inactive=gray, suspended=red
+- `pages/employees/index.edge` — table (name, email, phone, franchise, role, status, actions). Franchise filter select at top. Status badges: active=green, inactive=gray, suspended=red. Paginated
 - `pages/employees/form.edge` — create/edit form
 - `partials/employees/form_fields.edge` — shared form fields
 
@@ -255,11 +274,11 @@ No dedicated middleware. Conditional filtering in `EmployeesController`:
 
 **Logic:**
 - If the connected user has role Admin or Dispatcher → sees all tenant employees (optional franchise filter via query param)
-- If the connected user has role Agent or Chauffeur (and has a `franchiseId`) → sees only employees of THEIR franchise. The franchise filter select is hidden.
+- If the connected user has role Agent or Chauffeur (and has a `franchiseId`) → sees only employees of THEIR franchise. The franchise filter select is hidden
 
 **Implementation in controller:**
-- `index` — if `auth.user.franchiseId` is set and user is not Admin/Dispatcher, force `where('franchiseId', auth.user.franchiseId)` on the query. Otherwise, apply optional query param filter.
-- `create/store/edit/update` — a scoped agent can only create/modify employees in their own franchise. The franchise select is pre-filled and disabled.
+- `index` — if `auth.user.franchiseId` is set and user is not Admin/Dispatcher, force `where('franchiseId', auth.user.franchiseId)` on the query. Otherwise, apply optional query param filter
+- `create/store/edit/update` — a scoped agent can only create/modify employees in their own franchise. The franchise select is pre-filled and disabled (with hidden input for form submission)
 
 **In views** — a boolean `isScopedToFranchise` is passed to the template to conditionally show/hide the franchise filter and restrict actions.
 
@@ -275,7 +294,7 @@ No dedicated middleware. Conditional filtering in `EmployeesController`:
 | `app/models/user.ts` | Modify | Add franchiseId, phone, franchise relation |
 | `app/models/tenant.ts` | Modify | Add franchises relation |
 | `app/models/city.ts` | Modify | Add franchises relation |
-| `config/rbac.ts` | Modify | Add franchise permissions + update Lecteur/Dispatcher roles |
+| `config/rbac.ts` | Modify | Add franchise permissions + update Dispatcher/Chauffeur/Lecteur roles |
 | `database/seeders/permissions_seeder.ts` | No change | Already handles dynamic permission sync |
 | `app/validators/franchise.ts` | Create | Franchise validators |
 | `app/validators/employee.ts` | Create | Employee validators |
@@ -283,11 +302,12 @@ No dedicated middleware. Conditional filtering in `EmployeesController`:
 | `app/controllers/employees_controller.ts` | Create | Employee CRUD with scoping |
 | `start/routes/franchises.ts` | Create | Franchise routes (resource + performance) |
 | `start/routes/employees.ts` | Create | Employee routes (resource) |
-| `resources/views/pages/franchises/index.edge` | Create | Franchise list |
+| `start/routes.ts` | Modify | Add imports for franchises + employees route files |
+| `resources/views/pages/franchises/index.edge` | Create | Franchise list with pagination |
 | `resources/views/pages/franchises/form.edge` | Create | Franchise create/edit form |
 | `resources/views/pages/franchises/performance.edge` | Create | Performance placeholder |
 | `resources/views/partials/franchises/form_fields.edge` | Create | Shared franchise form fields |
-| `resources/views/pages/employees/index.edge` | Create | Employee list with franchise filter |
+| `resources/views/pages/employees/index.edge` | Create | Employee list with franchise filter + pagination |
 | `resources/views/pages/employees/form.edge` | Create | Employee create/edit form |
 | `resources/views/partials/employees/form_fields.edge` | Create | Shared employee form fields |
 | `resources/views/components/layout/dashboard.edge` | Modify | Add Franchises + Employés sidebar items |
