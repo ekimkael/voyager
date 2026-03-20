@@ -1,0 +1,140 @@
+@layout.public()
+  <div class="mx-auto max-w-2xl">
+
+    {{-- Progress --}}
+    <div class="mb-6">
+      <div class="flex items-center gap-2 text-sm text-on-surface">
+        <span class="font-semibold text-primary">1</span>
+        <span class="font-medium text-on-surface-strong">Passagers</span>
+        <span class="mx-1 text-on-surface">→</span>
+        <span class="text-on-surface">2. Coordonnées</span>
+        <span class="mx-1 text-on-surface">→</span>
+        <span class="text-on-surface">3. Récapitulatif</span>
+        <span class="mx-1 text-on-surface">→</span>
+        <span class="text-on-surface">4. Paiement</span>
+      </div>
+      <div class="mt-2 h-1.5 w-full rounded-full bg-surface-alt overflow-hidden">
+        <div class="h-full w-1/4 rounded-full bg-primary"></div>
+      </div>
+    </div>
+
+    {{-- Trip summary --}}
+    <div class="mb-6 rounded-radius border border-outline bg-surface p-4">
+      <p class="text-sm font-semibold text-on-surface-strong">
+        {{ trip.route.departureCity.name }} → {{ trip.route.arrivalCity.name }}
+      </p>
+      <p class="mt-1 text-sm text-on-surface">
+        Départ&nbsp;: {{ trip.departureTime.toFormat('dd/MM/yyyy HH:mm') }}
+        &nbsp;·&nbsp;
+        Arrivée&nbsp;: {{ trip.arrivalTime.toFormat('dd/MM/yyyy HH:mm') }}
+      </p>
+      <p class="mt-1 text-sm text-on-surface">
+        Prix par passager&nbsp;: <strong>{{ trip.price }} FCFA</strong>
+      </p>
+    </div>
+
+    {{-- Passenger form --}}
+    <div class="rounded-radius border border-outline bg-surface p-6">
+      <h1 class="mb-4 text-xl font-bold text-on-surface-strong">Passagers</h1>
+
+      <form
+        method="POST"
+        action="{{ route('public.bookings.storePassengers', { tenantSlug, id: booking.id }) }}"
+        x-data="{
+          passengers: [{ firstName: '', lastName: '', phone: '' }],
+          addPassenger() {
+            this.passengers.push({ firstName: '', lastName: '', phone: '' })
+          },
+          removePassenger(index) {
+            if (this.passengers.length > 1) this.passengers.splice(index, 1)
+          }
+        }"
+      >
+        {{ csrfField() }}
+
+        {{-- Validation errors --}}
+        @if(flashMessages.has('errors'))
+          <div class="mb-4 rounded-radius border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            Une erreur s'est produite. Veuillez vérifier les champs ci-dessous.
+          </div>
+        @end
+
+        <div class="space-y-4" x-ref="passengerList">
+          <template x-for="(passenger, index) in passengers" :key="index">
+            <div class="rounded-radius border border-outline bg-surface-alt p-4">
+              <div class="mb-3 flex items-center justify-between">
+                <p class="text-sm font-medium text-on-surface-strong" x-text="'Passager ' + (index + 1)"></p>
+                <button
+                  type="button"
+                  @click="removePassenger(index)"
+                  x-show="passengers.length > 1"
+                  class="text-sm text-red-500 hover:text-red-700 transition-colors"
+                  title="Supprimer ce passager"
+                >
+                  &times;
+                </button>
+              </div>
+              <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div>
+                  <label class="mb-1 block text-sm font-medium text-on-surface">Prénom <span class="text-red-500">*</span></label>
+                  <input
+                    type="text"
+                    :name="'passengers[' + index + '][firstName]'"
+                    x-model="passenger.firstName"
+                    placeholder="Ex: Jean"
+                    required
+                    class="w-full rounded-radius border border-outline bg-surface px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                  />
+                </div>
+                <div>
+                  <label class="mb-1 block text-sm font-medium text-on-surface">Nom <span class="text-red-500">*</span></label>
+                  <input
+                    type="text"
+                    :name="'passengers[' + index + '][lastName]'"
+                    x-model="passenger.lastName"
+                    placeholder="Ex: Dupont"
+                    required
+                    class="w-full rounded-radius border border-outline bg-surface px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                  />
+                </div>
+                <div class="sm:col-span-2">
+                  <label class="mb-1 block text-sm font-medium text-on-surface">Téléphone (optionnel)</label>
+                  <input
+                    type="tel"
+                    :name="'passengers[' + index + '][phone]'"
+                    x-model="passenger.phone"
+                    placeholder="Ex: +237 6XX XXX XXX"
+                    class="w-full rounded-radius border border-outline bg-surface px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                  />
+                </div>
+              </div>
+            </div>
+          </template>
+        </div>
+
+        <div class="mt-4">
+          <button
+            type="button"
+            @click="addPassenger()"
+            class="inline-flex items-center gap-1 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+          >
+            + Ajouter un passager
+          </button>
+        </div>
+
+        <div class="mt-6 flex items-center justify-between">
+          <a href="{{ route('public.trips.show', { tenantSlug, id: trip.id }) }}"
+            class="text-sm text-on-surface hover:text-on-surface-strong hover:underline transition-colors">
+            ← Retour
+          </a>
+          <button
+            type="submit"
+            class="rounded-radius bg-primary px-6 py-2.5 text-sm font-medium text-on-primary transition-colors hover:bg-secondary"
+          >
+            Suivant
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+@end

@@ -1,0 +1,117 @@
+@layout.public()
+  <div class="mx-auto max-w-lg">
+    <h1 class="mb-6 text-2xl font-bold text-on-surface-strong">Vérifier une réservation</h1>
+
+    {{-- Verify form --}}
+    <div class="rounded-radius border border-outline bg-surface p-6">
+      <p class="mb-4 text-sm text-on-surface">
+        Saisissez le numéro de téléphone utilisé lors de la réservation et le code du ticket.
+      </p>
+
+      <form
+        method="POST"
+        action="{{ route('public.bookings.verifySubmit', { tenantSlug }) }}"
+      >
+        {{ csrfField() }}
+
+        <div class="flex flex-col gap-4">
+          <div>
+            <label for="phone" class="mb-1 block text-sm font-medium text-on-surface">
+              Téléphone <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              value="{{ flashMessages.get('phone') ?? '' }}"
+              placeholder="Ex: +237 6XX XXX XXX"
+              required
+              class="w-full rounded-radius border border-outline bg-surface px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+            />
+            @if(flashMessages.has('errors.phone'))
+              <p class="mt-1 text-xs text-red-500">{{ flashMessages.get('errors.phone') }}</p>
+            @end
+          </div>
+
+          <div>
+            <label for="code" class="mb-1 block text-sm font-medium text-on-surface">
+              Code du ticket <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              id="code"
+              name="code"
+              value="{{ flashMessages.get('code') ?? '' }}"
+              placeholder="Ex: ABC123"
+              required
+              class="w-full rounded-radius border border-outline bg-surface px-3 py-2 text-sm font-mono text-on-surface focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+            />
+            @if(flashMessages.has('errors.code'))
+              <p class="mt-1 text-xs text-red-500">{{ flashMessages.get('errors.code') }}</p>
+            @end
+          </div>
+
+          <div>
+            <button
+              type="submit"
+              class="w-full rounded-radius bg-primary px-4 py-2.5 text-sm font-medium text-on-primary transition-colors hover:bg-secondary"
+            >
+              Vérifier
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    {{-- Passenger details (shown after successful verification) --}}
+    @if(passenger)
+      <div class="mt-6 rounded-radius border border-green-200 bg-green-50 p-6">
+        <div class="mb-4 flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="size-5 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <path d="m9 12 2 2 4-4" />
+          </svg>
+          <h2 class="text-base font-semibold text-green-800">Réservation valide</h2>
+        </div>
+
+        <div class="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wider text-green-700">Passager</p>
+            <p class="mt-1 font-medium text-green-900">{{ passenger.firstName }} {{ passenger.lastName }}</p>
+          </div>
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wider text-green-700">Siège</p>
+            <p class="mt-1 font-medium text-green-900">{{ passenger.seatNumber }}</p>
+          </div>
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wider text-green-700">Route</p>
+            <p class="mt-1 font-medium text-green-900">
+              {{ passenger.booking.trip.route.departureCity.name }} → {{ passenger.booking.trip.route.arrivalCity.name }}
+            </p>
+          </div>
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wider text-green-700">Départ</p>
+            <p class="mt-1 font-medium text-green-900">
+              {{ passenger.booking.trip.departureTime.toFormat('dd/MM/yyyy HH:mm') }}
+            </p>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <a
+            href="{{ route('public.tickets.download', { tenantSlug, bookingId: passenger.booking.id, passengerId: passenger.id }) }}"
+            class="inline-flex items-center gap-2 rounded-radius border border-green-300 bg-white px-4 py-2 text-sm font-medium text-green-800 transition-colors hover:bg-green-100"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            Télécharger le ticket
+          </a>
+        </div>
+      </div>
+    @end
+
+  </div>
+@end

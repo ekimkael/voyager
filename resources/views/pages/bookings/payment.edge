@@ -1,0 +1,115 @@
+@layout.public()
+  <div class="mx-auto max-w-lg">
+
+    {{-- Progress --}}
+    <div class="mb-6">
+      <div class="flex items-center gap-2 text-sm text-on-surface">
+        <span class="text-on-surface">1. Passagers</span>
+        <span class="mx-1 text-on-surface">→</span>
+        <span class="text-on-surface">2. Coordonnées</span>
+        <span class="mx-1 text-on-surface">→</span>
+        <span class="text-on-surface">3. Récapitulatif</span>
+        <span class="mx-1 text-on-surface">→</span>
+        <span class="font-semibold text-primary">4</span>
+        <span class="font-medium text-on-surface-strong">Paiement</span>
+      </div>
+      <div class="mt-2 h-1.5 w-full rounded-full bg-surface-alt overflow-hidden">
+        <div class="h-full w-full rounded-full bg-primary"></div>
+      </div>
+    </div>
+
+    {{-- Payment form --}}
+    <div class="rounded-radius border border-outline bg-surface p-6">
+      <h1 class="mb-2 text-xl font-bold text-on-surface-strong">Paiement</h1>
+      <p class="mb-6 text-sm text-on-surface">
+        Montant à payer&nbsp;:
+        <span class="text-2xl font-bold text-primary">{{ booking.totalAmount }} FCFA</span>
+      </p>
+
+      <form
+        method="POST"
+        action="{{ route('public.bookings.processPayment', { tenantSlug, id: booking.id }) }}"
+        x-data="{
+          paymentMethod: 'cash',
+          get showOperator() {
+            return this.paymentMethod === 'mobile_money' || this.paymentMethod === 'card'
+          }
+        }"
+      >
+        {{ csrfField() }}
+
+        <div class="mb-4">
+          <p class="mb-2 text-sm font-medium text-on-surface">Mode de paiement <span class="text-red-500">*</span></p>
+          <div class="space-y-2">
+            <label class="flex cursor-pointer items-center gap-3 rounded-radius border border-outline bg-surface p-3 transition-colors hover:bg-surface-alt"
+              :class="paymentMethod === 'cash' ? 'border-primary bg-primary/5' : ''">
+              <input
+                type="radio"
+                name="paymentMethod"
+                value="cash"
+                x-model="paymentMethod"
+                class="accent-primary"
+              />
+              <span class="text-sm text-on-surface-strong">Espèces</span>
+            </label>
+            <label class="flex cursor-pointer items-center gap-3 rounded-radius border border-outline bg-surface p-3 transition-colors hover:bg-surface-alt"
+              :class="paymentMethod === 'mobile_money' ? 'border-primary bg-primary/5' : ''">
+              <input
+                type="radio"
+                name="paymentMethod"
+                value="mobile_money"
+                x-model="paymentMethod"
+                class="accent-primary"
+              />
+              <span class="text-sm text-on-surface-strong">Mobile Money</span>
+            </label>
+            <label class="flex cursor-pointer items-center gap-3 rounded-radius border border-outline bg-surface p-3 transition-colors hover:bg-surface-alt"
+              :class="paymentMethod === 'card' ? 'border-primary bg-primary/5' : ''">
+              <input
+                type="radio"
+                name="paymentMethod"
+                value="card"
+                x-model="paymentMethod"
+                class="accent-primary"
+              />
+              <span class="text-sm text-on-surface-strong">Carte bancaire</span>
+            </label>
+          </div>
+          @if(flashMessages.has('errors.paymentMethod'))
+            <p class="mt-1 text-xs text-red-500">{{ flashMessages.get('errors.paymentMethod') }}</p>
+          @end
+        </div>
+
+        {{-- Operator field (conditional) --}}
+        <div x-show="showOperator" x-transition class="mb-4">
+          <label for="operator" class="mb-1 block text-sm font-medium text-on-surface">
+            Opérateur
+          </label>
+          <input
+            type="text"
+            id="operator"
+            name="operator"
+            placeholder="Ex: Orange Money, MTN MoMo, Visa..."
+            class="w-full rounded-radius border border-outline bg-surface px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+          />
+          @if(flashMessages.has('errors.operator'))
+            <p class="mt-1 text-xs text-red-500">{{ flashMessages.get('errors.operator') }}</p>
+          @end
+        </div>
+
+        <div class="mt-6 flex items-center justify-between">
+          <a href="{{ route('public.bookings.summary', { tenantSlug, id: booking.id }) }}"
+            class="text-sm text-on-surface hover:text-on-surface-strong hover:underline transition-colors">
+            ← Retour
+          </a>
+          <button
+            type="submit"
+            class="rounded-radius bg-primary px-6 py-2.5 text-sm font-medium text-on-primary transition-colors hover:bg-secondary"
+          >
+            Payer
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+@end

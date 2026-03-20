@@ -1,0 +1,94 @@
+@layout.public()
+  <div class="mx-auto max-w-2xl">
+
+    {{-- Success banner --}}
+    <div class="mb-6 flex items-start gap-4 rounded-radius border border-green-200 bg-green-50 p-6">
+      <div class="shrink-0 text-green-600">
+        <svg xmlns="http://www.w3.org/2000/svg" class="size-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <path d="m9 12 2 2 4-4" />
+        </svg>
+      </div>
+      <div>
+        <h1 class="text-lg font-bold text-green-800">Réservation confirmée !</h1>
+        <p class="mt-1 text-sm text-green-700">
+          Votre réservation a été enregistrée avec succès. Veuillez télécharger les tickets ci-dessous.
+        </p>
+      </div>
+    </div>
+
+    {{-- Booking reference --}}
+    <div class="mb-4 rounded-radius border border-outline bg-surface p-6">
+      <h2 class="mb-4 text-base font-semibold text-on-surface-strong">Informations de réservation</h2>
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 text-sm">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Route</p>
+          <p class="mt-1 font-medium text-on-surface-strong">
+            {{ booking.trip.route.departureCity.name }} → {{ booking.trip.route.arrivalCity.name }}
+          </p>
+        </div>
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Départ</p>
+          <p class="mt-1 font-medium text-on-surface-strong">
+            {{ booking.trip.departureTime.toFormat('dd/MM/yyyy HH:mm') }}
+          </p>
+        </div>
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Client</p>
+          <p class="mt-1 font-medium text-on-surface-strong">
+            {{ booking.customer.firstName }} {{ booking.customer.lastName }}
+          </p>
+        </div>
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Téléphone</p>
+          <p class="mt-1 font-medium text-on-surface-strong">{{ booking.customer.phone }}</p>
+        </div>
+      </div>
+    </div>
+
+    {{-- Passengers & tickets --}}
+    <div class="rounded-radius border border-outline bg-surface p-6">
+      <h2 class="mb-4 text-base font-semibold text-on-surface-strong">
+        Tickets passagers
+      </h2>
+      <div class="space-y-3">
+        @each(passenger in booking.passengers)
+          <div class="flex items-center justify-between rounded-radius border border-outline bg-surface-alt p-3">
+            <div>
+              <p class="text-sm font-medium text-on-surface-strong">
+                {{ passenger.firstName }} {{ passenger.lastName }}
+              </p>
+              <p class="text-xs text-on-surface">
+                Siège&nbsp;: <strong>{{ passenger.seatNumber }}</strong>
+                &nbsp;·&nbsp;
+                Code&nbsp;: <strong class="font-mono">{{ passenger.code }}</strong>
+              </p>
+            </div>
+            <a
+              href="{{ route('public.tickets.download', { tenantSlug, bookingId: booking.id, passengerId: passenger.id }) }}"
+              class="inline-flex items-center gap-1.5 rounded-radius border border-outline px-3 py-1.5 text-xs font-medium text-on-surface transition-colors hover:bg-surface hover:text-on-surface-strong"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              Télécharger le ticket
+            </a>
+          </div>
+        @end
+      </div>
+    </div>
+
+    {{-- Actions --}}
+    <div class="mt-6 text-center">
+      <a
+        href="{{ route('public.trips.index', { tenantSlug }) }}"
+        class="inline-flex items-center gap-2 text-sm text-on-surface hover:text-on-surface-strong hover:underline transition-colors"
+      >
+        Nouvelle réservation
+      </a>
+    </div>
+
+  </div>
+@end

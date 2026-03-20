@@ -1,0 +1,121 @@
+@layout.public()
+  <div class="mx-auto max-w-lg">
+
+    {{-- Progress --}}
+    <div class="mb-6">
+      <div class="flex items-center gap-2 text-sm text-on-surface">
+        <span class="text-on-surface">1. Passagers</span>
+        <span class="mx-1 text-on-surface">→</span>
+        <span class="font-semibold text-primary">2</span>
+        <span class="font-medium text-on-surface-strong">Coordonnées</span>
+        <span class="mx-1 text-on-surface">→</span>
+        <span class="text-on-surface">3. Récapitulatif</span>
+        <span class="mx-1 text-on-surface">→</span>
+        <span class="text-on-surface">4. Paiement</span>
+      </div>
+      <div class="mt-2 h-1.5 w-full rounded-full bg-surface-alt overflow-hidden">
+        <div class="h-full w-2/4 rounded-full bg-primary"></div>
+      </div>
+    </div>
+
+    {{-- Customer form --}}
+    <div class="rounded-radius border border-outline bg-surface p-6">
+      <h1 class="mb-4 text-xl font-bold text-on-surface-strong">Vos coordonnées</h1>
+
+      <form
+        method="POST"
+        action="{{ route('public.bookings.storeCustomer', { tenantSlug, id: booking.id }) }}"
+      >
+        {{ csrfField() }}
+
+        <div class="flex flex-col gap-4">
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <label for="firstName" class="mb-1 block text-sm font-medium text-on-surface">
+                Prénom <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                id="firstName"
+                name="firstName"
+                value="{{ flashMessages.get('firstName') ?? '' }}"
+                placeholder="Ex: Jean"
+                required
+                class="w-full rounded-radius border border-outline bg-surface px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+              @if(flashMessages.has('errors.firstName'))
+                <p class="mt-1 text-xs text-red-500">{{ flashMessages.get('errors.firstName') }}</p>
+              @end
+            </div>
+
+            <div>
+              <label for="lastName" class="mb-1 block text-sm font-medium text-on-surface">
+                Nom <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                id="lastName"
+                name="lastName"
+                value="{{ flashMessages.get('lastName') ?? '' }}"
+                placeholder="Ex: Dupont"
+                required
+                class="w-full rounded-radius border border-outline bg-surface px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+              @if(flashMessages.has('errors.lastName'))
+                <p class="mt-1 text-xs text-red-500">{{ flashMessages.get('errors.lastName') }}</p>
+              @end
+            </div>
+          </div>
+
+          <div>
+            <label for="phone" class="mb-1 block text-sm font-medium text-on-surface">
+              Téléphone <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              value="{{ flashMessages.get('phone') ?? '' }}"
+              placeholder="Ex: +237 6XX XXX XXX"
+              required
+              class="w-full rounded-radius border border-outline bg-surface px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+            />
+            @if(flashMessages.has('errors.phone'))
+              <p class="mt-1 text-xs text-red-500">{{ flashMessages.get('errors.phone') }}</p>
+            @end
+          </div>
+
+          <div>
+            <label for="email" class="mb-1 block text-sm font-medium text-on-surface">
+              Email (optionnel)
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value="{{ flashMessages.get('email') ?? '' }}"
+              placeholder="Ex: jean.dupont@example.com"
+              class="w-full rounded-radius border border-outline bg-surface px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+            />
+            @if(flashMessages.has('errors.email'))
+              <p class="mt-1 text-xs text-red-500">{{ flashMessages.get('errors.email') }}</p>
+            @end
+          </div>
+        </div>
+
+        <div class="mt-6 flex items-center justify-between">
+          <a href="{{ route('public.bookings.passengers', { tenantSlug, id: booking.id }) }}"
+            class="text-sm text-on-surface hover:text-on-surface-strong hover:underline transition-colors">
+            ← Retour
+          </a>
+          <button
+            type="submit"
+            class="rounded-radius bg-primary px-6 py-2.5 text-sm font-medium text-on-primary transition-colors hover:bg-secondary"
+          >
+            Suivant
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+@end
