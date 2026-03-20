@@ -66,11 +66,6 @@
         label: 'Routes',
         })
         @end
-        @!sidebar.item({
-        href: '#',
-        icon: 'tabler:map-pin',
-        label: 'Arrêts',
-        })
         @can('permission', 'driver:read')
         @!sidebar.item({
         href: route('drivers.index'),
@@ -83,6 +78,11 @@
         href: route('trips.index'),
         icon: 'tabler:map-2',
         label: 'Voyages',
+        })
+        @!sidebar.item({
+        href: route('trips.history'),
+        icon: 'tabler:history',
+        label: 'Historique',
         })
         @end
       </ul>
