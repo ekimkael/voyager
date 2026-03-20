@@ -1,5 +1,41 @@
 @layout.dashboard()
-  <div class="mx-auto max-w-3xl">
+  <div class="mx-auto max-w-3xl"
+    x-data="{
+      selectedTripId: '{{ old('tripId') || '' }}',
+      seatCounts: {{ js.stringify(seatCounts) }},
+      availableSeats: null,
+      subscription: null,
+      get seatsExhausted() {
+        return this.availableSeats !== null && this.availableSeats <= 0
+      },
+      async selectTrip(tripId) {
+        if (this.subscription) {
+          await this.subscription.delete()
+          this.subscription = null
+        }
+        this.selectedTripId = tripId
+        if (!tripId) {
+          this.availableSeats = null
+          return
+        }
+        this.availableSeats = this.seatCounts[tripId] ?? null
+        const transmit = window.__transmit
+        if (transmit) {
+          this.subscription = transmit.subscription('trips/' + tripId + '/seats')
+          await this.subscription.create()
+          this.subscription.onMessage((data) => {
+            this.availableSeats = data.availableSeats
+          })
+        }
+      },
+      destroy() {
+        if (this.subscription) {
+          this.subscription.delete()
+        }
+      }
+    }"
+    x-init="if (selectedTripId) { selectTrip(selectedTripId) }"
+  >
     <div class="mb-6 flex items-center justify-between">
       <h1 class="text-2xl font-bold text-on-surface-strong">Nouvelle réservation</h1>
       <a href="{{ route('dashboard.bookings.index') }}"
@@ -32,16 +68,23 @@
               Sélectionner un voyage <span class="text-danger">*</span>
             </label>
             <select name="tripId" id="tripId"
+              x-model="selectedTripId"
+              x-on:change="selectTrip($event.target.value)"
               class="h-10 w-full rounded-radius border border-neutral-300 bg-surface px-4 text-sm text-on-surface-strong outline-none focus:border-primary focus:ring-1 focus:ring-primary">
               <option value="">-- Choisir un voyage --</option>
               @each(trip in trips)
-                <option value="{{ trip.id }}" {{ old('tripId') === trip.id ? 'selected' : '' }}>
+                <option value="{{ trip.id }}">
                   {{ trip.route.departureCity.name }} → {{ trip.route.arrivalCity.name }} —
                   {{ trip.departureTime.toFormat('dd/MM/yyyy HH:mm') }} —
-                  {{ trip.bus.capacity - trip.bookedSeats }} places disponibles
+                  {{ seatCounts[trip.id] }} places disponibles
                 </option>
               @end
             </select>
+            <p x-show="availableSeats !== null" x-transition
+              class="mt-2 text-sm font-semibold"
+              :class="availableSeats <= 0 ? 'text-red-600' : 'text-on-surface'"
+              x-text="availableSeats <= 0 ? 'Plus de places disponibles' : 'Places restantes : ' + availableSeats"
+            ></p>
           </div>
         </div>
 
@@ -150,7 +193,9 @@
         {{-- Submit --}}
         <div class="flex items-center gap-4">
           <button type="submit"
-            class="inline-flex items-center gap-2 rounded-radius bg-primary px-6 py-2.5 text-sm font-medium text-on-primary hover:bg-secondary transition-colors">
+            :disabled="seatsExhausted"
+            :class="seatsExhausted ? 'bg-gray-400 cursor-not-allowed' : 'bg-primary hover:bg-secondary'"
+            class="inline-flex items-center gap-2 rounded-radius px-6 py-2.5 text-sm font-medium text-on-primary transition-colors">
             @svg('tabler:check', { class: 'size-4' })
             <span>Créer la réservation</span>
           </button>
