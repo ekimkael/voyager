@@ -92,6 +92,20 @@
         label: 'Historique',
         })
         @end
+        @can('permission', 'booking:read')
+        @!sidebar.item({
+        href: route('dashboard.bookings.index'),
+        icon: 'tabler:ticket',
+        label: 'Réservations',
+        })
+        @end
+        @can('permission', 'boarding:validate')
+        @!sidebar.item({
+        href: route('dashboard.boarding.index'),
+        icon: 'tabler:qrcode',
+        label: 'Embarquement',
+        })
+        @end
       </ul>
 
       {{-- Administration (role-gated) --}}
