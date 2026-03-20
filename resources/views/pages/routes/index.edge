@@ -1,0 +1,73 @@
+@layout.dashboard()
+  <div class="mx-auto max-w-6xl">
+    <div class="mb-6 flex items-center justify-between">
+      <h1 class="text-2xl font-bold text-on-surface-strong">Routes</h1>
+      @can('permission', 'route:create')
+        <a href="{{ route('routes.create') }}"
+          class="inline-flex items-center gap-2 rounded-radius bg-primary px-4 py-2.5 text-sm font-medium text-on-primary hover:bg-secondary transition-colors">
+          @svg('tabler:plus', { class: 'size-4' })
+          <span>Nouvelle route</span>
+        </a>
+      @end
+    </div>
+
+    <div class="overflow-hidden rounded-radius border border-outline bg-surface">
+      <table class="w-full text-left text-sm">
+        <thead class="border-b border-outline bg-surface-alt text-xs uppercase tracking-wider text-on-surface">
+          <tr>
+            <th class="px-6 py-3">Code</th>
+            <th class="px-6 py-3">Départ</th>
+            <th class="px-6 py-3">Arrivée</th>
+            <th class="px-6 py-3">Distance</th>
+            <th class="px-6 py-3">Durée</th>
+            <th class="px-6 py-3">Statut</th>
+            <th class="px-6 py-3 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-outline">
+          @each(item in routes)
+            <tr class="hover:bg-surface-alt/50">
+              <td class="px-6 py-4 font-medium text-on-surface-strong">{{ item.code }}</td>
+              <td class="px-6 py-4 text-on-surface">{{ item.departureCity.name }}</td>
+              <td class="px-6 py-4 text-on-surface">{{ item.arrivalCity.name }}</td>
+              <td class="px-6 py-4 text-on-surface">{{ item.distanceKm }} km</td>
+              <td class="px-6 py-4 text-on-surface">{{ item.formattedDuration }}</td>
+              <td class="px-6 py-4">
+                @if(item.status === 'active')
+                  <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">Active</span>
+                @else
+                  <span class="inline-flex items-center rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-medium text-neutral-800">Inactive</span>
+                @end
+              </td>
+              <td class="px-6 py-4 text-right">
+                <div class="flex items-center justify-end gap-2">
+                  @can('permission', 'route:update')
+                    <a href="{{ route('routes.edit', { id: item.id }) }}"
+                      class="text-on-surface hover:text-primary transition-colors">
+                      @svg('tabler:edit', { class: 'size-4' })
+                    </a>
+                  @end
+                  @can('permission', 'route:delete')
+                    @form({ route: 'routes.destroy', routeParams: { id: item.id }, method: 'DELETE' })
+                      <button type="submit"
+                        class="cursor-pointer text-on-surface hover:text-danger transition-colors"
+                        onclick="return confirm('Supprimer cette route ?')">
+                        @svg('tabler:trash', { class: 'size-4' })
+                      </button>
+                    @end
+                  @end
+                </div>
+              </td>
+            </tr>
+          @end
+        </tbody>
+      </table>
+
+      @if(!routes.length)
+        <div class="px-6 py-12 text-center text-on-surface">
+          Aucune route enregistrée.
+        </div>
+      @end
+    </div>
+  </div>
+@end
