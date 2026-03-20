@@ -90,7 +90,13 @@ export default class DashboardBookingsController {
       .preload('bus')
       .orderBy('departureTime', 'asc')
 
-    return view.render('pages/dashboard/bookings/create', { trips })
+    // Note: O(N) queries — acceptable for MVP, optimize with batch query if trip count grows
+    const seatCounts: Record<string, number> = {}
+    for (const trip of trips) {
+      seatCounts[trip.id] = await this.seatAllocator.getAvailableSeatCount(trip.id)
+    }
+
+    return view.render('pages/dashboard/bookings/create', { trips, seatCounts })
   }
 
   async store({ request, response, session, tenant, auth }: HttpContext) {
@@ -150,6 +156,9 @@ export default class DashboardBookingsController {
 
         return newBooking
       })
+
+      // Broadcast AFTER transaction committed
+      await this.seatAllocator.broadcastAvailability(booking.tripId)
 
       session.flash('success', 'Réservation créée avec succès')
       return response.redirect().toRoute('dashboard.bookings.show', { id: booking.id })
@@ -240,6 +249,9 @@ export default class DashboardBookingsController {
 
     booking.status = 'cancelled'
     await booking.save()
+
+    // Broadcast updated seat count after cancellation
+    await this.seatAllocator.broadcastAvailability(booking.tripId)
 
     session.flash('success', 'Réservation annulée avec succès')
     return response.redirect().toRoute('dashboard.bookings.index')
