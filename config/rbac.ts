@@ -24,6 +24,12 @@ export const permissions = [
   { resource: 'city', action: 'update', description: 'Update a city' },
   { resource: 'city', action: 'delete', description: 'Delete a city', isSensitive: true },
 
+  // Franchises
+  { resource: 'franchise', action: 'create', description: 'Create a franchise' },
+  { resource: 'franchise', action: 'read', description: 'View franchises' },
+  { resource: 'franchise', action: 'update', description: 'Update a franchise' },
+  { resource: 'franchise', action: 'delete', description: 'Delete a franchise', isSensitive: true },
+
   // Stops
   { resource: 'stop', action: 'create', description: 'Create a stop' },
   { resource: 'stop', action: 'read', description: 'View stops' },
@@ -69,6 +75,7 @@ export const systemRoles = [
     name: 'Dispatcher',
     permissions: [
       'city:read',
+      'franchise:read',
       'route:create',
       'route:read',
       'route:update',
@@ -89,12 +96,23 @@ export const systemRoles = [
   },
   {
     name: 'Chauffeur',
-    permissions: ['city:read', 'route:read', 'stop:read', 'driver:read', 'driver:update', 'vehicle:read', 'trip:read'],
+    permissions: [
+      'city:read',
+      'franchise:read',
+      'user:read',
+      'route:read',
+      'stop:read',
+      'driver:read',
+      'driver:update',
+      'vehicle:read',
+      'trip:read',
+    ],
   },
   {
     name: 'Lecteur',
     permissions: [
       'city:read',
+      'franchise:read',
       'vehicle:read',
       'route:read',
       'stop:read',
