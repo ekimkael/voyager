@@ -73,6 +73,12 @@ export default class EmployeesController {
   async store({ request, response, session, tenant, auth }: HttpContext) {
     const payload = await request.validateUsing(createEmployeeValidator)
 
+    // Server-side enforcement: scoped agents can only create employees in their own franchise
+    const isScopedToFranchise = !!(auth.user!.franchiseId && !(await this.isAdminOrDispatcher(auth.user!.id, tenant!.id)))
+    if (isScopedToFranchise) {
+      payload.franchiseId = auth.user!.franchiseId!
+    }
+
     try {
       await db.transaction(async (trx) => {
         const user = await User.create(
@@ -140,7 +146,7 @@ export default class EmployeesController {
     })
   }
 
-  async update({ params, request, response, session, tenant }: HttpContext) {
+  async update({ params, request, response, session, tenant, auth }: HttpContext) {
     const employee = await User.query()
       .where('id', params.id)
       .where('tenantId', tenant!.id)
@@ -148,26 +154,36 @@ export default class EmployeesController {
 
     const payload = await request.validateUsing(updateEmployeeValidator)
 
+    // Server-side enforcement: scoped agents can only assign employees to their own franchise
+    const isScopedToFranchise = !!(auth.user!.franchiseId && !(await this.isAdminOrDispatcher(auth.user!.id, tenant!.id)))
+    if (isScopedToFranchise) {
+      payload.franchiseId = auth.user!.franchiseId!
+    }
+
     try {
-      employee.merge({
-        firstName: payload.firstName,
-        lastName: payload.lastName,
-        email: payload.email,
-        phone: payload.phone || null,
-        franchiseId: payload.franchiseId,
-        status: payload.status,
+      await db.transaction(async (trx) => {
+        employee.merge({
+          firstName: payload.firstName,
+          lastName: payload.lastName,
+          email: payload.email,
+          phone: payload.phone || null,
+          franchiseId: payload.franchiseId,
+          status: payload.status,
+        })
+
+        if (payload.password) {
+          employee.password = payload.password
+        }
+
+        employee.useTransaction(trx)
+        await employee.save()
+
+        await UserRoleAssignment.updateOrCreate(
+          { userId: employee.id },
+          { roleId: payload.roleId },
+          { client: trx }
+        )
       })
-
-      if (payload.password) {
-        employee.password = payload.password
-      }
-
-      await employee.save()
-
-      await UserRoleAssignment.updateOrCreate(
-        { userId: employee.id },
-        { roleId: payload.roleId }
-      )
     } catch (error) {
       if (error.code === '23505') {
         session.flash('error', 'Un employé avec cet email existe déjà.')
