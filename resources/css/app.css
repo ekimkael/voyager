@@ -36,7 +36,7 @@
   --color-on-danger: var(--color-white);
 
   /* Border Radius */
-  --radius-radius: var(--radius-2xl);
+  --radius-radius: var(--radius-xl);
 }
 
 @keyframes scale-up {
