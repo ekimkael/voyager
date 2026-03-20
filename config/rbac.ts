@@ -37,6 +37,12 @@ export const permissions = [
   { resource: 'driver', action: 'delete', description: 'Remove a driver', isSensitive: true },
   { resource: 'driver', action: 'assign', description: 'Assign driver to a route' },
 
+  // Trips
+  { resource: 'trip', action: 'create', description: 'Schedule a trip' },
+  { resource: 'trip', action: 'read', description: 'View trips' },
+  { resource: 'trip', action: 'update', description: 'Update a trip' },
+  { resource: 'trip', action: 'delete', description: 'Delete a trip', isSensitive: true },
+
   // Users & Roles (tenant admin)
   { resource: 'user', action: 'create', description: 'Invite a user' },
   { resource: 'user', action: 'read', description: 'View users' },
@@ -75,11 +81,15 @@ export const systemRoles = [
       'driver:assign',
       'vehicle:read',
       'vehicle:assign',
+      'trip:create',
+      'trip:read',
+      'trip:update',
+      'trip:delete',
     ],
   },
   {
     name: 'Chauffeur',
-    permissions: ['city:read', 'route:read', 'stop:read', 'driver:read', 'driver:update', 'vehicle:read'],
+    permissions: ['city:read', 'route:read', 'stop:read', 'driver:read', 'driver:update', 'vehicle:read', 'trip:read'],
   },
   {
     name: 'Lecteur',
@@ -91,6 +101,7 @@ export const systemRoles = [
       'driver:read',
       'user:read',
       'role:read',
+      'trip:read',
     ],
   },
 ]
