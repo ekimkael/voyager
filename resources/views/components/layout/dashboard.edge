@@ -50,11 +50,20 @@
         icon: 'tabler:bus',
         label: 'Véhicules',
         })
+        @can('permission', 'city:read')
         @!sidebar.item({
-        href: '#',
+        href: route('cities.index'),
+        icon: 'tabler:building',
+        label: 'Villes',
+        })
+        @end
+        @can('permission', 'route:read')
+        @!sidebar.item({
+        href: route('routes.index'),
         icon: 'tabler:route',
         label: 'Routes',
         })
+        @end
         @!sidebar.item({
         href: '#',
         icon: 'tabler:map-pin',
