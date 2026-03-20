@@ -119,7 +119,7 @@ export default class extends BaseSchema {
   async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.uuid('id').primary().defaultTo(this.raw('gen_random_uuid()'))
-      table.uuid('tenant_id').notNullable().references('id').inTable('tenants').onDelete('RESTRICT')
+      table.uuid('tenant_id').notNullable().references('id').inTable('tenants').onDelete('CASCADE')
       table.string('first_name', 80).notNullable()
       table.string('last_name', 80).notNullable()
       table.string('phone', 20).notNullable()
@@ -151,7 +151,7 @@ export default class extends BaseSchema {
 
     this.schema.createTable(this.tableName, (table) => {
       table.uuid('id').primary().defaultTo(this.raw('gen_random_uuid()'))
-      table.uuid('tenant_id').notNullable().references('id').inTable('tenants').onDelete('RESTRICT')
+      table.uuid('tenant_id').notNullable().references('id').inTable('tenants').onDelete('CASCADE')
       table.uuid('trip_id').notNullable().references('id').inTable('trips').onDelete('RESTRICT')
       table.uuid('customer_id').nullable().references('id').inTable('customers').onDelete('RESTRICT')
       table.uuid('agent_id').nullable().references('id').inTable('users').onDelete('RESTRICT')
@@ -569,6 +569,8 @@ Add to the `systemRoles` in `config/rbac.ts`:
 - **Dispatcher**: add `'booking:create', 'booking:read', 'booking:update'`
 - **Chauffeur**: add `'boarding:validate'`
 
+Note: The spec references an "Agent" role. In the current codebase, agents are users with the Dispatcher role scoped to a franchise (via `user.franchiseId`). No new system role is needed — franchise scoping is enforced at the controller level, not the RBAC level.
+
 - [ ] **Step 3: Run the seeder**
 
 ```bash
@@ -744,8 +746,8 @@ git commit -m "feat: add booking and boarding validators"
 - [ ] **Step 1: Create the SeatAllocator service**
 
 ```typescript
+import { randomInt } from 'node:crypto'
 import Passenger from '#models/passenger'
-import Booking from '#models/booking'
 import Trip from '#models/trip'
 import db from '@adonisjs/lucid/services/db'
 import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
@@ -844,7 +846,7 @@ export default class SeatAllocator {
     for (let attempt = 0; attempt < maxRetries; attempt++) {
       let code = ''
       for (let i = 0; i < 6; i++) {
-        code += chars.charAt(Math.floor(Math.random() * chars.length))
+        code += chars.charAt(randomInt(chars.length))
       }
 
       const existing = await Passenger.query({ client: trx }).where('code', code).first()
@@ -1011,10 +1013,9 @@ git commit -m "feat: add TicketGenerator service with PDF and QR code"
 
 Create `resources/views/components/layout/public.edge` — a simpler layout without dashboard sidebar. Use `@layout.base()` as the parent and add a simple header/footer.
 
-```edge
-@component()
-@set('title', $props.title ?? 'Voyager')
+Follow the same pattern as `dashboard.edge` — use `@layout.base()` directly without `@component()`:
 
+```edge
 @layout.base()
   <header class="border-b border-surface-alt bg-white">
     <div class="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
@@ -1023,16 +1024,7 @@ Create `resources/views/components/layout/public.edge` — a simpler layout with
   </header>
 
   <main class="mx-auto max-w-5xl px-4 py-8">
-    @if(flashMessages.has('error'))
-      <div class="mb-4 rounded-lg bg-red-50 p-4 text-sm text-red-600">
-        {{ flashMessages.get('error') }}
-      </div>
-    @end
-    @if(flashMessages.has('success'))
-      <div class="mb-4 rounded-lg bg-green-50 p-4 text-sm text-green-600">
-        {{ flashMessages.get('success') }}
-      </div>
-    @end
+    @include('partials/flash_alerts')
 
     {{{ await $slots.main() }}}
   </main>
@@ -1040,7 +1032,6 @@ Create `resources/views/components/layout/public.edge` — a simpler layout with
   <footer class="border-t border-surface-alt bg-white py-4 text-center text-xs text-on-surface/50">
     &copy; {{ new Date().getFullYear() }} Voyager
   </footer>
-@end
 @end
 ```
 
@@ -1121,7 +1112,9 @@ export default class SearchController {
 
 - [ ] **Step 3: Create search routes**
 
-Create `start/routes/search.ts`:
+Create `start/routes/search.ts`.
+
+Note on controller imports: Existing route files use `controllers` from `#generated/controllers` (the auto-generated manifest). However, the manifest only auto-detects top-level controllers. Controllers in `dashboard/` subdirectory and new public controllers need inline lazy imports. After creating controllers, run `node ace generate:manifest` to update the manifest. If the new controllers appear in the manifest, use that pattern; otherwise use inline imports as shown below.
 
 ```typescript
 import router from '@adonisjs/core/services/router'
@@ -1175,7 +1168,7 @@ git commit -m "feat: add public trip search with SearchController and views"
 
 Create `app/controllers/bookings_controller.ts` with all multi-step methods:
 
-- `initiate`: Verify trip exists, scheduled, departure > NOW(). Create pending booking with `tenantId` from `tenant!.id`. Store booking ID in session as `bookingId`. Redirect to passengers step.
+- `initiate`: Verify trip exists, scheduled, departure > NOW(). Create pending booking with `tenantId` from `tenant!.id`. Append booking ID to session array `bookingIds` (create array if not exists). Also set `session.put('currentBookingId', booking.id)` for step ownership checks. Redirect to passengers step.
 - `passengers`: Load booking from session, verify ownership + not expired. Load trip for display. Render form.
 - `storePassengers`: Validate with `storePassengersValidator`. Use `db.transaction()` wrapping `seatAllocator.allocate()`. Redirect to customer step.
 - `customer`: Load booking + passengers. Render customer form.
@@ -1188,7 +1181,9 @@ Create `app/controllers/bookings_controller.ts` with all multi-step methods:
 - `failed`: Render failure page with retry link.
 - `verify` / `verifySubmit`: Validate with `verifyBookingValidator`. Find passenger by code, join to booking + customer, match phone. Store booking ID in session. Render result.
 
-**Each step must**: check `session.get('bookingId') === params.id`, check booking is not expired (for pending), check trip departure > NOW().
+**Each step must**: check `session.get('currentBookingId') === params.id`, check booking is not expired (for pending), check trip departure > NOW().
+
+**Session management**: `bookingIds` is an array of all booking IDs created in this session (used for ticket download authorization). `currentBookingId` is the active booking being processed in the multi-step flow (used for step ownership verification). The `verify` flow also appends the verified booking ID to `bookingIds` to enable ticket downloads.
 
 - [ ] **Step 2: Create booking routes**
 
@@ -1259,7 +1254,7 @@ export default class TicketsController {
     const bookingId = params.bookingId
     const passengerId = params.passengerId
 
-    // Verify session owns this booking
+    // Verify session owns this booking (bookingIds is an array, appended during flow)
     const sessionBookingIds: string[] = session.get('bookingIds', [])
     if (!sessionBookingIds.includes(bookingId)) {
       return response.unauthorized('Access denied')
@@ -1293,7 +1288,7 @@ export default class TicketsController {
         departureTime: trip.departureTime.toFormat('dd/MM/yyyy HH:mm'),
         arrivalTime: trip.arrivalTime.toFormat('dd/MM/yyyy HH:mm'),
         travelClass: trip.travelClass,
-        price: passenger.booking.totalAmount / (await passenger.booking.related('passengers').query()).length,
+        price: trip.price,
         busLicensePlate: trip.bus.licensePlate,
       },
     })
