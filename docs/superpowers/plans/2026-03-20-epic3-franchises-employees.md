@@ -292,13 +292,13 @@ In `config/rbac.ts`, after the Cities block (line 25) and before the Stops block
   { resource: 'franchise', action: 'delete', description: 'Delete a franchise', isSensitive: true },
 ```
 
-- [ ] **Step 2: Add franchise:read to Dispatcher, Chauffeur, and Lecteur roles**
+- [ ] **Step 2: Add franchise:read and user:read to roles**
 
 In the `systemRoles` array:
 
 Add `'franchise:read'` to Dispatcher's permissions array (after `'city:read'`).
 
-Add `'franchise:read'` to Chauffeur's permissions array (after `'city:read'`).
+Add `'franchise:read'` and `'user:read'` to Chauffeur's permissions array (after `'city:read'`). Chauffeur needs `user:read` to access the employees page with agent scoping (US-17).
 
 Add `'franchise:read'` to Lecteur's permissions array (after `'city:read'`).
 
@@ -892,6 +892,7 @@ Create `app/controllers/employees_controller.ts`:
 
 ```typescript
 import type { HttpContext } from '@adonisjs/core/http'
+import db from '@adonisjs/lucid/services/db'
 import User from '#models/user'
 import Role from '#models/role'
 import Franchise from '#models/franchise'
@@ -901,7 +902,7 @@ import { createEmployeeValidator, updateEmployeeValidator } from '#validators/em
 export default class EmployeesController {
   async index({ view, tenant, request, auth }: HttpContext) {
     const page = request.input('page', 1)
-    const filterFranchiseId = request.input('franchise_id')
+    const filterFranchiseId = request.input('franchise_id') || null
 
     const query = User.query()
       .where('tenantId', tenant!.id)
@@ -967,20 +968,28 @@ export default class EmployeesController {
     const payload = await request.validateUsing(createEmployeeValidator)
 
     try {
-      const user = await User.create({
-        tenantId: tenant!.id,
-        firstName: payload.firstName,
-        lastName: payload.lastName,
-        email: payload.email,
-        password: payload.password,
-        phone: payload.phone || null,
-        franchiseId: payload.franchiseId,
-      })
+      await db.transaction(async (trx) => {
+        const user = await User.create(
+          {
+            tenantId: tenant!.id,
+            firstName: payload.firstName,
+            lastName: payload.lastName,
+            email: payload.email,
+            password: payload.password,
+            phone: payload.phone || null,
+            franchiseId: payload.franchiseId,
+          },
+          { client: trx }
+        )
 
-      await UserRoleAssignment.create({
-        userId: user.id,
-        roleId: payload.roleId,
-        grantedBy: auth.user!.id,
+        await UserRoleAssignment.create(
+          {
+            userId: user.id,
+            roleId: payload.roleId,
+            grantedBy: auth.user!.id,
+          },
+          { client: trx }
+        )
       })
     } catch (error) {
       if (error.code === '23505') {
@@ -1049,15 +1058,11 @@ export default class EmployeesController {
 
       await employee.save()
 
-      // Update role assignment
-      const existingAssignment = await UserRoleAssignment.query()
-        .where('userId', employee.id)
-        .first()
-
-      if (existingAssignment) {
-        existingAssignment.roleId = payload.roleId
-        await existingAssignment.save()
-      }
+      // Update or create role assignment
+      await UserRoleAssignment.updateOrCreate(
+        { userId: employee.id },
+        { roleId: payload.roleId }
+      )
     } catch (error) {
       if (error.code === '23505') {
         session.flash('error', 'Un employé avec cet email existe déjà.')
