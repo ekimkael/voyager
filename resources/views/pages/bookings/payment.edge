@@ -1,5 +1,28 @@
 @layout.public()
-  <div class="mx-auto max-w-lg">
+  <div class="mx-auto max-w-lg"
+    x-data="{
+      availableSeats: {{ availableSeats }},
+      subscription: null,
+      get seatsExhausted() {
+        return this.availableSeats <= 0
+      },
+      async init() {
+        const transmit = window.__transmit
+        if (transmit) {
+          this.subscription = transmit.subscription('trips/{{ booking.tripId }}/seats')
+          await this.subscription.create()
+          this.subscription.onMessage((data) => {
+            this.availableSeats = data.availableSeats
+          })
+        }
+      },
+      destroy() {
+        if (this.subscription) {
+          this.subscription.delete()
+        }
+      }
+    }"
+  >
 
     {{-- Progress --}}
     <div class="mb-6">
@@ -17,6 +40,13 @@
         <div class="h-full w-full rounded-full bg-primary"></div>
       </div>
     </div>
+
+    <p class="mb-6 text-sm font-semibold"
+      :class="availableSeats <= 0 ? 'text-red-600' : 'text-on-surface'"
+      x-text="availableSeats <= 0 ? 'Plus de places disponibles' : 'Places restantes : ' + availableSeats"
+    >
+      Places restantes : {{ availableSeats }}
+    </p>
 
     {{-- Payment form --}}
     <div class="rounded-radius border border-outline bg-surface p-6">
@@ -104,7 +134,9 @@
           </a>
           <button
             type="submit"
-            class="rounded-radius bg-primary px-6 py-2.5 text-sm font-medium text-on-primary transition-colors hover:bg-secondary"
+            :disabled="seatsExhausted"
+            :class="seatsExhausted ? 'bg-gray-400 cursor-not-allowed' : 'bg-primary hover:bg-secondary'"
+            class="rounded-radius px-6 py-2.5 text-sm font-medium text-on-primary transition-colors"
           >
             Payer
           </button>
