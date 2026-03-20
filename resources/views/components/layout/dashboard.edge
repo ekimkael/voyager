@@ -71,11 +71,13 @@
         icon: 'tabler:map-pin',
         label: 'Arrêts',
         })
+        @can('permission', 'driver:read')
         @!sidebar.item({
-        href: '#',
+        href: route('drivers.index'),
         icon: 'tabler:steering-wheel',
         label: 'Conducteurs',
         })
+        @end
       </ul>
 
       {{-- Administration (role-gated) --}}
