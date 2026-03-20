@@ -1,0 +1,56 @@
+@let(paginator = $props.get('paginator'))
+
+@if(paginator.lastPage > 1)
+  @let(rangeStart = Math.max(1, paginator.currentPage - 2))
+  @let(rangeEnd = Math.min(paginator.lastPage, paginator.currentPage + 2))
+
+  <div class="flex items-center justify-between border-t border-outline px-6 py-3">
+    <p class="text-sm text-on-surface">
+      Page {{ paginator.currentPage }} sur {{ paginator.lastPage }} — {{ paginator.total }} résultats
+    </p>
+    <nav class="flex items-center gap-1" aria-label="Pagination">
+      @if(paginator.currentPage > 1)
+        <a href="{{ paginator.getUrl(paginator.currentPage - 1) }}"
+          class="inline-flex items-center rounded-radius border border-outline px-3 py-1.5 text-sm text-on-surface hover:bg-surface-alt transition-colors">
+          Précédent
+        </a>
+      @end
+      @if(rangeStart > 1)
+        <a href="{{ paginator.getUrl(1) }}"
+          class="inline-flex items-center rounded-radius border border-outline px-3 py-1.5 text-sm text-on-surface hover:bg-surface-alt transition-colors">
+          1
+        </a>
+        @if(rangeStart > 2)
+          <span class="px-1 text-on-surface">…</span>
+        @end
+      @end
+      @each(anchor in paginator.getUrlsForRange(rangeStart, rangeEnd))
+        @if(anchor.isActive)
+          <span class="inline-flex items-center rounded-radius bg-primary px-3 py-1.5 text-sm font-medium text-on-primary">
+            {{ anchor.page }}
+          </span>
+        @else
+          <a href="{{ anchor.url }}"
+            class="inline-flex items-center rounded-radius border border-outline px-3 py-1.5 text-sm text-on-surface hover:bg-surface-alt transition-colors">
+            {{ anchor.page }}
+          </a>
+        @end
+      @end
+      @if(rangeEnd < paginator.lastPage)
+        @if(rangeEnd < paginator.lastPage - 1)
+          <span class="px-1 text-on-surface">…</span>
+        @end
+        <a href="{{ paginator.getUrl(paginator.lastPage) }}"
+          class="inline-flex items-center rounded-radius border border-outline px-3 py-1.5 text-sm text-on-surface hover:bg-surface-alt transition-colors">
+          {{ paginator.lastPage }}
+        </a>
+      @end
+      @if(paginator.currentPage < paginator.lastPage)
+        <a href="{{ paginator.getUrl(paginator.currentPage + 1) }}"
+          class="inline-flex items-center rounded-radius border border-outline px-3 py-1.5 text-sm text-on-surface hover:bg-surface-alt transition-colors">
+          Suivant
+        </a>
+      @end
+    </nav>
+  </div>
+@end
