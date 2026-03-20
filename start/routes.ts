@@ -8,6 +8,9 @@
 */
 
 import router from '@adonisjs/core/services/router'
+import transmit from '@adonisjs/transmit/services/main'
+
+transmit.registerRoutes()
 
 router.on('/').render('pages/home').as('home')
 
