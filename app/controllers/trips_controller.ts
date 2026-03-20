@@ -11,6 +11,7 @@ export default class TripsController {
   async index({ view, tenant }: HttpContext) {
     const trips = await Trip.query()
       .where('tenantId', tenant!.id)
+      .whereIn('status', ['scheduled', 'in_progress'])
       .preload('route', (query) => {
         query.preload('departureCity').preload('arrivalCity')
       })
@@ -56,17 +57,35 @@ export default class TripsController {
     }
 
     // Verify referenced entities belong to the current tenant
-    await Route.query().where('id', payload.routeId).where('tenantId', tenant!.id).where('status', 'active').firstOrFail()
-    await Bus.query().where('id', payload.busId).where('tenantId', tenant!.id).where('active', true).firstOrFail()
+    await Route.query()
+      .where('id', payload.routeId)
+      .where('tenantId', tenant!.id)
+      .where('status', 'active')
+      .firstOrFail()
+    await Bus.query()
+      .where('id', payload.busId)
+      .where('tenantId', tenant!.id)
+      .where('active', true)
+      .firstOrFail()
     await this.verifyDriver(payload.driverId, tenant!.id)
 
-    const busOverlap = await this.checkBusOverlap(payload.busId, departureTime, arrivalTime, tenant!.id)
+    const busOverlap = await this.checkBusOverlap(
+      payload.busId,
+      departureTime,
+      arrivalTime,
+      tenant!.id
+    )
     if (busOverlap) {
       session.flash('error', 'Ce véhicule est déjà assigné à un autre voyage sur cette période.')
       return response.redirect().back()
     }
 
-    const driverOverlap = await this.checkDriverOverlap(payload.driverId, departureTime, arrivalTime, tenant!.id)
+    const driverOverlap = await this.checkDriverOverlap(
+      payload.driverId,
+      departureTime,
+      arrivalTime,
+      tenant!.id
+    )
     if (driverOverlap) {
       session.flash('error', 'Ce conducteur est déjà assigné à un autre voyage sur cette période.')
       return response.redirect().back()
@@ -144,17 +163,41 @@ export default class TripsController {
     }
 
     // Verify referenced entities belong to the current tenant
-    await Route.query().where('id', payload.routeId).where('tenantId', tenant!.id).where('status', 'active').firstOrFail()
-    await Bus.query().where('id', payload.busId).where('tenantId', tenant!.id).where('active', true).firstOrFail()
+    await Route.query()
+      .where('id', payload.routeId)
+      .where('tenantId', tenant!.id)
+      .where('status', 'active')
+      .firstOrFail()
+
+    await Bus.query()
+      .where('id', payload.busId)
+      .where('tenantId', tenant!.id)
+      .where('active', true)
+      .firstOrFail()
+
     await this.verifyDriver(payload.driverId, tenant!.id)
 
-    const busOverlap = await this.checkBusOverlap(payload.busId, departureTime, arrivalTime, tenant!.id, trip.id)
+    const busOverlap = await this.checkBusOverlap(
+      payload.busId,
+      departureTime,
+      arrivalTime,
+      tenant!.id,
+      trip.id
+    )
+
     if (busOverlap) {
       session.flash('error', 'Ce véhicule est déjà assigné à un autre voyage sur cette période.')
       return response.redirect().back()
     }
 
-    const driverOverlap = await this.checkDriverOverlap(payload.driverId, departureTime, arrivalTime, tenant!.id, trip.id)
+    const driverOverlap = await this.checkDriverOverlap(
+      payload.driverId,
+      departureTime,
+      arrivalTime,
+      tenant!.id,
+      trip.id
+    )
+
     if (driverOverlap) {
       session.flash('error', 'Ce conducteur est déjà assigné à un autre voyage sur cette période.')
       return response.redirect().back()
@@ -169,6 +212,7 @@ export default class TripsController {
       travelClass: payload.travelClass,
       price: payload.price,
     })
+
     await trip.save()
 
     session.flash('success', 'Voyage mis à jour avec succès')
