@@ -1,0 +1,94 @@
+<div class="flex flex-col gap-6">
+  <div>
+    @field.root({ name: 'routeId' })
+      @!field.label({ text: 'Route' })
+      @!select.control({
+        options: [
+          { value: '', name: 'Sélectionner une route' },
+          ...routes.map((r) => ({
+            value: r.id,
+            name: `${r.code} — ${r.departureCity.name} → ${r.arrivalCity.name}`,
+            isSelected: trip?.routeId === r.id,
+          }))
+        ]
+      })
+      @!field.error()
+    @end
+  </div>
+
+  <div>
+    @field.root({ name: 'busId' })
+      @!field.label({ text: 'Véhicule' })
+      @!select.control({
+        options: [
+          { value: '', name: 'Sélectionner un véhicule' },
+          ...buses.map((b) => ({
+            value: b.id,
+            name: `${b.licensePlate} — ${b.brand} ${b.model} (${b.capacity} places)`,
+            isSelected: trip?.busId === b.id,
+          }))
+        ]
+      })
+      @!field.error()
+    @end
+  </div>
+
+  <div>
+    @field.root({ name: 'driverId' })
+      @!field.label({ text: 'Chauffeur' })
+      @!select.control({
+        options: [
+          { value: '', name: 'Sélectionner un chauffeur' },
+          ...drivers.map((d) => ({
+            value: d.id,
+            name: d.fullName,
+            isSelected: trip?.driverId === d.id,
+          }))
+        ]
+      })
+      @!field.error()
+    @end
+  </div>
+
+  <div>
+    @field.root({ name: 'departureTime' })
+      @!field.label({ text: 'Date et heure de départ' })
+      @!input.control({ type: 'datetime-local', value: trip?.departureTime ? trip.departureTime.toFormat("yyyy-MM-dd'T'HH:mm") : '' })
+      @!field.error()
+    @end
+  </div>
+
+  <div>
+    @field.root({ name: 'arrivalTime' })
+      @!field.label({ text: "Date et heure d'arrivée prévue" })
+      @!input.control({ type: 'datetime-local', value: trip?.arrivalTime ? trip.arrivalTime.toFormat("yyyy-MM-dd'T'HH:mm") : '' })
+      @!field.error()
+    @end
+  </div>
+
+  <div>
+    @field.root({ name: 'travelClass' })
+      @!field.label({ text: 'Classe' })
+      @!select.control({
+        options: [
+          { value: 'standard', name: 'Standard', isSelected: trip?.travelClass === 'standard' || !trip },
+          { value: 'vip', name: 'VIP', isSelected: trip?.travelClass === 'vip' },
+        ]
+      })
+      @!field.error()
+    @end
+  </div>
+
+  <div>
+    @field.root({ name: 'price' })
+      @!field.label({ text: 'Tarif (FCFA)' })
+      @!input.control({ type: 'number', step: '0.01', min: '0', placeholder: 'Ex: 5000', value: trip?.price ?? '' })
+      @!field.error()
+    @end
+  </div>
+
+  <div class="flex items-center gap-3">
+    @!button({ text: trip ? 'Mettre à jour' : 'Planifier', type: 'submit' })
+    <a href="{{ route('trips.index') }}" class="text-sm text-on-surface hover:text-on-surface-strong transition-colors">Annuler</a>
+  </div>
+</div>
