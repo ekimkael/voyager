@@ -45,11 +45,13 @@
         icon: 'tabler:layout-dashboard',
         label: 'Dashboard',
         })
+        @can('permission', 'vehicle:read')
         @!sidebar.item({
-        href: '#',
+        href: route('buses.index'),
         icon: 'tabler:bus',
         label: 'Véhicules',
         })
+        @end
         @can('permission', 'city:read')
         @!sidebar.item({
         href: route('cities.index'),
