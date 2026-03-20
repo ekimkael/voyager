@@ -1,5 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import Bus from '#models/bus'
+import Trip from '#models/trip'
 import { createBusValidator, updateBusValidator } from '#validators/bus'
 
 export default class BusesController {
@@ -87,8 +88,13 @@ export default class BusesController {
       .where('tenantId', tenant!.id)
       .firstOrFail()
 
-    if (bus.status === 'on_trip') {
-      session.flash('error', 'Impossible de désactiver un véhicule en voyage.')
+    const activeTrips = await Trip.query()
+      .where('busId', bus.id)
+      .whereIn('status', ['scheduled', 'in_progress'])
+      .count('* as total')
+
+    if (Number(activeTrips[0].$extras.total) > 0) {
+      session.flash('error', 'Impossible de désactiver un véhicule ayant des voyages actifs.')
       return response.redirect().toRoute('buses.index')
     }
 
