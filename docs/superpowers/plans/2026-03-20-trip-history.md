@@ -181,7 +181,8 @@ async history({ view, request, tenant }: HttpContext) {
     query.where('departureTime', '>=', filters.date_from)
   }
   if (filters.date_to) {
-    query.where('departureTime', '<=', `${filters.date_to}T23:59:59`)
+    const nextDay = DateTime.fromISO(filters.date_to).plus({ days: 1 }).toISODate()
+    query.where('departureTime', '<', nextDay)
   }
   if (filters.price_min !== undefined) {
     query.where('price', '>=', filters.price_min)
@@ -198,9 +199,10 @@ async history({ view, request, tenant }: HttpContext) {
     .preload('driver')
     .orderBy('departureTime', 'desc')
 
-  const trips = await query.paginate(filters.page, 20)
+  const { page, ...queryFilters } = filters
+  const trips = await query.paginate(page, 20)
   trips.baseUrl('/trips/history')
-  trips.queryString(filters)
+  trips.queryString(queryFilters)
 
   const routes = await Route.query()
     .where('tenantId', tenant!.id)
@@ -212,7 +214,20 @@ async history({ view, request, tenant }: HttpContext) {
     .where('tenantId', tenant!.id)
     .orderBy('licensePlate')
 
-  const drivers = await this.getDrivers(tenant!.id)
+  const chauffeurRole = await Role.query()
+    .where('tenantId', tenant!.id)
+    .where('name', 'Chauffeur')
+    .first()
+
+  const drivers = chauffeurRole
+    ? await User.query()
+        .where('tenantId', tenant!.id)
+        .whereHas('roleAssignments', (q) => {
+          q.where('roleId', chauffeurRole.id)
+        })
+        .orderBy('firstName')
+        .orderBy('lastName')
+    : []
 
   return view.render('pages/trips/history', { trips, routes, buses, drivers, filters })
 }
@@ -242,6 +257,9 @@ Create `resources/views/components/pagination.edge`. This component receives a L
 @let(paginator = $props.get('paginator'))
 
 @if(paginator.lastPage > 1)
+  @let(rangeStart = Math.max(1, paginator.currentPage - 2))
+  @let(rangeEnd = Math.min(paginator.lastPage, paginator.currentPage + 2))
+
   <div class="flex items-center justify-between border-t border-outline px-6 py-3">
     <p class="text-sm text-on-surface">
       Page {{ paginator.currentPage }} sur {{ paginator.lastPage }} — {{ paginator.total }} résultats
@@ -253,7 +271,16 @@ Create `resources/views/components/pagination.edge`. This component receives a L
           Précédent
         </a>
       @end
-      @each(anchor in paginator.getUrlsForRange(1, paginator.lastPage))
+      @if(rangeStart > 1)
+        <a href="{{ paginator.getUrl(1) }}"
+          class="inline-flex items-center rounded-radius border border-outline px-3 py-1.5 text-sm text-on-surface hover:bg-surface-alt transition-colors">
+          1
+        </a>
+        @if(rangeStart > 2)
+          <span class="px-1 text-on-surface">…</span>
+        @end
+      @end
+      @each(anchor in paginator.getUrlsForRange(rangeStart, rangeEnd))
         @if(anchor.isActive)
           <span class="inline-flex items-center rounded-radius bg-primary px-3 py-1.5 text-sm font-medium text-on-primary">
             {{ anchor.page }}
@@ -264,6 +291,15 @@ Create `resources/views/components/pagination.edge`. This component receives a L
             {{ anchor.page }}
           </a>
         @end
+      @end
+      @if(rangeEnd < paginator.lastPage)
+        @if(rangeEnd < paginator.lastPage - 1)
+          <span class="px-1 text-on-surface">…</span>
+        @end
+        <a href="{{ paginator.getUrl(paginator.lastPage) }}"
+          class="inline-flex items-center rounded-radius border border-outline px-3 py-1.5 text-sm text-on-surface hover:bg-surface-alt transition-colors">
+          {{ paginator.lastPage }}
+        </a>
       @end
       @if(paginator.currentPage < paginator.lastPage)
         <a href="{{ paginator.getUrl(paginator.currentPage + 1) }}"
