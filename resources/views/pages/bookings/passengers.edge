@@ -31,6 +31,12 @@
       <p class="mt-1 text-sm text-on-surface">
         Prix par passager&nbsp;: <strong>{{ trip.price }} FCFA</strong>
       </p>
+      <p class="mt-1 text-sm font-semibold"
+        :class="availableSeats <= 0 ? 'text-red-600' : 'text-on-surface'"
+        x-text="availableSeats <= 0 ? 'Plus de places disponibles' : 'Places restantes : ' + availableSeats"
+      >
+        Places restantes : {{ availableSeats }}
+      </p>
     </div>
 
     {{-- Passenger form --}}
@@ -42,11 +48,36 @@
         action="{{ route('public.bookings.storePassengers', { tenantSlug, id: booking.id }) }}"
         x-data="{
           passengers: [{ firstName: '', lastName: '', phone: '' }],
+          availableSeats: {{ availableSeats }},
+          subscription: null,
+          get seatsExhausted() {
+            return this.availableSeats <= 0
+          },
+          get canAddPassenger() {
+            return this.passengers.length < this.availableSeats
+          },
           addPassenger() {
-            this.passengers.push({ firstName: '', lastName: '', phone: '' })
+            if (this.canAddPassenger) {
+              this.passengers.push({ firstName: '', lastName: '', phone: '' })
+            }
           },
           removePassenger(index) {
             if (this.passengers.length > 1) this.passengers.splice(index, 1)
+          },
+          async init() {
+            const transmit = window.__transmit
+            if (transmit) {
+              this.subscription = transmit.subscription('trips/{{ booking.tripId }}/seats')
+              await this.subscription.create()
+              this.subscription.onMessage((data) => {
+                this.availableSeats = data.availableSeats
+              })
+            }
+          },
+          destroy() {
+            if (this.subscription) {
+              this.subscription.delete()
+            }
           }
         }"
       >
@@ -116,7 +147,9 @@
           <button
             type="button"
             @click="addPassenger()"
-            class="inline-flex items-center gap-1 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+            :disabled="!canAddPassenger"
+            :class="canAddPassenger ? 'text-primary hover:text-primary/80' : 'text-gray-400 cursor-not-allowed'"
+            class="inline-flex items-center gap-1 text-sm font-medium transition-colors"
           >
             + Ajouter un passager
           </button>
@@ -129,7 +162,9 @@
           </a>
           <button
             type="submit"
-            class="rounded-radius bg-primary px-6 py-2.5 text-sm font-medium text-on-primary transition-colors hover:bg-secondary"
+            :disabled="seatsExhausted"
+            :class="seatsExhausted ? 'bg-gray-400 cursor-not-allowed' : 'bg-primary hover:bg-secondary'"
+            class="rounded-radius px-6 py-2.5 text-sm font-medium text-on-primary transition-colors"
           >
             Suivant
           </button>
