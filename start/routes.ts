@@ -63,5 +63,12 @@ router
         router.delete('/:id', [controllers.Buses, 'destroy']).as('buses.destroy').use(middleware.permission({ keys: ['vehicle:delete'] }))
       })
       .prefix('buses')
+
+    // Drivers (tenant-scoped, read-only)
+    router
+      .group(() => {
+        router.get('/', [controllers.Drivers, 'index']).as('drivers.index').use(middleware.permission({ keys: ['driver:read'] }))
+      })
+      .prefix('drivers')
   })
   .use(middleware.auth())
