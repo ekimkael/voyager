@@ -8,6 +8,14 @@ The Voyager application is a multi-tenant AdonisJS 7 transport management system
 
 **Production environment**: Shared hosting with Phusion Passenger — no background workers, no WebSockets. All operations must be synchronous.
 
+## Tenant Resolution for Public Routes
+
+The existing `TenantMiddleware` resolves the tenant from the authenticated user. Public routes (search, booking flow) have no auth. The tenant is resolved via a **slug in the URL prefix**: all public routes are prefixed with `/:tenantSlug` (e.g., `/acme-transport/trips`).
+
+The `TenantMiddleware` is adapted: if no auth user, it looks for `params.tenantSlug` and resolves the tenant via `Tenant.findByOrFail('slug', params.tenantSlug)`. This supports multi-tenant deployments where each company has its own public portal URL.
+
+Alternatively, for single-tenant deployments, an env variable `DEFAULT_TENANT_SLUG` can be used as fallback when no slug is in the URL.
+
 ## Decisions
 
 | Decision | Choice | Rationale |
@@ -71,12 +79,15 @@ The travelers — one per seat. Each passenger has their own code and QR code fo
 | `last_name` | VARCHAR(80) | NOT NULL | |
 | `phone` | VARCHAR(20) | NULL | Optional |
 | `seat_number` | INTEGER | NOT NULL | Auto-assigned (1 to bus capacity) |
-| `code` | VARCHAR(6) | NOT NULL, UNIQUE | Alphanumeric code (e.g., "A7X3B2") |
-| `qr_code` | UUID | NOT NULL, UNIQUE, DEFAULT gen_random_uuid() | QR Code content |
+| `code` | VARCHAR(6) | NOT NULL | Alphanumeric code (e.g., "A7X3B2") |
+| `qr_code` | UUID | NOT NULL, DEFAULT gen_random_uuid() | QR Code content |
 | `status` | ENUM | NOT NULL, DEFAULT 'pending' | `pending` \| `boarded` |
+| `boarded_at` | TIMESTAMP | NULL | Timestamp of boarding validation |
 | `created_at` | TIMESTAMP | NOT NULL, DEFAULT NOW() | |
 
-Indexes: UNIQUE ON `(qr_code)`, UNIQUE ON `(code)`
+Indexes: ON `(booking_id)`, UNIQUE ON `(qr_code)`, UNIQUE ON `(code)`
+
+Note: `code` and `qr_code` are globally unique (UUID v4 for qr_code guarantees no collision; 6-char alphanumeric code uses retry-on-conflict insertion). Boarding validation always joins through `bookings` to enforce tenant scoping — lookups never rely on code uniqueness alone.
 
 Anti-double-booking: Enforced transactionally at the application level — no two passengers (from bookings with status `pending` or `confirmed`) can have the same `seat_number` for the same `trip_id`. Verified via `SELECT ... FOR UPDATE` within the seat allocation transaction.
 
@@ -113,24 +124,26 @@ franchises 1 → N bookings
 
 ### Public — Client Portal
 
+All public routes are prefixed with `/:tenantSlug` for tenant resolution. The `TenantMiddleware` resolves the slug to a tenant record. Examples below omit the prefix for readability.
+
 | Method | URL | Controller | Description |
 |--------|-----|------------|-------------|
-| GET | `/trips` | SearchController.index | Search trips (from, to, date) |
-| GET | `/trips/:id` | SearchController.show | Trip details + "Book" button |
-| POST | `/trips/:id/book` | BookingsController.initiate | Create pending booking → redirect |
-| GET | `/bookings/:id/passengers` | BookingsController.passengers | Step 1: passenger form |
-| POST | `/bookings/:id/passengers` | BookingsController.storePassengers | Save passengers → redirect |
-| GET | `/bookings/:id/customer` | BookingsController.customer | Step 2: customer form |
-| POST | `/bookings/:id/customer` | BookingsController.storeCustomer | Save/find customer → redirect |
-| GET | `/bookings/:id/summary` | BookingsController.summary | Step 3: recap |
-| POST | `/bookings/:id/summary` | BookingsController.confirm | Confirm → redirect to payment |
-| GET | `/bookings/:id/payment` | BookingsController.payment | Step 4: payment simulation |
-| POST | `/bookings/:id/payment` | BookingsController.processPayment | Process → redirect |
-| GET | `/bookings/:id/completed` | BookingsController.completed | Success + download tickets |
-| GET | `/bookings/:id/failed` | BookingsController.failed | Failure + retry link |
-| GET | `/bookings/verify` | BookingsController.verify | Verification form |
-| POST | `/bookings/verify` | BookingsController.verifySubmit | Phone + code → passenger details |
-| GET | `/bookings/:bookingId/passengers/:passengerId/ticket` | TicketsController.download | Download PDF ticket |
+| GET | `/:tenantSlug/trips` | SearchController.index | Search trips (from, to, date) |
+| GET | `/:tenantSlug/trips/:id` | SearchController.show | Trip details + "Book" button |
+| POST | `/:tenantSlug/trips/:id/book` | BookingsController.initiate | Create pending booking → redirect |
+| GET | `/:tenantSlug/bookings/:id/passengers` | BookingsController.passengers | Step 1: passenger form |
+| POST | `/:tenantSlug/bookings/:id/passengers` | BookingsController.storePassengers | Save passengers → redirect |
+| GET | `/:tenantSlug/bookings/:id/customer` | BookingsController.customer | Step 2: customer form |
+| POST | `/:tenantSlug/bookings/:id/customer` | BookingsController.storeCustomer | Save/find customer → redirect |
+| GET | `/:tenantSlug/bookings/:id/summary` | BookingsController.summary | Step 3: recap |
+| POST | `/:tenantSlug/bookings/:id/summary` | BookingsController.confirm | Confirm → redirect to payment |
+| GET | `/:tenantSlug/bookings/:id/payment` | BookingsController.payment | Step 4: payment simulation |
+| POST | `/:tenantSlug/bookings/:id/payment` | BookingsController.processPayment | Process → redirect |
+| GET | `/:tenantSlug/bookings/:id/completed` | BookingsController.completed | Success + download tickets |
+| GET | `/:tenantSlug/bookings/:id/failed` | BookingsController.failed | Failure + retry link |
+| GET | `/:tenantSlug/bookings/verify` | BookingsController.verify | Verification form |
+| POST | `/:tenantSlug/bookings/verify` | BookingsController.verifySubmit | Phone + code → passenger details |
+| GET | `/:tenantSlug/bookings/:bookingId/passengers/:passengerId/ticket` | TicketsController.download | Download PDF ticket |
 
 ### Back-office — Dashboard
 
@@ -153,21 +166,23 @@ franchises 1 → N bookings
 
 Public, no auth. Handles trip search and display.
 
-- `index`: Accepts query params `from`, `to`, `date`. Queries trips with status `scheduled`, departure date matching, joined with route + bus. Calculates remaining seats (bus capacity minus confirmed/pending passengers). Returns search form + results.
-- `show`: Loads trip with route, bus, departure/arrival cities. Shows remaining seat count. "Book" button.
+- `index`: Accepts query params `from`, `to`, `date`. Queries trips with status `scheduled`, departure time > NOW(), departure date matching, joined with route + bus. Calculates remaining seats (bus capacity minus confirmed/active-pending passengers). Returns search form + results.
+- `show`: Loads trip with route, bus, departure/arrival cities. Verifies departure time > NOW(). Shows remaining seat count. "Book" button.
 
 ### BookingsController (public flow)
 
 No auth. Multi-step booking flow. The booking UUID is stored in session to prevent unauthorized access.
 
-- `initiate`: Creates a `pending` booking for the trip (no customer yet, no passengers). Stores booking ID in session. Redirects to passengers step.
-- `passengers` / `storePassengers`: Form for N passengers (name, phone optional). On submit, allocates seats transactionally via SeatAllocator service and creates passenger records. Redirects to customer step.
+- `initiate`: Verifies trip departure time > NOW(). Creates a `pending` booking for the trip (no customer yet, no passengers). Stores booking ID in session. Redirects to passengers step.
+- `passengers` / `storePassengers`: Form for N passengers (name, phone optional). On submit, allocates seats and creates passengers atomically via SeatAllocator service (single transaction). Redirects to customer step.
 - `customer` / `storeCustomer`: Form for buyer info (name, phone, email optional). On submit, finds existing customer by `(tenant_id, phone)` or creates new. Sets `customer_id` on booking. Computes `total_amount` (passengers count * trip price). Redirects to summary.
 - `summary` / `confirm`: Displays full recap (trip, passengers with seats, customer, total). On confirm, redirects to payment.
 - `payment` / `processPayment`: Simulated payment page. On submit, creates payment record (status: `success`, method: `cash`), sets booking status to `confirmed`. Redirects to completed or failed.
 - `completed`: Shows success message, lists passengers with download links for individual PDF tickets.
 - `failed`: Shows failure message with retry link back to payment step.
-- `verify` / `verifySubmit`: Public form — customer enters phone + passenger code. On match, shows passenger details + ticket download link.
+- `verify` / `verifySubmit`: Public form — customer enters phone + passenger code. On match, stores booking ID in session and shows passenger details + ticket download link.
+
+**Each step verifies**: booking exists, is in session, status is appropriate for the step, and trip departure time has not passed. If the pending booking is older than 15 minutes, it is treated as expired and the user is redirected to restart.
 
 ### Dashboard/BookingsController
 
@@ -176,47 +191,52 @@ Auth required. Permission-gated. Agent creates bookings in a single step.
 - `index`: Lists bookings scoped to agent's franchise. Filters: date, trip, status, passenger code. Pagination.
 - `create` / `store`: Single-form booking — agent enters trip, customer info, passenger(s) info. Creates booking + customer + passengers + payment in one transaction. Status immediately `confirmed`.
 - `show`: Booking details with passengers, customer, payment status, ticket download links.
-- `edit` / `update`: Modify passenger info. Cancel booking (status → `cancelled`).
-- `destroy`: Soft cancel — sets status to `cancelled`, frees seats.
+- `edit` / `update`: Modify passenger info only. Permission: `booking:update`.
+- `destroy`: Cancel booking — sets status to `cancelled`, frees seats. Only allowed if trip departure time > NOW(). Permission: `booking:delete`.
 
 ### Dashboard/BoardingController
 
 Auth required. Permission `boarding:validate`.
 
 - `index`: Form with a single input field for passenger code.
-- `validate`: Looks up passenger by code, verifies booking is `confirmed`, trip is `scheduled` or `in_progress`. Sets passenger status to `boarded`. Displays passenger name, trip, seat number as confirmation.
+- `validate`: Looks up passenger by code OR qr_code (accepts either), scoped to the current tenant. Verifies booking is `confirmed`, trip is `scheduled` or `in_progress`. For Chauffeur role, additionally verifies the trip is assigned to them (driver scoping). Sets passenger status to `boarded`, sets `boarded_at` to NOW(). Displays passenger name, trip, seat number as confirmation.
 
 ### TicketsController
 
 Generates PDF tickets on-the-fly.
 
 - `download`: Loads passenger with booking → trip → route → cities → tenant. Generates PDF using `ticket_generator` service. Streams response with `Content-Type: application/pdf`.
-- Public route: validates booking ID is in session (client flow) or phone + code match (verify flow).
-- Dashboard route: validates auth + permission.
+- Public route: validates booking ID is in session (set during booking flow or after successful verify).
+- Dashboard route: validates auth + permission `booking:read`.
 
 ## Services
 
 ### SeatAllocator
 
-Handles transactional seat assignment.
+Handles transactional seat assignment **and** passenger creation atomically. The entire operation — selecting available seats, creating passenger records, and generating codes — happens within a single database transaction to prevent race conditions.
 
 ```
-Input: tripId, passengerCount
-Output: number[] (assigned seat numbers)
+Input: tripId, passengerData[] (firstName, lastName, phone?), trx (transaction)
+Output: Passenger[] (created passenger records with assigned seats)
 
-1. BEGIN TRANSACTION
-2. SELECT seat_number FROM passengers
+1. SELECT seat_number FROM passengers
    JOIN bookings ON bookings.id = passengers.booking_id
    WHERE bookings.trip_id = :tripId
    AND bookings.status IN ('pending', 'confirmed')
+   AND (bookings.status = 'confirmed'
+        OR bookings.updated_at > NOW() - INTERVAL '15 minutes')
    FOR UPDATE
-3. Get bus capacity from trip → bus
-4. Compute available seats (1..capacity minus taken)
-5. If available < passengerCount → ROLLBACK, throw InsufficientSeatsError
-6. Take first N available seats
-7. COMMIT
-8. Return assigned seats
+2. Get bus capacity from trip → bus
+3. Compute available seats (1..capacity minus taken)
+4. If available < passengerCount → throw InsufficientSeatsError
+5. Take first N available seats
+6. For each passenger + seat:
+   a. Generate 6-char alphanumeric code (retry on unique constraint violation)
+   b. INSERT passenger record (within same transaction)
+7. Return created passengers
 ```
+
+**Pending booking expiry**: Pending bookings older than 15 minutes are ignored during seat allocation (their seats are considered available). This prevents abandoned booking flows from permanently blocking seats, without requiring background workers. The stale pending bookings remain in the database but have no effect on availability.
 
 ### TicketGenerator
 
@@ -241,13 +261,13 @@ Output: Buffer (PDF)
 
 ### New permissions
 
-| Resource | Action | Description |
-|----------|--------|-------------|
-| `booking` | `create` | Create bookings |
-| `booking` | `read` | View bookings list and details |
-| `booking` | `update` | Modify/cancel bookings |
-| `booking` | `delete` | Cancel bookings |
-| `boarding` | `validate` | Validate passenger boarding |
+| Resource | Action | Description | isSensitive |
+|----------|--------|-------------|-------------|
+| `booking` | `create` | Create bookings | false |
+| `booking` | `read` | View bookings list and details | false |
+| `booking` | `update` | Modify passenger info | false |
+| `booking` | `delete` | Cancel bookings | true |
+| `boarding` | `validate` | Validate passenger boarding | false |
 
 ### Role assignments
 
@@ -299,7 +319,8 @@ app/
 ├── models/
 │   ├── customer.ts
 │   ├── booking.ts
-│   └── passenger.ts
+│   ├── passenger.ts
+│   └── payment.ts
 ├── validators/
 │   ├── booking.ts                        # Validators for all booking steps
 │   └── boarding.ts                       # Boarding validation
@@ -348,11 +369,14 @@ config/
 
 ## Security
 
-- **Booking flow protection**: Booking UUID stored in session. Each step verifies the session owns the booking. UUID v4 is non-guessable.
-- **Passenger code**: 6-char alphanumeric, generated server-side with collision check.
+- **Tenant isolation**: Public routes resolve tenant from URL slug. All queries scoped to resolved tenant. Boarding validation joins through bookings to enforce tenant scoping.
+- **Booking flow protection**: Booking UUID stored in session. Each step verifies the session owns the booking. UUID v4 is non-guessable. The verify flow stores booking ID in session after successful phone + code match, enabling ticket downloads.
+- **Pending booking expiry**: Pending bookings older than 15 minutes are treated as expired. Their seats become available again. Each booking step checks freshness and redirects to restart if stale.
+- **Passenger code**: 6-char alphanumeric, generated server-side with retry-on-unique-constraint-violation insertion (not SELECT-then-INSERT).
 - **QR code**: UUID v4, non-predictable, used only for boarding validation.
-- **Anti-double-booking**: Transactional seat allocation with `SELECT ... FOR UPDATE`.
-- **Agent scoping**: Dashboard bookings scoped to agent's franchise.
+- **Anti-double-booking**: Seat allocation and passenger creation in a single transaction with `SELECT ... FOR UPDATE`.
+- **Cancellation guard**: Bookings can only be cancelled if `trip.departureTime > NOW()`.
+- **Agent scoping**: Dashboard bookings scoped to agent's franchise. Chauffeur boarding validation scoped to their own trips.
 - **Rate limiting**: Consider adding rate limiting on public booking creation to prevent abuse (can be done at Phusion Passenger / reverse proxy level).
 
 ## Dependencies
