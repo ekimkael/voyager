@@ -1,0 +1,59 @@
+@layout.dashboard()
+  <div class="mx-auto max-w-5xl">
+    <div class="mb-6 flex items-center justify-between">
+      <h1 class="text-2xl font-bold text-on-surface-strong">Villes</h1>
+      @can('permission', 'city:create')
+        <a href="{{ route('cities.create') }}"
+          class="inline-flex items-center gap-2 rounded-radius bg-primary px-4 py-2.5 text-sm font-medium text-on-primary hover:bg-secondary transition-colors">
+          @svg('tabler:plus', { class: 'size-4' })
+          <span>Nouvelle ville</span>
+        </a>
+      @end
+    </div>
+
+    <div class="overflow-hidden rounded-radius border border-outline bg-surface">
+      <table class="w-full text-left text-sm">
+        <thead class="border-b border-outline bg-surface-alt text-xs uppercase tracking-wider text-on-surface">
+          <tr>
+            <th class="px-6 py-3">Nom</th>
+            <th class="px-6 py-3">Pays</th>
+            <th class="px-6 py-3 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-outline">
+          @each(city in cities)
+            <tr class="hover:bg-surface-alt/50">
+              <td class="px-6 py-4 font-medium text-on-surface-strong">{{ city.name }}</td>
+              <td class="px-6 py-4 text-on-surface">{{ city.country }}</td>
+              <td class="px-6 py-4 text-right">
+                <div class="flex items-center justify-end gap-2">
+                  @can('permission', 'city:update')
+                    <a href="{{ route('cities.edit', { id: city.id }) }}"
+                      class="text-on-surface hover:text-primary transition-colors">
+                      @svg('tabler:edit', { class: 'size-4' })
+                    </a>
+                  @end
+                  @can('permission', 'city:delete')
+                    @form({ route: 'cities.destroy', routeParams: { id: city.id }, method: 'DELETE' })
+                      <button type="submit"
+                        class="cursor-pointer text-on-surface hover:text-danger transition-colors"
+                        onclick="return confirm('Supprimer cette ville ?')">
+                        @svg('tabler:trash', { class: 'size-4' })
+                      </button>
+                    @end
+                  @end
+                </div>
+              </td>
+            </tr>
+          @end
+        </tbody>
+      </table>
+
+      @if(!cities.length)
+        <div class="px-6 py-12 text-center text-on-surface">
+          Aucune ville enregistrée.
+        </div>
+      @end
+    </div>
+  </div>
+@end
