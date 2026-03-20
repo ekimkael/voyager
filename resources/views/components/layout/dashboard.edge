@@ -78,6 +78,13 @@
         label: 'Conducteurs',
         })
         @end
+        @can('permission', 'trip:read')
+        @!sidebar.item({
+        href: route('trips.index'),
+        icon: 'tabler:map-2',
+        label: 'Voyages',
+        })
+        @end
       </ul>
 
       {{-- Administration (role-gated) --}}
