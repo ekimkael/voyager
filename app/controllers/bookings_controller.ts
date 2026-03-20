@@ -79,10 +79,13 @@ export default class BookingsController {
       })
     })
 
+    const availableSeats = await this.seatAllocator.getAvailableSeatCount(booking.tripId)
+
     return ctx.view.render('pages/bookings/passengers', {
       booking,
       trip: booking.trip,
       tenantSlug: ctx.tenant!.slug,
+      availableSeats,
     })
   }
 
@@ -104,6 +107,9 @@ export default class BookingsController {
       }
       throw error
     }
+
+    // Broadcast updated seat count AFTER transaction committed
+    await this.seatAllocator.broadcastAvailability(booking.tripId)
 
     return ctx.response.redirect().toRoute('public.bookings.customer', {
       tenantSlug: ctx.tenant!.slug,
@@ -185,9 +191,12 @@ export default class BookingsController {
     await booking.load('trip')
     await booking.load('customer')
 
+    const availableSeats = await this.seatAllocator.getAvailableSeatCount(booking.tripId)
+
     return ctx.view.render('pages/bookings/payment', {
       booking,
       tenantSlug: ctx.tenant!.slug,
+      availableSeats,
     })
   }
 
@@ -209,6 +218,9 @@ export default class BookingsController {
 
     booking.status = 'confirmed'
     await booking.save()
+
+    // Broadcast updated seat count after confirmation
+    await this.seatAllocator.broadcastAvailability(booking.tripId)
 
     return ctx.response.redirect().toRoute('public.bookings.completed', {
       tenantSlug: ctx.tenant!.slug,
