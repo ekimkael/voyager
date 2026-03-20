@@ -6,6 +6,7 @@ import { compose } from '@adonisjs/core/helpers'
 import { withAuthFinder } from '@adonisjs/auth/mixins/lucid'
 import Tenant from '#models/tenant'
 import UserRoleAssignment from '#models/user_role_assignment'
+import Trip from '#models/trip'
 
 const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
   uids: ['email'],
@@ -51,6 +52,9 @@ export default class User extends compose(BaseModel, AuthFinder) {
 
   @hasMany(() => UserRoleAssignment)
   declare roleAssignments: HasMany<typeof UserRoleAssignment>
+
+  @hasMany(() => Trip, { foreignKey: 'driverId' })
+  declare driverTrips: HasMany<typeof Trip>
 
   get fullName() {
     return `${this.firstName} ${this.lastName}`

@@ -1,7 +1,8 @@
 import { DateTime } from 'luxon'
-import { BaseModel, belongsTo, column } from '@adonisjs/lucid/orm'
-import type { BelongsTo } from '@adonisjs/lucid/types/relations'
+import { BaseModel, belongsTo, column, hasMany } from '@adonisjs/lucid/orm'
+import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import Tenant from '#models/tenant'
+import Trip from '#models/trip'
 
 export default class Bus extends BaseModel {
   @column({ isPrimary: true })
@@ -42,4 +43,7 @@ export default class Bus extends BaseModel {
 
   @belongsTo(() => Tenant)
   declare tenant: BelongsTo<typeof Tenant>
+
+  @hasMany(() => Trip)
+  declare trips: HasMany<typeof Trip>
 }
