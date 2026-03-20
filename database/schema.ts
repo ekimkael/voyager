@@ -7,16 +7,52 @@
 import { BaseModel, column } from '@adonisjs/lucid/orm'
 import { DateTime } from 'luxon'
 
+export class BusSchema extends BaseModel {
+  static $columns = ['active', 'brand', 'capacity', 'createdAt', 'id', 'licensePlate', 'model', 'nextMaintenanceDate', 'status', 'tenantId', 'updatedAt', 'year'] as const
+  $columns = BusSchema.$columns
+  @column()
+  declare active: boolean
+  @column()
+  declare brand: string
+  @column()
+  declare capacity: number
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare licensePlate: string
+  @column()
+  declare model: string
+  @column.date()
+  declare nextMaintenanceDate: DateTime | null
+  @column()
+  declare status: any
+  @column()
+  declare tenantId: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+  @column()
+  declare year: number
+}
+
+export class CitySchema extends BaseModel {
+  static $columns = ['country', 'createdAt', 'id', 'name', 'updatedAt'] as const
+  $columns = CitySchema.$columns
+  @column()
+  declare country: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare name: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+}
+
 export class PermissionSchema extends BaseModel {
-  static $columns = [
-    'action',
-    'createdAt',
-    'description',
-    'id',
-    'isSensitive',
-    'resource',
-    'updatedAt',
-  ] as const
+  static $columns = ['action', 'createdAt', 'description', 'id', 'isSensitive', 'resource', 'updatedAt'] as const
   $columns = PermissionSchema.$columns
   @column()
   declare action: string
@@ -50,16 +86,7 @@ export class RolePermissionSchema extends BaseModel {
 }
 
 export class RoleSchema extends BaseModel {
-  static $columns = [
-    'createdAt',
-    'id',
-    'isSystem',
-    'name',
-    'parentRoleId',
-    'scope',
-    'tenantId',
-    'updatedAt',
-  ] as const
+  static $columns = ['createdAt', 'id', 'isSystem', 'name', 'parentRoleId', 'scope', 'tenantId', 'updatedAt'] as const
   $columns = RoleSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -73,6 +100,31 @@ export class RoleSchema extends BaseModel {
   declare parentRoleId: string | null
   @column()
   declare scope: any
+  @column()
+  declare tenantId: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+}
+
+export class RouteSchema extends BaseModel {
+  static $columns = ['arrivalCityId', 'code', 'createdAt', 'departureCityId', 'distanceKm', 'estimatedDurationMinutes', 'id', 'status', 'tenantId', 'updatedAt'] as const
+  $columns = RouteSchema.$columns
+  @column()
+  declare arrivalCityId: string
+  @column()
+  declare code: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare departureCityId: string
+  @column()
+  declare distanceKm: string
+  @column()
+  declare estimatedDurationMinutes: number
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare status: any
   @column()
   declare tenantId: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
@@ -97,16 +149,7 @@ export class TenantSchema extends BaseModel {
 }
 
 export class UserRoleAssignmentSchema extends BaseModel {
-  static $columns = [
-    'createdAt',
-    'expiresAt',
-    'grantedBy',
-    'id',
-    'isTemporary',
-    'resourceId',
-    'roleId',
-    'userId',
-  ] as const
+  static $columns = ['createdAt', 'expiresAt', 'grantedBy', 'id', 'isTemporary', 'resourceId', 'roleId', 'userId'] as const
   $columns = UserRoleAssignmentSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -127,19 +170,7 @@ export class UserRoleAssignmentSchema extends BaseModel {
 }
 
 export class UserSchema extends BaseModel {
-  static $columns = [
-    'createdAt',
-    'email',
-    'externalId',
-    'firstName',
-    'id',
-    'lastName',
-    'mfaEnabled',
-    'password',
-    'status',
-    'tenantId',
-    'updatedAt',
-  ] as const
+  static $columns = ['createdAt', 'email', 'externalId', 'firstName', 'id', 'lastName', 'mfaEnabled', 'password', 'status', 'tenantId', 'updatedAt'] as const
   $columns = UserSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
