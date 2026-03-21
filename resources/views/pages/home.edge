@@ -1,43 +1,45 @@
 @layout.base()
 @include('partials/header')
 <main
-  class="voyager-home relative mx-4 mb-4 min-h-[calc(100vh-80px)] overflow-hidden rounded-2xl border border-neutral-200 bg-surface sm:mx-8">
+  class="voyager-home noise-bg relative mx-4 mb-4 min-h-[calc(100vh-80px)] overflow-hidden rounded-2xl border border-neutral-200 bg-surface sm:mx-8">
   @include('partials/flash_alerts')
 
-  <section class="relative px-6 pb-16 pt-12 sm:px-12 sm:pt-16">
-    <div class="absolute -left-24 -top-24 -z-0 h-56 w-56 rounded-full bg-cyan-300/30 blur-3xl"></div>
-    <div class="absolute -right-10 top-14 -z-0 h-48 w-48 rounded-full bg-amber-300/30 blur-3xl"></div>
+  {{-- Hero --}}
+  <section class="relative px-6 pb-16 pt-14 sm:px-12 sm:pt-20">
+    <div class="absolute -left-28 -top-28 -z-0 h-64 w-64 rounded-full bg-cyan-300/25 blur-3xl"></div>
+    <div class="absolute -right-12 top-10 -z-0 h-56 w-56 rounded-full bg-amber-300/25 blur-3xl"></div>
 
-    <div class="relative z-10 mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
+    <div class="relative z-10 mx-auto grid max-w-6xl gap-12 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
       <div class="animate-fade-rise">
         <p
-          class="mb-4 inline-flex items-center gap-2 rounded-full border border-neutral-300 bg-surface px-4 py-1.5 text-sm font-medium text-on-surface-strong">
+          class="mb-5 inline-flex items-center gap-2 rounded-full border border-neutral-200/80 bg-surface/80 px-4 py-1.5 text-sm font-medium text-on-surface-strong backdrop-blur-sm">
+          <span class="inline-block size-2 rounded-full bg-emerald-400"></span>
           Voyager <span class="text-on-surface">• Billetterie interurbaine</span>
         </p>
 
         <h1
-          class="max-w-3xl text-4xl font-semibold leading-tight tracking-tight text-on-surface-strong sm:text-5xl lg:text-6xl">
-          Une page d'accueil pensée pour reserver un trajet en moins d'une minute.
+          class="max-w-3xl text-4xl font-semibold leading-[1.1] tracking-tight text-on-surface-strong sm:text-5xl lg:text-6xl">
+          Réservez votre trajet en moins d'une minute.
         </h1>
 
         <p class="mt-6 max-w-2xl text-base leading-relaxed text-on-surface sm:text-lg">
-          Cherchez rapidement un voyage, comparez les horaires et finalisez votre reservation avec une interface claire,
-          rapide et adaptee au mobile.
+          Cherchez un voyage, comparez les horaires et finalisez votre réservation avec une interface claire,
+          rapide et adaptée au mobile.
         </p>
 
         <div class="mt-8 flex flex-wrap items-center gap-3">
           <a href="{{ route('public.globalTrips.index') }}"
-            class="rounded-full bg-on-surface-strong px-6 py-3 text-sm font-semibold text-on-primary transition-transform duration-200 hover:-translate-y-0.5">
+            class="rounded-full bg-on-surface-strong px-7 py-3 text-sm font-semibold text-on-primary transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-neutral-900/20">
             Rechercher un trajet
           </a>
           @if(auth.user)
           <a href="{{ route('dashboard.index') }}"
-            class="rounded-full border border-neutral-300 px-6 py-3 text-sm font-semibold text-on-surface-strong transition-colors hover:bg-surface-alt">
+            class="rounded-full border border-neutral-300 px-6 py-3 text-sm font-semibold text-on-surface-strong transition-all duration-200 hover:-translate-y-0.5 hover:border-neutral-400 hover:bg-surface-alt">
             Ouvrir le tableau de bord
           </a>
           @else
           <a href="{{ route('session.create') }}"
-            class="rounded-full border border-neutral-300 px-6 py-3 text-sm font-semibold text-on-surface-strong transition-colors hover:bg-surface-alt">
+            class="rounded-full border border-neutral-300 px-6 py-3 text-sm font-semibold text-on-surface-strong transition-all duration-200 hover:-translate-y-0.5 hover:border-neutral-400 hover:bg-surface-alt">
             Se connecter
           </a>
           @endif
@@ -45,22 +47,22 @@
       </div>
 
       <div
-        class="relative z-10 animate-slide-in rounded-2xl border border-neutral-200 bg-surface-alt p-6 shadow-[0_20px_60px_-35px_rgba(0,0,0,0.5)]">
-        <h2 class="text-lg font-semibold text-on-surface-strong">Apercu rapide</h2>
-        <div class="mt-5 grid grid-cols-2 gap-4">
-          <div class="rounded-xl border border-neutral-200 bg-surface p-4">
+        class="relative z-10 animate-slide-in rounded-2xl border border-neutral-200/70 bg-surface/80 p-6 shadow-[0_24px_64px_-24px_rgba(0,0,0,0.12)] backdrop-blur-sm">
+        <h2 class="text-lg font-semibold text-on-surface-strong">Aperçu rapide</h2>
+        <div class="mt-5 grid grid-cols-2 gap-3">
+          <div class="rounded-xl border border-neutral-200/70 bg-surface-alt/60 p-4">
             <p class="text-xs uppercase tracking-wide text-on-surface">Trajets actifs</p>
             <p class="mt-2 text-2xl font-semibold text-on-surface-strong">120+</p>
           </div>
-          <div class="rounded-xl border border-neutral-200 bg-surface p-4">
-            <p class="text-xs uppercase tracking-wide text-on-surface">Resa/jour</p>
+          <div class="rounded-xl border border-neutral-200/70 bg-surface-alt/60 p-4">
+            <p class="text-xs uppercase tracking-wide text-on-surface">Résa/jour</p>
             <p class="mt-2 text-2xl font-semibold text-on-surface-strong">3.4k</p>
           </div>
-          <div class="rounded-xl border border-neutral-200 bg-surface p-4">
+          <div class="rounded-xl border border-neutral-200/70 bg-surface-alt/60 p-4">
             <p class="text-xs uppercase tracking-wide text-on-surface">Temps moyen</p>
             <p class="mt-2 text-2xl font-semibold text-on-surface-strong">48s</p>
           </div>
-          <div class="rounded-xl border border-neutral-200 bg-surface p-4">
+          <div class="rounded-xl border border-neutral-200/70 bg-surface-alt/60 p-4">
             <p class="text-xs uppercase tracking-wide text-on-surface">Satisfaction</p>
             <p class="mt-2 text-2xl font-semibold text-on-surface-strong">98%</p>
           </div>
@@ -69,39 +71,68 @@
     </div>
   </section>
 
-  <section class="border-y border-neutral-200 bg-neutral-50/60 px-6 py-8 sm:px-12">
-    <div class="mx-auto grid max-w-6xl gap-3 sm:grid-cols-3 sm:gap-5">
-      <div class="rounded-xl border border-neutral-200 bg-surface px-4 py-5">
-        <p class="text-sm font-semibold text-on-surface-strong">Paiement securise</p>
-        <p class="mt-1 text-sm text-on-surface">Support des flux de paiement fiables et tracables.</p>
+  {{-- Features --}}
+  <section class="border-y border-neutral-200/70 bg-neutral-50/50 px-6 py-10 sm:px-12">
+    <div class="mx-auto grid max-w-6xl gap-4 sm:grid-cols-3">
+      <div class="animate-fade-rise rounded-xl border border-neutral-200/70 bg-surface/90 px-5 py-5 backdrop-blur-sm">
+        <div class="mb-3 flex size-10 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+          <svg xmlns="http://www.w3.org/2000/svg" class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="20" height="14" x="2" y="5" rx="2" />
+            <line x1="2" y1="10" x2="22" y2="10" />
+          </svg>
+        </div>
+        <p class="text-sm font-semibold text-on-surface-strong">Paiement sécurisé</p>
+        <p class="mt-1.5 text-sm leading-relaxed text-on-surface">Support des flux de paiement fiables et traçables.</p>
       </div>
-      <div class="rounded-xl border border-neutral-200 bg-surface px-4 py-5">
-        <p class="text-sm font-semibold text-on-surface-strong">Attribution des sieges</p>
-        <p class="mt-1 text-sm text-on-surface">Gestion automatique des places disponible par trajet.</p>
+      <div
+        class="animate-fade-rise delay-100 rounded-xl border border-neutral-200/70 bg-surface/90 px-5 py-5 backdrop-blur-sm">
+        <div class="mb-3 flex size-10 items-center justify-center rounded-full bg-sky-100 text-sky-600">
+          <svg xmlns="http://www.w3.org/2000/svg" class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+          </svg>
+        </div>
+        <p class="text-sm font-semibold text-on-surface-strong">Attribution des sièges</p>
+        <p class="mt-1.5 text-sm leading-relaxed text-on-surface">Gestion automatique des places disponibles par trajet.
+        </p>
       </div>
-      <div class="rounded-xl border border-neutral-200 bg-surface px-4 py-5">
+      <div
+        class="animate-fade-rise delay-200 rounded-xl border border-neutral-200/70 bg-surface/90 px-5 py-5 backdrop-blur-sm">
+        <div class="mb-3 flex size-10 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+          <svg xmlns="http://www.w3.org/2000/svg" class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 3v18h18" />
+            <path d="m19 9-5 5-4-4-3 3" />
+          </svg>
+        </div>
         <p class="text-sm font-semibold text-on-surface-strong">Suivi d'exploitation</p>
-        <p class="mt-1 text-sm text-on-surface">Un tableau de bord pour piloter les operations en temps reel.</p>
+        <p class="mt-1.5 text-sm leading-relaxed text-on-surface">Un tableau de bord pour piloter les opérations en temps
+          réel.</p>
       </div>
     </div>
   </section>
 
-  <section class="px-6 py-12 sm:px-12 sm:py-14">
-    <div class="mx-auto max-w-6xl rounded-2xl border border-neutral-200 bg-surface-alt p-7 sm:p-10">
+  {{-- CTA --}}
+  <section class="px-6 py-14 sm:px-12">
+    <div class="mx-auto max-w-6xl rounded-2xl border border-neutral-200/70 bg-surface-alt/80 p-8 backdrop-blur-sm sm:p-10">
       <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
         <div>
-          <h2 class="text-2xl font-semibold tracking-tight text-on-surface-strong sm:text-3xl">Prêt a lancer une
-            experience de reservation plus moderne ?</h2>
+          <h2 class="text-2xl font-semibold tracking-tight text-on-surface-strong sm:text-3xl">Prêt à lancer une
+            expérience de réservation plus moderne ?</h2>
           <p class="mt-3 max-w-2xl text-on-surface">Voyager centralise les franchises, trajets, chauffeurs et
-            reservations pour simplifier vos operations quotidiennes.</p>
+            réservations pour simplifier vos opérations quotidiennes.</p>
         </div>
         <div class="flex shrink-0 flex-wrap gap-3">
           <a href="{{ route('new_account.create') }}"
-            class="rounded-full bg-on-surface-strong px-5 py-3 text-sm font-semibold text-on-primary transition-transform duration-200 hover:-translate-y-0.5">
-            Creer un compte
+            class="rounded-full bg-on-surface-strong px-6 py-3 text-sm font-semibold text-on-primary transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-neutral-900/20">
+            Créer un compte
           </a>
           <a href="{{ route('public.globalTrips.index') }}"
-            class="rounded-full border border-neutral-300 px-5 py-3 text-sm font-semibold text-on-surface-strong transition-colors hover:bg-surface">
+            class="rounded-full border border-neutral-300 px-6 py-3 text-sm font-semibold text-on-surface-strong transition-all duration-200 hover:-translate-y-0.5 hover:border-neutral-400 hover:bg-surface">
             Voir les voyages
           </a>
         </div>

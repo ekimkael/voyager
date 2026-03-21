@@ -1,23 +1,29 @@
 @layout.public()
 <div class="mx-auto max-w-6xl">
-  <div class="mb-8 rounded-2xl border border-outline bg-surface p-6 shadow-sm sm:p-8">
-    <p class="text-sm font-semibold uppercase tracking-wide text-primary">Voyager Public</p>
-    <h1 class="mt-2 text-3xl font-bold text-on-surface-strong sm:text-4xl">Trouvez et reservez un voyage en quelques
-      clics</h1>
-    <p class="mt-3 max-w-2xl text-sm text-on-surface">Les trajets a venir sont affiches automatiquement. Utilisez les
+
+  {{-- Page header --}}
+  <div class="mb-8 animate-fade-rise">
+    <p
+      class="mb-3 inline-flex items-center gap-2 rounded-full border border-outline/60 bg-surface/80 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary backdrop-blur-sm">
+      <span class="inline-block size-1.5 rounded-full bg-primary"></span>
+      Voyager
+    </p>
+    <h1 class="text-3xl font-semibold tracking-tight text-on-surface-strong sm:text-4xl">Trouvez votre prochain voyage
+    </h1>
+    <p class="mt-2 max-w-2xl text-sm text-on-surface">Les trajets à venir sont affichés automatiquement. Utilisez les
       filtres pour affiner votre recherche.</p>
   </div>
 
   {{-- Search form --}}
-  <div class="mb-8 rounded-2xl border border-outline bg-surface p-6 shadow-sm">
+  <div class="mb-8 animate-fade-rise delay-100 rounded-2xl border border-outline/60 bg-surface/90 p-6 shadow-sm backdrop-blur-sm">
     <form method="GET"
       action="{{ tenantSlug ? route('public.trips.index', { tenantSlug }) : route('public.globalTrips.index') }}"
       class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       <div>
-        <label for="from" class="mb-1 block text-sm font-medium text-on-surface-strong">Départ</label>
+        <label for="from" class="mb-1.5 block text-sm font-medium text-on-surface-strong">Départ</label>
         <select id="from" name="from"
-          class="w-full rounded-radius border border-outline bg-surface px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary">
-          <option value="">Sélectionner</option>
+          class="h-10 w-full rounded-full border border-outline bg-surface px-4 text-sm text-on-surface focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary">
+          <option value="">Toutes les villes</option>
           @each(city in cities)
           <option value="{{ city.id }}" @if(filters.from===city.id) selected @end>{{ city.name }}</option>
           @end
@@ -25,10 +31,10 @@
       </div>
 
       <div>
-        <label for="to" class="mb-1 block text-sm font-medium text-on-surface-strong">Arrivée</label>
+        <label for="to" class="mb-1.5 block text-sm font-medium text-on-surface-strong">Arrivée</label>
         <select id="to" name="to"
-          class="w-full rounded-radius border border-outline bg-surface px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary">
-          <option value="">Sélectionner</option>
+          class="h-10 w-full rounded-full border border-outline bg-surface px-4 text-sm text-on-surface focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary">
+          <option value="">Toutes les villes</option>
           @each(city in cities)
           <option value="{{ city.id }}" @if(filters.to===city.id) selected @end>{{ city.name }}</option>
           @end
@@ -36,14 +42,14 @@
       </div>
 
       <div>
-        <label for="date" class="mb-1 block text-sm font-medium text-on-surface-strong">Date</label>
+        <label for="date" class="mb-1.5 block text-sm font-medium text-on-surface-strong">Date</label>
         <input type="date" id="date" name="date" value="{{ filters.date ?? '' }}"
-          class="w-full rounded-radius border border-outline bg-surface px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
+          class="h-10 w-full rounded-full border border-outline bg-surface px-4 text-sm text-on-surface focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
       </div>
 
       <div class="flex items-end">
         <button type="submit"
-          class="w-full rounded-radius bg-primary px-4 py-2.5 text-sm font-medium text-on-primary transition-colors hover:bg-secondary">
+          class="h-10 w-full rounded-full bg-primary px-6 text-sm font-medium text-on-primary transition-all duration-200 hover:-translate-y-0.5 hover:bg-secondary hover:shadow-md">
           Rechercher
         </button>
       </div>
@@ -53,47 +59,65 @@
   {{-- Results --}}
   @if(trips.length)
   <div class="space-y-4">
-    @if(filters.from && filters.to && filters.date)
-    <h2 class="text-lg font-semibold text-on-surface-strong">{{ trips.length }} voyage(s) disponible(s)</h2>
-    @else
-    <h2 class="text-lg font-semibold text-on-surface-strong">Voyages disponibles</h2>
-    @end
-    @each(item in trips)
-    <div class="rounded-2xl border border-outline bg-surface p-5 shadow-sm">
+    <div class="flex items-center justify-between">
+      @if(filters.from && filters.to && filters.date)
+      <h2 class="text-base font-semibold text-on-surface-strong">{{ trips.length }} voyage(s) disponible(s)</h2>
+      @else
+      <h2 class="text-base font-semibold text-on-surface-strong">Voyages disponibles</h2>
+      @end
+    </div>
+
+    @each((item, index) in trips)
+    <div
+      class="animate-fade-rise rounded-2xl border border-outline/60 bg-surface/90 p-5 shadow-sm backdrop-blur-sm transition-all duration-200 hover:border-outline hover:shadow-md"
+      style="animation-delay: {{ (index + 2) * 80 }}ms">
       <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div class="flex-1 space-y-2">
-          <p class="text-base font-semibold text-on-surface-strong">
-            {{ item.trip.route.departureCity.name }} → {{ item.trip.route.arrivalCity.name }}
-          </p>
-          <p class="text-sm text-on-surface">
-            Départ&nbsp;: {{ item.trip.departureTime.toFormat('dd/MM/yyyy HH:mm') }}
-          </p>
-          <p class="text-sm text-on-surface">
-            Compagnie&nbsp;:
-            <a href="{{ route('public.tenants.show', { tenantSlug: item.trip.tenant.slug }) }}"
-              class="font-medium text-primary hover:underline">{{ item.trip.tenant.name }}</a>
-          </p>
-          <div class="flex flex-wrap items-center gap-3 text-sm text-on-surface">
-            <span>
-              Classe&nbsp;:
-              @if(item.trip.travelClass === 'vip')
-              <span
-                class="inline-flex items-center rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800">VIP</span>
-              @else
-              <span
-                class="inline-flex items-center rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-medium text-neutral-800">Standard</span>
-              @end
+        <div class="flex-1 space-y-2.5">
+          <div class="flex items-center gap-2">
+            <p class="text-base font-semibold text-on-surface-strong">
+              {{ item.trip.route.departureCity.name }}
+            </p>
+            <svg xmlns="http://www.w3.org/2000/svg" class="size-4 text-on-surface" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14" />
+              <path d="m12 5 7 7-7 7" />
+            </svg>
+            <p class="text-base font-semibold text-on-surface-strong">
+              {{ item.trip.route.arrivalCity.name }}
+            </p>
+          </div>
+          <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-on-surface">
+            <span class="inline-flex items-center gap-1.5">
+              <svg xmlns="http://www.w3.org/2000/svg" class="size-3.5" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+              {{ item.trip.departureTime.toFormat('dd/MM/yyyy HH:mm') }}
             </span>
-            <span>Prix&nbsp;: <strong>{{ item.trip.price }} FCFA</strong></span>
-            <span>Places disponibles&nbsp;: <strong>{{ item.availableSeats }}</strong></span>
+            <span>
+              <a href="{{ route('public.tenants.show', { tenantSlug: item.trip.tenant.slug }) }}"
+                class="font-medium text-on-surface-strong hover:underline">{{ item.trip.tenant.name }}</a>
+            </span>
+          </div>
+          <div class="flex flex-wrap items-center gap-2.5 text-sm">
+            @if(item.trip.travelClass === 'vip')
+            <span
+              class="inline-flex items-center rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800">VIP</span>
+            @else
+            <span
+              class="inline-flex items-center rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-medium text-neutral-700">Standard</span>
+            @end
+            <span class="font-semibold text-on-surface-strong">{{ item.trip.price }} FCFA</span>
+            <span class="text-on-surface">{{ item.availableSeats }} place(s)</span>
           </div>
         </div>
         <div class="shrink-0">
           <form method="POST" action="{{ route('public.bookings.initiate', { tripId: item.trip.id }) }}">
             {{ csrfField() }}
             <button type="submit"
-              class="inline-flex w-full items-center justify-center rounded-radius bg-primary px-5 py-2.5 text-sm font-medium text-on-primary transition-colors hover:bg-secondary sm:w-auto">
-              Reserver
+              class="inline-flex w-full items-center justify-center rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-on-primary transition-all duration-200 hover:-translate-y-0.5 hover:bg-secondary hover:shadow-md sm:w-auto">
+              Réserver
             </button>
           </form>
         </div>
@@ -102,12 +126,22 @@
     @end
   </div>
   @else
-  <div class="rounded-radius border border-outline bg-surface px-6 py-12 text-center text-on-surface">
-    @if(filters.from && filters.to && filters.date)
-    Aucun voyage trouvé pour cette recherche.
-    @else
-    Aucun voyage disponible pour le moment.
-    @end
+  <div
+    class="animate-fade-rise rounded-2xl border border-outline/60 bg-surface/90 px-6 py-16 text-center backdrop-blur-sm">
+    <div class="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-surface-alt">
+      <svg xmlns="http://www.w3.org/2000/svg" class="size-6 text-on-surface" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8" />
+        <path d="m21 21-4.3-4.3" />
+      </svg>
+    </div>
+    <p class="text-on-surface">
+      @if(filters.from && filters.to && filters.date)
+      Aucun voyage trouvé pour cette recherche.
+      @else
+      Aucun voyage disponible pour le moment.
+      @end
+    </p>
   </div>
   @end
 </div>

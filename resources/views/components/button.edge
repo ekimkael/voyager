@@ -1,6 +1,6 @@
 @let(buttonTextFromSlot = await $slots.main())
 @let(buttonText = buttonTextFromSlot.trim() ? buttonTextFromSlot : $props.get('text') ?? '')
-@let(classes = ['w-full', 'rounded-radius', 'bg-primary', 'text-on-primary', 'px-4', 'py-2.5', 'text-sm', 'font-medium', 'hover:bg-secondary', 'cursor-pointer', 'transition-colors'])
+@let(classes = ['w-full', 'rounded-full', 'bg-primary', 'text-on-primary', 'px-6', 'py-2.5', 'text-sm', 'font-medium', 'hover:bg-secondary', 'cursor-pointer', 'transition-all', 'duration-200', 'hover:-translate-y-0.5'])
 
 <button {{
   $props.except(['text']).merge({ class: classes }).toAttrs()

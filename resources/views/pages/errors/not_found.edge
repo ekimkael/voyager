@@ -1,8 +1,26 @@
-<h1>
-  404 - Page not found
-</h1>
-<p>
-  This template is rendered by the
-  <a href="http://docs.adonisjs.com/guides/exception-handling#status-pages">status pages feature</a>
-  of the global exception handler.
-</p>
+@layout.base()
+<div class="relative flex min-h-screen items-center justify-center overflow-hidden bg-surface-alt px-4">
+  <div class="pointer-events-none absolute inset-0">
+    <div class="absolute -left-24 top-1/4 h-96 w-96 rounded-full bg-cyan-200/30 blur-[100px]"></div>
+    <div class="absolute -right-24 bottom-1/4 h-96 w-96 rounded-full bg-amber-200/30 blur-[100px]"></div>
+  </div>
+
+  <div class="relative z-10 animate-fade-rise text-center">
+    <p class="text-8xl font-bold tracking-tighter text-on-surface-strong sm:text-9xl">404</p>
+    <h1 class="mt-4 text-xl font-semibold text-on-surface-strong sm:text-2xl">Page introuvable</h1>
+    <p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-on-surface">
+      La page que vous cherchez n'existe pas ou a été déplacée.
+    </p>
+    <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+      <a href="/"
+        class="rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-on-primary transition-all duration-200 hover:-translate-y-0.5 hover:bg-secondary hover:shadow-md">
+        Retour à l'accueil
+      </a>
+      <a href="{{ route('public.globalTrips.index') }}"
+        class="rounded-full border border-outline px-6 py-2.5 text-sm font-medium text-on-surface-strong transition-all duration-200 hover:-translate-y-0.5 hover:border-on-surface-strong">
+        Voir les voyages
+      </a>
+    </div>
+  </div>
+</div>
+@end

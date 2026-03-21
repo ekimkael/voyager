@@ -87,8 +87,12 @@
                 </span>
               </td>
               <td class="px-6 py-4 text-on-surface">
-                {{ item.customer.firstName }} {{ item.customer.lastName }}
-                <span class="block text-xs text-on-surface">{{ item.customer.phone }}</span>
+                @if(item.customer)
+                  {{ item.customer.firstName }} {{ item.customer.lastName }}
+                  <span class="block text-xs text-on-surface">{{ item.customer.phone }}</span>
+                @else
+                  <span class="text-on-surface/50">—</span>
+                @end
               </td>
               <td class="px-6 py-4 text-on-surface">{{ item.passengers.length }}</td>
               <td class="px-6 py-4 text-on-surface">{{ item.totalAmount }} FCFA</td>

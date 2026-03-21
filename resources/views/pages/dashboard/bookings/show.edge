@@ -49,6 +49,7 @@
           @svg('tabler:user', { class: 'size-4' })
           Client
         </h2>
+        @if(booking.customer)
         <div class="space-y-2 text-sm">
           <div class="font-medium text-on-surface-strong">
             {{ booking.customer.firstName }} {{ booking.customer.lastName }}
@@ -58,6 +59,9 @@
             <div class="text-on-surface">{{ booking.customer.email }}</div>
           @end
         </div>
+        @else
+        <p class="text-sm text-on-surface">Aucun client associé</p>
+        @end
       </div>
 
       {{-- Payment status card --}}
