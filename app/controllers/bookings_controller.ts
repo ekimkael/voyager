@@ -19,31 +19,28 @@ export default class BookingsController {
   private seatAllocator = new SeatAllocator()
 
   private async getBookingFromSession(ctx: HttpContext) {
-    const { params, session, response, tenant } = ctx
+    const { params, session, response } = ctx
     const currentBookingId = session.get('currentBookingId')
     if (currentBookingId !== params.id) {
       session.flash('error', 'Réservation introuvable')
-      return response.redirect().toRoute('public.trips.index', { tenantSlug: tenant!.slug })
+      return response.redirect().toRoute('public.globalTrips.index')
     }
 
-    const booking = await Booking.query()
-      .where('id', params.id)
-      .where('tenantId', tenant!.id)
-      .firstOrFail()
+    const booking = await Booking.query().where('id', params.id).preload('tenant').firstOrFail()
 
     if (booking.status === 'pending' && booking.isExpired) {
       session.flash('error', 'Réservation expirée')
-      return response.redirect().toRoute('public.trips.index', { tenantSlug: tenant!.slug })
+      return response.redirect().toRoute('public.globalTrips.index')
     }
 
     return booking
   }
 
-  async initiate({ params, response, session, tenant }: HttpContext) {
+  async initiate({ params, response, session }: HttpContext) {
     const trip = await Trip.query()
       .where('id', params.tripId)
-      .where('tenantId', tenant!.id)
       .where('status', 'scheduled')
+      .preload('tenant')
       .firstOrFail()
 
     if (trip.departureTime <= DateTime.now()) {
@@ -52,7 +49,7 @@ export default class BookingsController {
     }
 
     const booking = await Booking.create({
-      tenantId: tenant!.id,
+      tenantId: trip.tenantId,
       tripId: trip.id,
       status: 'pending',
     })
@@ -62,10 +59,7 @@ export default class BookingsController {
     session.put('bookingIds', bookingIds)
     session.put('currentBookingId', booking.id)
 
-    return response.redirect().toRoute('public.bookings.passengers', {
-      tenantSlug: tenant!.slug,
-      id: booking.id,
-    })
+    return response.redirect().toRoute('public.bookings.passengers', { id: booking.id })
   }
 
   async passengers(ctx: HttpContext) {
@@ -84,7 +78,6 @@ export default class BookingsController {
     return ctx.view.render('pages/bookings/passengers', {
       booking,
       trip: booking.trip,
-      tenantSlug: ctx.tenant!.slug,
       availableSeats,
     })
   }
@@ -111,10 +104,7 @@ export default class BookingsController {
     // Broadcast updated seat count AFTER transaction committed
     await this.seatAllocator.broadcastAvailability(booking.tripId)
 
-    return ctx.response.redirect().toRoute('public.bookings.customer', {
-      tenantSlug: ctx.tenant!.slug,
-      id: booking.id,
-    })
+    return ctx.response.redirect().toRoute('public.bookings.customer', { id: booking.id })
   }
 
   async customer(ctx: HttpContext) {
@@ -125,7 +115,6 @@ export default class BookingsController {
 
     return ctx.view.render('pages/bookings/customer', {
       booking,
-      tenantSlug: ctx.tenant!.slug,
     })
   }
 
@@ -137,8 +126,8 @@ export default class BookingsController {
     const payload = await ctx.request.validateUsing(storeCustomerValidator)
 
     const customer = await Customer.firstOrCreate(
-      { tenantId: ctx.tenant!.id, phone: payload.phone },
-      { ...payload, tenantId: ctx.tenant!.id }
+      { tenantId: booking.tenantId, phone: payload.phone },
+      { ...payload, tenantId: booking.tenantId }
     )
 
     await booking.load('passengers')
@@ -148,10 +137,7 @@ export default class BookingsController {
     booking.totalAmount = booking.passengers.length * booking.trip.price
     await booking.save()
 
-    return ctx.response.redirect().toRoute('public.bookings.summary', {
-      tenantSlug: ctx.tenant!.slug,
-      id: booking.id,
-    })
+    return ctx.response.redirect().toRoute('public.bookings.summary', { id: booking.id })
   }
 
   async summary(ctx: HttpContext) {
@@ -169,7 +155,6 @@ export default class BookingsController {
 
     return ctx.view.render('pages/bookings/summary', {
       booking,
-      tenantSlug: ctx.tenant!.slug,
     })
   }
 
@@ -177,10 +162,7 @@ export default class BookingsController {
     const result = await this.getBookingFromSession(ctx)
     if (!(result instanceof Booking)) return result
 
-    return ctx.response.redirect().toRoute('public.bookings.payment', {
-      tenantSlug: ctx.tenant!.slug,
-      id: ctx.params.id,
-    })
+    return ctx.response.redirect().toRoute('public.bookings.payment', { id: ctx.params.id })
   }
 
   async payment(ctx: HttpContext) {
@@ -195,7 +177,6 @@ export default class BookingsController {
 
     return ctx.view.render('pages/bookings/payment', {
       booking,
-      tenantSlug: ctx.tenant!.slug,
       availableSeats,
     })
   }
@@ -222,26 +203,22 @@ export default class BookingsController {
     // Broadcast updated seat count after confirmation
     await this.seatAllocator.broadcastAvailability(booking.tripId)
 
-    return ctx.response.redirect().toRoute('public.bookings.completed', {
-      tenantSlug: ctx.tenant!.slug,
-      id: booking.id,
-    })
+    return ctx.response.redirect().toRoute('public.bookings.completed', { id: booking.id })
   }
 
-  async completed({ params, view, session, tenant }: HttpContext) {
+  async completed({ params, view, session }: HttpContext) {
     const bookingIds: string[] = session.get('bookingIds', [])
     if (!bookingIds.includes(params.id)) {
       session.flash('error', 'Réservation introuvable')
       return view.render('pages/bookings/failed', {
         booking: null,
-        tenantSlug: tenant!.slug,
       })
     }
 
     const booking = await Booking.query()
       .where('id', params.id)
-      .where('tenantId', tenant!.id)
       .preload('passengers')
+      .preload('tenant')
       .preload('trip', (q) => {
         q.preload('route', (rq) => {
           rq.preload('departureCity').preload('arrivalCity')
@@ -251,50 +228,41 @@ export default class BookingsController {
       .firstOrFail()
 
     if (booking.status !== 'confirmed') {
-      session.flash('error', 'Cette réservation n\'est pas confirmée.')
+      session.flash('error', "Cette réservation n'est pas confirmée.")
       return view.render('pages/bookings/failed', {
         booking,
-        tenantSlug: tenant!.slug,
       })
     }
 
     return view.render('pages/bookings/completed', {
       booking,
-      tenantSlug: tenant!.slug,
     })
   }
 
-  async failed({ params, view, tenant }: HttpContext) {
-    const booking = await Booking.query()
-      .where('id', params.id)
-      .where('tenantId', tenant!.id)
-      .firstOrFail()
+  async failed({ params, view }: HttpContext) {
+    const booking = await Booking.query().where('id', params.id).preload('tenant').firstOrFail()
 
     return view.render('pages/bookings/failed', {
       booking,
-      tenantSlug: tenant!.slug,
     })
   }
 
-  async verify({ view, tenant }: HttpContext) {
-    return view.render('pages/bookings/verify', {
-      tenantSlug: tenant!.slug,
-    })
+  async verify({ view }: HttpContext) {
+    return view.render('pages/bookings/verify')
   }
 
-  async verifySubmit({ request, view, session, tenant }: HttpContext) {
+  async verifySubmit({ request, view, session }: HttpContext) {
     const payload = await request.validateUsing(verifyBookingValidator)
 
     const passenger = await Passenger.query()
       .where('code', payload.code)
       .whereHas('booking', (q) => {
-        q.where('tenantId', tenant!.id)
-          .where('status', 'confirmed')
-          .whereHas('customer', (cq) => {
-            cq.where('phone', payload.phone)
-          })
+        q.where('status', 'confirmed').whereHas('customer', (cq) => {
+          cq.where('phone', payload.phone)
+        })
       })
       .preload('booking', (q) => {
+        q.preload('tenant')
         q.preload('trip', (tq) => {
           tq.preload('route', (rq) => {
             rq.preload('departureCity').preload('arrivalCity')
@@ -305,9 +273,7 @@ export default class BookingsController {
 
     if (!passenger) {
       session.flash('error', 'Aucune réservation trouvée avec ces informations.')
-      return view.render('pages/bookings/verify', {
-        tenantSlug: tenant!.slug,
-      })
+      return view.render('pages/bookings/verify')
     }
 
     const bookingIds: string[] = session.get('bookingIds', [])
@@ -317,7 +283,6 @@ export default class BookingsController {
     }
 
     return view.render('pages/bookings/verify', {
-      tenantSlug: tenant!.slug,
       passenger,
     })
   }

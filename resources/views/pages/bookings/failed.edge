@@ -1,43 +1,40 @@
 @layout.public()
-  <div class="mx-auto max-w-lg">
+<div class="mx-auto max-w-lg">
 
-    {{-- Error banner --}}
-    <div class="mb-6 flex items-start gap-4 rounded-radius border border-red-200 bg-red-50 p-6">
-      <div class="shrink-0 text-red-600">
-        <svg xmlns="http://www.w3.org/2000/svg" class="size-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10" />
-          <line x1="12" y1="8" x2="12" y2="12" />
-          <line x1="12" y1="16" x2="12.01" y2="16" />
-        </svg>
-      </div>
-      <div>
-        <h1 class="text-lg font-bold text-red-800">Échec de la réservation</h1>
-        <p class="mt-1 text-sm text-red-700">
-          Une erreur s'est produite lors du traitement de votre réservation.
-          Veuillez réessayer ou contacter le support.
-        </p>
-      </div>
+  {{-- Error banner --}}
+  <div class="mb-6 flex items-start gap-4 rounded-radius border border-red-200 bg-red-50 p-6">
+    <div class="shrink-0 text-red-600">
+      <svg xmlns="http://www.w3.org/2000/svg" class="size-8" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="12" />
+        <line x1="12" y1="16" x2="12.01" y2="16" />
+      </svg>
     </div>
-
-    {{-- Actions --}}
-    <div class="rounded-radius border border-outline bg-surface p-6">
-      <div class="flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
-        @if(booking)
-          <a
-            href="{{ route('public.bookings.payment', { tenantSlug, id: booking.id }) }}"
-            class="inline-flex items-center gap-2 rounded-radius bg-primary px-5 py-2.5 text-sm font-medium text-on-primary transition-colors hover:bg-secondary"
-          >
-            Réessayer
-          </a>
-        @end
-        <a
-          href="{{ route('public.trips.index', { tenantSlug }) }}"
-          class="text-sm text-on-surface hover:text-on-surface-strong hover:underline transition-colors"
-        >
-          Nouvelle réservation
-        </a>
-      </div>
+    <div>
+      <h1 class="text-lg font-bold text-red-800">Échec de la réservation</h1>
+      <p class="mt-1 text-sm text-red-700">
+        Une erreur s'est produite lors du traitement de votre réservation.
+        Veuillez réessayer ou contacter le support.
+      </p>
     </div>
-
   </div>
+
+  {{-- Actions --}}
+  <div class="rounded-radius border border-outline bg-surface p-6">
+    <div class="flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
+      @if(booking)
+      <a href="{{ route('public.bookings.payment', { id: booking.id }) }}"
+        class="inline-flex items-center gap-2 rounded-radius bg-primary px-5 py-2.5 text-sm font-medium text-on-primary transition-colors hover:bg-secondary">
+        Réessayer
+      </a>
+      @end
+      <a href="{{ route('public.globalTrips.index') }}"
+        class="text-sm text-on-surface hover:text-on-surface-strong hover:underline transition-colors">
+        Nouvelle réservation
+      </a>
+    </div>
+  </div>
+
+</div>
 @end

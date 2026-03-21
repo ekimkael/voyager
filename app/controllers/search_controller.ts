@@ -11,26 +11,33 @@ export default class SearchController {
     const { from, to, date } = request.qs()
     const cities = await City.query().orderBy('name')
 
-    let trips: Trip[] = []
+    const hasSearchFilters = Boolean(from && to && date)
 
-    if (from && to && date) {
-      trips = await Trip.query()
-        .where('tenantId', tenant!.id)
-        .where('status', 'scheduled')
-        .where('departureTime', '>', DateTime.now().toSQL()!)
-        .whereHas('route', (query) => {
-          query.where('departureCityId', from).where('arrivalCityId', to)
-        })
-        .whereBetween('departureTime', [
-          `${date} 00:00:00`,
-          `${date} 23:59:59`,
-        ])
-        .preload('route', (query) => {
-          query.preload('departureCity').preload('arrivalCity')
-        })
-        .preload('bus')
-        .orderBy('departureTime')
+    const query = Trip.query()
+      .where('status', 'scheduled')
+      .where('departureTime', '>', DateTime.now().toSQL()!)
+      .preload('route', (query) => {
+        query.preload('departureCity').preload('arrivalCity')
+      })
+      .preload('tenant')
+      .preload('bus')
+      .orderBy('departureTime')
+
+    if (tenant) {
+      query.where('tenantId', tenant.id)
     }
+
+    if (hasSearchFilters) {
+      query
+        .whereHas('route', (routeQuery) => {
+          routeQuery.where('departureCityId', from).where('arrivalCityId', to)
+        })
+        .whereBetween('departureTime', [`${date} 00:00:00`, `${date} 23:59:59`])
+    } else {
+      query.limit(20)
+    }
+
+    const trips = await query
 
     const tripsWithSeats = await Promise.all(
       trips.map(async (trip) => {
@@ -43,28 +50,54 @@ export default class SearchController {
       cities,
       trips: tripsWithSeats,
       filters: { from, to, date },
-      tenantSlug: tenant!.slug,
+      tenantSlug: tenant?.slug,
     })
   }
 
   async show({ params, view, tenant }: HttpContext) {
-    const trip = await Trip.query()
+    const query = Trip.query()
       .where('id', params.id)
-      .where('tenantId', tenant!.id)
       .where('status', 'scheduled')
       .where('departureTime', '>', DateTime.now().toSQL()!)
       .preload('route', (query) => {
         query.preload('departureCity').preload('arrivalCity')
       })
+      .preload('tenant')
       .preload('bus')
-      .firstOrFail()
+
+    if (tenant) {
+      query.where('tenantId', tenant.id)
+    }
+
+    const trip = await query.firstOrFail()
 
     const availableSeats = await this.seatAllocator.getAvailableSeatCount(trip.id)
 
     return view.render('pages/trips/show', {
       trip,
       availableSeats,
-      tenantSlug: tenant!.slug,
+      tenantSlug: tenant?.slug,
+    })
+  }
+
+  async tenantShow({ view, tenant, response }: HttpContext) {
+    if (!tenant) {
+      return response.notFound()
+    }
+
+    const upcomingTrips = await Trip.query()
+      .where('tenantId', tenant.id)
+      .where('status', 'scheduled')
+      .where('departureTime', '>', DateTime.now().toSQL()!)
+      .preload('route', (query) => {
+        query.preload('departureCity').preload('arrivalCity')
+      })
+      .orderBy('departureTime')
+      .limit(5)
+
+    return view.render('pages/tenants/show', {
+      tenant,
+      upcomingTrips,
     })
   }
 }

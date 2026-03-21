@@ -1,81 +1,83 @@
 @layout.public()
-  <div class="mx-auto max-w-2xl">
-    <div class="mb-4">
-      <a href="{{ route('public.trips.index', { tenantSlug }) }}"
-        class="text-sm text-on-surface hover:text-on-surface-strong hover:underline">
-        ← Retour à la recherche
-      </a>
-    </div>
+<div class="mx-auto max-w-2xl">
+  <div class="mb-4">
+    <a href="{{ tenantSlug ? route('public.trips.index', { tenantSlug }) : route('public.globalTrips.index') }}"
+      class="text-sm text-on-surface hover:text-on-surface-strong hover:underline">
+      ← Retour à la recherche
+    </a>
+  </div>
 
-    <div class="rounded-radius border border-outline bg-surface p-6">
-      <h1 class="mb-6 text-2xl font-bold text-on-surface-strong">
-        {{ trip.route.departureCity.name }} → {{ trip.route.arrivalCity.name }}
-      </h1>
+  <div class="rounded-radius border border-outline bg-surface p-6">
+    <h1 class="mb-6 text-2xl font-bold text-on-surface-strong">
+      {{ trip.route.departureCity.name }} → {{ trip.route.arrivalCity.name }}
+    </h1>
 
-      <div class="space-y-4">
-        {{-- Route & times --}}
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div>
-            <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Départ</p>
-            <p class="mt-1 text-sm font-medium text-on-surface-strong">
-              {{ trip.departureTime.toFormat('dd/MM/yyyy HH:mm') }}
-            </p>
-            <p class="text-sm text-on-surface">{{ trip.route.departureCity.name }}</p>
-          </div>
-          <div>
-            <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Arrivée</p>
-            <p class="mt-1 text-sm font-medium text-on-surface-strong">
-              {{ trip.arrivalTime.toFormat('dd/MM/yyyy HH:mm') }}
-            </p>
-            <p class="text-sm text-on-surface">{{ trip.route.arrivalCity.name }}</p>
-          </div>
-        </div>
-
-        <hr class="border-outline" />
-
-        {{-- Trip details --}}
-        <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <div>
-            <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Classe</p>
-            <p class="mt-1">
-              @if(trip.travelClass === 'vip')
-                <span class="inline-flex items-center rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800">VIP</span>
-              @else
-                <span class="inline-flex items-center rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-medium text-neutral-800">Standard</span>
-              @end
-            </p>
-          </div>
-          <div>
-            <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Bus</p>
-            <p class="mt-1 text-sm font-medium text-on-surface-strong">{{ trip.bus.licensePlate }}</p>
-          </div>
-          <div>
-            <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Prix</p>
-            <p class="mt-1 text-sm font-medium text-on-surface-strong">{{ trip.price }} FCFA</p>
-          </div>
-          <div>
-            <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Places disponibles</p>
-            <p class="mt-1 text-sm font-medium text-on-surface-strong">{{ availableSeats }}</p>
-          </div>
-        </div>
-
-        <hr class="border-outline" />
-
-        {{-- Booking action --}}
-        @if(availableSeats > 0)
-          <form method="POST" action="/{{ tenantSlug }}/trips/{{ trip.id }}/book">
-            {{ csrfField() }}
-            <button type="submit"
-              class="w-full rounded-radius bg-primary px-4 py-3 text-sm font-medium text-on-primary transition-colors hover:bg-secondary sm:w-auto sm:px-8">
-              Réserver
-            </button>
-          </form>
-        @else
-          <p class="rounded-radius border border-outline bg-surface-alt px-4 py-3 text-sm text-on-surface">
-            Ce voyage est complet.
+    <div class="space-y-4">
+      {{-- Route & times --}}
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Départ</p>
+          <p class="mt-1 text-sm font-medium text-on-surface-strong">
+            {{ trip.departureTime.toFormat('dd/MM/yyyy HH:mm') }}
           </p>
-        @end
+          <p class="text-sm text-on-surface">{{ trip.route.departureCity.name }}</p>
+        </div>
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Arrivée</p>
+          <p class="mt-1 text-sm font-medium text-on-surface-strong">
+            {{ trip.arrivalTime.toFormat('dd/MM/yyyy HH:mm') }}
+          </p>
+          <p class="text-sm text-on-surface">{{ trip.route.arrivalCity.name }}</p>
+        </div>
       </div>
+
+      <hr class="border-outline" />
+
+      {{-- Trip details --}}
+      <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Classe</p>
+          <p class="mt-1">
+            @if(trip.travelClass === 'vip')
+            <span
+              class="inline-flex items-center rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800">VIP</span>
+            @else
+            <span
+              class="inline-flex items-center rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-medium text-neutral-800">Standard</span>
+            @end
+          </p>
+        </div>
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Bus</p>
+          <p class="mt-1 text-sm font-medium text-on-surface-strong">{{ trip.bus.licensePlate }}</p>
+        </div>
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Prix</p>
+          <p class="mt-1 text-sm font-medium text-on-surface-strong">{{ trip.price }} FCFA</p>
+        </div>
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Places disponibles</p>
+          <p class="mt-1 text-sm font-medium text-on-surface-strong">{{ availableSeats }}</p>
+        </div>
+      </div>
+
+      <hr class="border-outline" />
+
+      {{-- Booking action --}}
+      @if(availableSeats > 0)
+      <form method="POST" action="{{ route('public.bookings.initiate', { tripId: trip.id }) }}">
+        {{ csrfField() }}
+        <button type="submit"
+          class="w-full rounded-radius bg-primary px-4 py-3 text-sm font-medium text-on-primary transition-colors hover:bg-secondary sm:w-auto sm:px-8">
+          Réserver
+        </button>
+      </form>
+      @else
+      <p class="rounded-radius border border-outline bg-surface-alt px-4 py-3 text-sm text-on-surface">
+        Ce voyage est complet.
+      </p>
+      @end
     </div>
   </div>
+</div>
 @end

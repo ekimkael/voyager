@@ -5,7 +5,7 @@ import TicketGenerator from '#services/ticket_generator'
 export default class TicketsController {
   private ticketGenerator = new TicketGenerator()
 
-  async download({ params, response, session, tenant }: HttpContext) {
+  async download({ params, response, session }: HttpContext) {
     const bookingId = params.bookingId
     const passengerId = params.passengerId
 
@@ -18,16 +18,16 @@ export default class TicketsController {
     const passenger = await Passenger.query()
       .where('id', passengerId)
       .whereHas('booking', (query) => {
-        query.where('id', bookingId).where('tenantId', tenant!.id).where('status', 'confirmed')
+        query.where('id', bookingId).where('status', 'confirmed')
       })
       .preload('booking', (query) => {
-        query
-          .preload('trip', (tripQuery) => {
-            tripQuery.preload('route', (routeQuery) => {
-              routeQuery.preload('departureCity').preload('arrivalCity')
-            })
-            tripQuery.preload('bus')
+        query.preload('tenant')
+        query.preload('trip', (tripQuery) => {
+          tripQuery.preload('route', (routeQuery) => {
+            routeQuery.preload('departureCity').preload('arrivalCity')
           })
+          tripQuery.preload('bus')
+        })
       })
       .firstOrFail()
 
@@ -35,7 +35,7 @@ export default class TicketsController {
     const route = trip.route
 
     const pdfBuffer = await this.ticketGenerator.generate({
-      tenant: tenant!,
+      tenant: passenger.booking.tenant,
       passenger,
       tripInfo: {
         departureCity: route.departureCity.name,

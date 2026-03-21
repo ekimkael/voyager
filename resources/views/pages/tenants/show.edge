@@ -1,0 +1,38 @@
+@layout.public()
+<div class="mx-auto max-w-4xl space-y-6">
+  <div class="rounded-2xl border border-outline bg-surface p-7 shadow-sm">
+    <p class="text-xs font-semibold uppercase tracking-wide text-primary">Compagnie</p>
+    <h1 class="mt-2 text-3xl font-bold text-on-surface-strong">{{ tenant.name }}</h1>
+    <div class="mt-4 flex flex-wrap items-center gap-2 text-sm text-on-surface">
+      <span class="rounded-full bg-surface-alt px-3 py-1">Slug: {{ tenant.slug }}</span>
+      <span class="rounded-full bg-surface-alt px-3 py-1">Plan: {{ tenant.plan }}</span>
+    </div>
+
+    <div class="mt-5">
+      <a href="{{ route('public.trips.index', { tenantSlug: tenant.slug }) }}"
+        class="inline-flex items-center rounded-radius bg-primary px-4 py-2 text-sm font-medium text-on-primary transition-colors hover:bg-secondary">
+        Voir les voyages disponibles
+      </a>
+    </div>
+  </div>
+
+  <div class="rounded-2xl border border-outline bg-surface p-6 shadow-sm">
+    <h2 class="text-lg font-semibold text-on-surface-strong">Prochains voyages</h2>
+
+    @if(upcomingTrips.length)
+    <div class="mt-4 space-y-3">
+      @each(trip in upcomingTrips)
+      <div class="rounded-xl border border-outline bg-surface-alt p-4">
+        <p class="font-medium text-on-surface-strong">
+          {{ trip.route.departureCity.name }} → {{ trip.route.arrivalCity.name }}
+        </p>
+        <p class="text-sm text-on-surface">Départ: {{ trip.departureTime.toFormat('dd/MM/yyyy HH:mm') }}</p>
+      </div>
+      @end
+    </div>
+    @else
+    <p class="mt-4 text-sm text-on-surface">Aucun voyage programmé pour le moment.</p>
+    @end
+  </div>
+</div>
+@end

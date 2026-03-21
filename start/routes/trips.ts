@@ -44,5 +44,5 @@ router
       .as('trips.destroy')
       .use(middleware.permission({ keys: ['trip:delete'] }))
   })
-  .prefix('trips')
+  .prefix('dashboard/trips')
   .use(middleware.auth())

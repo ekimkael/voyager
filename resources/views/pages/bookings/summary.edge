@@ -1,136 +1,132 @@
 @layout.public()
-  <div class="mx-auto max-w-2xl">
+<div class="mx-auto max-w-2xl">
 
-    {{-- Progress --}}
-    <div class="mb-6">
-      <div class="flex items-center gap-2 text-sm text-on-surface">
-        <span class="text-on-surface">1. Passagers</span>
-        <span class="mx-1 text-on-surface">→</span>
-        <span class="text-on-surface">2. Coordonnées</span>
-        <span class="mx-1 text-on-surface">→</span>
-        <span class="font-semibold text-primary">3</span>
-        <span class="font-medium text-on-surface-strong">Récapitulatif</span>
-        <span class="mx-1 text-on-surface">→</span>
-        <span class="text-on-surface">4. Paiement</span>
-      </div>
-      <div class="mt-2 h-1.5 w-full rounded-full bg-surface-alt overflow-hidden">
-        <div class="h-full w-3/4 rounded-full bg-primary"></div>
-      </div>
+  {{-- Progress --}}
+  <div class="mb-6">
+    <div class="flex items-center gap-2 text-sm text-on-surface">
+      <span class="text-on-surface">1. Passagers</span>
+      <span class="mx-1 text-on-surface">→</span>
+      <span class="text-on-surface">2. Coordonnées</span>
+      <span class="mx-1 text-on-surface">→</span>
+      <span class="font-semibold text-primary">3</span>
+      <span class="font-medium text-on-surface-strong">Récapitulatif</span>
+      <span class="mx-1 text-on-surface">→</span>
+      <span class="text-on-surface">4. Paiement</span>
     </div>
-
-    <div class="space-y-4">
-
-      {{-- Trip details --}}
-      <div class="rounded-radius border border-outline bg-surface p-6">
-        <h2 class="mb-4 text-base font-semibold text-on-surface-strong">Détails du voyage</h2>
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div>
-            <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Route</p>
-            <p class="mt-1 text-sm font-medium text-on-surface-strong">
-              {{ booking.trip.route.departureCity.name }} → {{ booking.trip.route.arrivalCity.name }}
-            </p>
-          </div>
-          <div>
-            <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Classe</p>
-            <p class="mt-1">
-              @if(booking.trip.travelClass === 'vip')
-                <span class="inline-flex items-center rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800">VIP</span>
-              @else
-                <span class="inline-flex items-center rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-medium text-neutral-800">Standard</span>
-              @end
-            </p>
-          </div>
-          <div>
-            <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Départ</p>
-            <p class="mt-1 text-sm font-medium text-on-surface-strong">
-              {{ booking.trip.departureTime.toFormat('dd/MM/yyyy HH:mm') }}
-            </p>
-          </div>
-          <div>
-            <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Arrivée</p>
-            <p class="mt-1 text-sm font-medium text-on-surface-strong">
-              {{ booking.trip.arrivalTime.toFormat('dd/MM/yyyy HH:mm') }}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {{-- Passengers --}}
-      <div class="rounded-radius border border-outline bg-surface p-6">
-        <h2 class="mb-4 text-base font-semibold text-on-surface-strong">
-          Passagers ({{ booking.passengers.length }})
-        </h2>
-        <div class="overflow-hidden rounded-radius border border-outline">
-          <table class="w-full text-left text-sm">
-            <thead class="border-b border-outline bg-surface-alt text-xs uppercase tracking-wider text-on-surface">
-              <tr>
-                <th class="px-4 py-2">Nom</th>
-                <th class="px-4 py-2">Siège</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-outline">
-              @each(passenger in booking.passengers)
-                <tr>
-                  <td class="px-4 py-2 text-on-surface-strong">
-                    {{ passenger.firstName }} {{ passenger.lastName }}
-                  </td>
-                  <td class="px-4 py-2 text-on-surface">{{ passenger.seatNumber }}</td>
-                </tr>
-              @end
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {{-- Customer info --}}
-      <div class="rounded-radius border border-outline bg-surface p-6">
-        <h2 class="mb-4 text-base font-semibold text-on-surface-strong">Coordonnées</h2>
-        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 text-sm">
-          <div>
-            <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Nom complet</p>
-            <p class="mt-1 text-on-surface-strong">{{ booking.customer.firstName }} {{ booking.customer.lastName }}</p>
-          </div>
-          <div>
-            <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Téléphone</p>
-            <p class="mt-1 text-on-surface-strong">{{ booking.customer.phone }}</p>
-          </div>
-          @if(booking.customer.email)
-            <div class="sm:col-span-2">
-              <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Email</p>
-              <p class="mt-1 text-on-surface-strong">{{ booking.customer.email }}</p>
-            </div>
-          @end
-        </div>
-      </div>
-
-      {{-- Total & confirm --}}
-      <div class="rounded-radius border border-outline bg-surface p-6">
-        <div class="flex items-center justify-between">
-          <p class="text-base font-semibold text-on-surface-strong">Montant total</p>
-          <p class="text-2xl font-bold text-primary">{{ booking.totalAmount }} FCFA</p>
-        </div>
-
-        <form
-          method="POST"
-          action="{{ route('public.bookings.confirm', { tenantSlug, id: booking.id }) }}"
-          class="mt-4"
-        >
-          {{ csrfField() }}
-          <div class="flex items-center justify-between">
-            <a href="{{ route('public.bookings.customer', { tenantSlug, id: booking.id }) }}"
-              class="text-sm text-on-surface hover:text-on-surface-strong hover:underline transition-colors">
-              ← Retour
-            </a>
-            <button
-              type="submit"
-              class="rounded-radius bg-primary px-6 py-2.5 text-sm font-medium text-on-primary transition-colors hover:bg-secondary"
-            >
-              Confirmer et payer
-            </button>
-          </div>
-        </form>
-      </div>
-
+    <div class="mt-2 h-1.5 w-full rounded-full bg-surface-alt overflow-hidden">
+      <div class="h-full w-3/4 rounded-full bg-primary"></div>
     </div>
   </div>
+
+  <div class="space-y-4">
+
+    {{-- Trip details --}}
+    <div class="rounded-radius border border-outline bg-surface p-6">
+      <h2 class="mb-4 text-base font-semibold text-on-surface-strong">Détails du voyage</h2>
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Route</p>
+          <p class="mt-1 text-sm font-medium text-on-surface-strong">
+            {{ booking.trip.route.departureCity.name }} → {{ booking.trip.route.arrivalCity.name }}
+          </p>
+        </div>
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Classe</p>
+          <p class="mt-1">
+            @if(booking.trip.travelClass === 'vip')
+            <span
+              class="inline-flex items-center rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800">VIP</span>
+            @else
+            <span
+              class="inline-flex items-center rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-medium text-neutral-800">Standard</span>
+            @end
+          </p>
+        </div>
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Départ</p>
+          <p class="mt-1 text-sm font-medium text-on-surface-strong">
+            {{ booking.trip.departureTime.toFormat('dd/MM/yyyy HH:mm') }}
+          </p>
+        </div>
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Arrivée</p>
+          <p class="mt-1 text-sm font-medium text-on-surface-strong">
+            {{ booking.trip.arrivalTime.toFormat('dd/MM/yyyy HH:mm') }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    {{-- Passengers --}}
+    <div class="rounded-radius border border-outline bg-surface p-6">
+      <h2 class="mb-4 text-base font-semibold text-on-surface-strong">
+        Passagers ({{ booking.passengers.length }})
+      </h2>
+      <div class="overflow-hidden rounded-radius border border-outline">
+        <table class="w-full text-left text-sm">
+          <thead class="border-b border-outline bg-surface-alt text-xs uppercase tracking-wider text-on-surface">
+            <tr>
+              <th class="px-4 py-2">Nom</th>
+              <th class="px-4 py-2">Siège</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-outline">
+            @each(passenger in booking.passengers)
+            <tr>
+              <td class="px-4 py-2 text-on-surface-strong">
+                {{ passenger.firstName }} {{ passenger.lastName }}
+              </td>
+              <td class="px-4 py-2 text-on-surface">{{ passenger.seatNumber }}</td>
+            </tr>
+            @end
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    {{-- Customer info --}}
+    <div class="rounded-radius border border-outline bg-surface p-6">
+      <h2 class="mb-4 text-base font-semibold text-on-surface-strong">Coordonnées</h2>
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 text-sm">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Nom complet</p>
+          <p class="mt-1 text-on-surface-strong">{{ booking.customer.firstName }} {{ booking.customer.lastName }}</p>
+        </div>
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Téléphone</p>
+          <p class="mt-1 text-on-surface-strong">{{ booking.customer.phone }}</p>
+        </div>
+        @if(booking.customer.email)
+        <div class="sm:col-span-2">
+          <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Email</p>
+          <p class="mt-1 text-on-surface-strong">{{ booking.customer.email }}</p>
+        </div>
+        @end
+      </div>
+    </div>
+
+    {{-- Total & confirm --}}
+    <div class="rounded-radius border border-outline bg-surface p-6">
+      <div class="flex items-center justify-between">
+        <p class="text-base font-semibold text-on-surface-strong">Montant total</p>
+        <p class="text-2xl font-bold text-primary">{{ booking.totalAmount }} FCFA</p>
+      </div>
+
+      <form method="POST" action="{{ route('public.bookings.confirm', { id: booking.id }) }}" class="mt-4">
+        {{ csrfField() }}
+        <div class="flex items-center justify-between">
+          <a href="{{ route('public.bookings.customer', { id: booking.id }) }}"
+            class="text-sm text-on-surface hover:text-on-surface-strong hover:underline transition-colors">
+            ← Retour
+          </a>
+          <button type="submit"
+            class="rounded-radius bg-primary px-6 py-2.5 text-sm font-medium text-on-primary transition-colors hover:bg-secondary">
+            Confirmer et payer
+          </button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</div>
 @end

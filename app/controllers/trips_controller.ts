@@ -68,7 +68,7 @@ export default class TripsController {
 
     const { page, ...queryFilters } = filters
     const trips = await query.paginate(page, 20)
-    trips.baseUrl('/trips/history')
+    trips.baseUrl('/dashboard/trips/history')
     trips.queryString(queryFilters)
 
     // Load filter dropdown data in parallel — all queries are independent
@@ -81,13 +81,8 @@ export default class TripsController {
         .preload('departureCity')
         .preload('arrivalCity')
         .orderBy('code'),
-      Bus.query()
-        .where('tenantId', tenant!.id)
-        .orderBy('licensePlate'),
-      Role.query()
-        .where('tenantId', tenant!.id)
-        .where('name', 'Chauffeur')
-        .first(),
+      Bus.query().where('tenantId', tenant!.id).orderBy('licensePlate'),
+      Role.query().where('tenantId', tenant!.id).where('name', 'Chauffeur').first(),
     ])
 
     const drivers = chauffeurRole
