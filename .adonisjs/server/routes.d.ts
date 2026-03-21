@@ -4,23 +4,6 @@ type ParamValue = string | number | bigint | boolean
 
 export type ScannedRoutes = {
   ALL: {
-    'public.bookings.initiate': { paramsTuple: [ParamValue]; params: {'tripId': ParamValue} }
-    'public.bookings.passengers': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'public.bookings.storePassengers': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'public.bookings.customer': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'public.bookings.storeCustomer': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'public.bookings.summary': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'public.bookings.confirm': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'public.bookings.payment': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'public.bookings.processPayment': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'public.bookings.completed': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'public.bookings.failed': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'public.bookings.verify': { paramsTuple?: []; params?: {} }
-    'public.bookings.verifySubmit': { paramsTuple?: []; params?: {} }
-    'public.tickets.download': { paramsTuple: [ParamValue,ParamValue]; params: {'bookingId': ParamValue,'passengerId': ParamValue} }
-    'public.globalTrips.index': { paramsTuple?: []; params?: {} }
-    'public.tenants.show': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
-    'public.trips.index': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
     'new_account.create': { paramsTuple?: []; params?: {} }
     'new_account.store': { paramsTuple?: []; params?: {} }
     'session.create': { paramsTuple?: []; params?: {} }
@@ -67,6 +50,20 @@ export type ScannedRoutes = {
     'trips.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'trips.transition': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'trips.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'public.bookings.initiate': { paramsTuple: [ParamValue]; params: {'tripId': ParamValue} }
+    'public.bookings.passengers': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'public.bookings.storePassengers': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'public.bookings.customer': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'public.bookings.storeCustomer': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'public.bookings.summary': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'public.bookings.confirm': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'public.bookings.payment': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'public.bookings.processPayment': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'public.bookings.completed': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'public.bookings.failed': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'public.bookings.verify': { paramsTuple?: []; params?: {} }
+    'public.bookings.verifySubmit': { paramsTuple?: []; params?: {} }
+    'public.tickets.download': { paramsTuple: [ParamValue,ParamValue]; params: {'bookingId': ParamValue,'passengerId': ParamValue} }
     'dashboard.bookings.index': { paramsTuple?: []; params?: {} }
     'dashboard.bookings.create': { paramsTuple?: []; params?: {} }
     'dashboard.bookings.store': { paramsTuple?: []; params?: {} }
@@ -77,18 +74,105 @@ export type ScannedRoutes = {
     'dashboard.tickets.download': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'passengerId': ParamValue} }
     'dashboard.boarding.index': { paramsTuple?: []; params?: {} }
     'dashboard.boarding.validate': { paramsTuple?: []; params?: {} }
+    'public.globalTrips.index': { paramsTuple?: []; params?: {} }
+    'public.tenants.show': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
+    'public.trips.index': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
     'event_stream': { paramsTuple?: []; params?: {} }
     'subscribe': { paramsTuple?: []; params?: {} }
     'unsubscribe': { paramsTuple?: []; params?: {} }
     'home': { paramsTuple?: []; params?: {} }
   }
+  GET: {
+    'new_account.create': { paramsTuple?: []; params?: {} }
+    'session.create': { paramsTuple?: []; params?: {} }
+    'dashboard.index': { paramsTuple?: []; params?: {} }
+    'cities.index': { paramsTuple?: []; params?: {} }
+    'cities.create': { paramsTuple?: []; params?: {} }
+    'cities.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'routes.index': { paramsTuple?: []; params?: {} }
+    'routes.create': { paramsTuple?: []; params?: {} }
+    'routes.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'buses.index': { paramsTuple?: []; params?: {} }
+    'buses.create': { paramsTuple?: []; params?: {} }
+    'buses.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'drivers.index': { paramsTuple?: []; params?: {} }
+    'franchises.performance': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'franchises.index': { paramsTuple?: []; params?: {} }
+    'franchises.create': { paramsTuple?: []; params?: {} }
+    'franchises.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'employees.index': { paramsTuple?: []; params?: {} }
+    'employees.create': { paramsTuple?: []; params?: {} }
+    'employees.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'trips.index': { paramsTuple?: []; params?: {} }
+    'trips.create': { paramsTuple?: []; params?: {} }
+    'trips.history': { paramsTuple?: []; params?: {} }
+    'trips.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'public.bookings.passengers': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'public.bookings.customer': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'public.bookings.summary': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'public.bookings.payment': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'public.bookings.completed': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'public.bookings.failed': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'public.bookings.verify': { paramsTuple?: []; params?: {} }
+    'public.tickets.download': { paramsTuple: [ParamValue,ParamValue]; params: {'bookingId': ParamValue,'passengerId': ParamValue} }
+    'dashboard.bookings.index': { paramsTuple?: []; params?: {} }
+    'dashboard.bookings.create': { paramsTuple?: []; params?: {} }
+    'dashboard.bookings.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'dashboard.bookings.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'dashboard.tickets.download': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'passengerId': ParamValue} }
+    'dashboard.boarding.index': { paramsTuple?: []; params?: {} }
+    'public.globalTrips.index': { paramsTuple?: []; params?: {} }
+    'public.tenants.show': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
+    'public.trips.index': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
+    'event_stream': { paramsTuple?: []; params?: {} }
+    'home': { paramsTuple?: []; params?: {} }
+  }
+  HEAD: {
+    'new_account.create': { paramsTuple?: []; params?: {} }
+    'session.create': { paramsTuple?: []; params?: {} }
+    'dashboard.index': { paramsTuple?: []; params?: {} }
+    'cities.index': { paramsTuple?: []; params?: {} }
+    'cities.create': { paramsTuple?: []; params?: {} }
+    'cities.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'routes.index': { paramsTuple?: []; params?: {} }
+    'routes.create': { paramsTuple?: []; params?: {} }
+    'routes.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'buses.index': { paramsTuple?: []; params?: {} }
+    'buses.create': { paramsTuple?: []; params?: {} }
+    'buses.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'drivers.index': { paramsTuple?: []; params?: {} }
+    'franchises.performance': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'franchises.index': { paramsTuple?: []; params?: {} }
+    'franchises.create': { paramsTuple?: []; params?: {} }
+    'franchises.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'employees.index': { paramsTuple?: []; params?: {} }
+    'employees.create': { paramsTuple?: []; params?: {} }
+    'employees.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'trips.index': { paramsTuple?: []; params?: {} }
+    'trips.create': { paramsTuple?: []; params?: {} }
+    'trips.history': { paramsTuple?: []; params?: {} }
+    'trips.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'public.bookings.passengers': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'public.bookings.customer': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'public.bookings.summary': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'public.bookings.payment': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'public.bookings.completed': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'public.bookings.failed': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'public.bookings.verify': { paramsTuple?: []; params?: {} }
+    'public.tickets.download': { paramsTuple: [ParamValue,ParamValue]; params: {'bookingId': ParamValue,'passengerId': ParamValue} }
+    'dashboard.bookings.index': { paramsTuple?: []; params?: {} }
+    'dashboard.bookings.create': { paramsTuple?: []; params?: {} }
+    'dashboard.bookings.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'dashboard.bookings.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'dashboard.tickets.download': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'passengerId': ParamValue} }
+    'dashboard.boarding.index': { paramsTuple?: []; params?: {} }
+    'public.globalTrips.index': { paramsTuple?: []; params?: {} }
+    'public.tenants.show': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
+    'public.trips.index': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
+    'event_stream': { paramsTuple?: []; params?: {} }
+    'home': { paramsTuple?: []; params?: {} }
+  }
   POST: {
-    'public.bookings.initiate': { paramsTuple: [ParamValue]; params: {'tripId': ParamValue} }
-    'public.bookings.storePassengers': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'public.bookings.storeCustomer': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'public.bookings.confirm': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'public.bookings.processPayment': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'public.bookings.verifySubmit': { paramsTuple?: []; params?: {} }
     'new_account.store': { paramsTuple?: []; params?: {} }
     'session.store': { paramsTuple?: []; params?: {} }
     'session.destroy': { paramsTuple?: []; params?: {} }
@@ -98,100 +182,16 @@ export type ScannedRoutes = {
     'franchises.store': { paramsTuple?: []; params?: {} }
     'employees.store': { paramsTuple?: []; params?: {} }
     'trips.store': { paramsTuple?: []; params?: {} }
+    'public.bookings.initiate': { paramsTuple: [ParamValue]; params: {'tripId': ParamValue} }
+    'public.bookings.storePassengers': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'public.bookings.storeCustomer': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'public.bookings.confirm': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'public.bookings.processPayment': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'public.bookings.verifySubmit': { paramsTuple?: []; params?: {} }
     'dashboard.bookings.store': { paramsTuple?: []; params?: {} }
     'dashboard.boarding.validate': { paramsTuple?: []; params?: {} }
     'subscribe': { paramsTuple?: []; params?: {} }
     'unsubscribe': { paramsTuple?: []; params?: {} }
-  }
-  GET: {
-    'public.bookings.passengers': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'public.bookings.customer': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'public.bookings.summary': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'public.bookings.payment': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'public.bookings.completed': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'public.bookings.failed': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'public.bookings.verify': { paramsTuple?: []; params?: {} }
-    'public.tickets.download': { paramsTuple: [ParamValue,ParamValue]; params: {'bookingId': ParamValue,'passengerId': ParamValue} }
-    'public.globalTrips.index': { paramsTuple?: []; params?: {} }
-    'public.tenants.show': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
-    'public.trips.index': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
-    'new_account.create': { paramsTuple?: []; params?: {} }
-    'session.create': { paramsTuple?: []; params?: {} }
-    'dashboard.index': { paramsTuple?: []; params?: {} }
-    'cities.index': { paramsTuple?: []; params?: {} }
-    'cities.create': { paramsTuple?: []; params?: {} }
-    'cities.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'routes.index': { paramsTuple?: []; params?: {} }
-    'routes.create': { paramsTuple?: []; params?: {} }
-    'routes.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'buses.index': { paramsTuple?: []; params?: {} }
-    'buses.create': { paramsTuple?: []; params?: {} }
-    'buses.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'drivers.index': { paramsTuple?: []; params?: {} }
-    'franchises.performance': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'franchises.index': { paramsTuple?: []; params?: {} }
-    'franchises.create': { paramsTuple?: []; params?: {} }
-    'franchises.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'employees.index': { paramsTuple?: []; params?: {} }
-    'employees.create': { paramsTuple?: []; params?: {} }
-    'employees.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'trips.index': { paramsTuple?: []; params?: {} }
-    'trips.create': { paramsTuple?: []; params?: {} }
-    'trips.history': { paramsTuple?: []; params?: {} }
-    'trips.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'dashboard.bookings.index': { paramsTuple?: []; params?: {} }
-    'dashboard.bookings.create': { paramsTuple?: []; params?: {} }
-    'dashboard.bookings.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'dashboard.bookings.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'dashboard.tickets.download': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'passengerId': ParamValue} }
-    'dashboard.boarding.index': { paramsTuple?: []; params?: {} }
-    'event_stream': { paramsTuple?: []; params?: {} }
-    'home': { paramsTuple?: []; params?: {} }
-  }
-  HEAD: {
-    'public.bookings.passengers': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'public.bookings.customer': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'public.bookings.summary': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'public.bookings.payment': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'public.bookings.completed': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'public.bookings.failed': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'public.bookings.verify': { paramsTuple?: []; params?: {} }
-    'public.tickets.download': { paramsTuple: [ParamValue,ParamValue]; params: {'bookingId': ParamValue,'passengerId': ParamValue} }
-    'public.globalTrips.index': { paramsTuple?: []; params?: {} }
-    'public.tenants.show': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
-    'public.trips.index': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
-    'new_account.create': { paramsTuple?: []; params?: {} }
-    'session.create': { paramsTuple?: []; params?: {} }
-    'dashboard.index': { paramsTuple?: []; params?: {} }
-    'cities.index': { paramsTuple?: []; params?: {} }
-    'cities.create': { paramsTuple?: []; params?: {} }
-    'cities.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'routes.index': { paramsTuple?: []; params?: {} }
-    'routes.create': { paramsTuple?: []; params?: {} }
-    'routes.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'buses.index': { paramsTuple?: []; params?: {} }
-    'buses.create': { paramsTuple?: []; params?: {} }
-    'buses.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'drivers.index': { paramsTuple?: []; params?: {} }
-    'franchises.performance': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'franchises.index': { paramsTuple?: []; params?: {} }
-    'franchises.create': { paramsTuple?: []; params?: {} }
-    'franchises.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'employees.index': { paramsTuple?: []; params?: {} }
-    'employees.create': { paramsTuple?: []; params?: {} }
-    'employees.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'trips.index': { paramsTuple?: []; params?: {} }
-    'trips.create': { paramsTuple?: []; params?: {} }
-    'trips.history': { paramsTuple?: []; params?: {} }
-    'trips.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'dashboard.bookings.index': { paramsTuple?: []; params?: {} }
-    'dashboard.bookings.create': { paramsTuple?: []; params?: {} }
-    'dashboard.bookings.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'dashboard.bookings.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'dashboard.tickets.download': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'passengerId': ParamValue} }
-    'dashboard.boarding.index': { paramsTuple?: []; params?: {} }
-    'event_stream': { paramsTuple?: []; params?: {} }
-    'home': { paramsTuple?: []; params?: {} }
   }
   PUT: {
     'cities.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }

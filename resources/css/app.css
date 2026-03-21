@@ -50,10 +50,58 @@
   }
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-heading);
 }
 
 [x-cloak] {
   display: none;
+}
+
+.voyager-home {
+  background-image:
+    radial-gradient(90% 70% at 10% 0%, rgba(14, 165, 233, 0.12), rgba(255, 255, 255, 0)),
+    radial-gradient(80% 65% at 100% 100%, rgba(245, 158, 11, 0.14), rgba(255, 255, 255, 0));
+}
+
+@keyframes fade-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-rise {
+  animation: fade-rise 620ms ease-out both;
+}
+
+.animate-slide-in {
+  animation: slide-in 620ms ease-out 140ms both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-rise,
+  .animate-slide-in {
+    animation: none;
+  }
 }
