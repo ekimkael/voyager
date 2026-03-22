@@ -36,9 +36,37 @@ export default class BookingsController {
     return booking
   }
 
-  async initiate({ params, response, session }: HttpContext) {
+  private async redirectToCurrentStep(booking: Booking, response: HttpContext['response']) {
+    await booking.load('passengers')
+
+    // No passengers yet → step 1
+    if (booking.passengers.length === 0) {
+      return response.redirect().toRoute('public.bookings.passengers', { id: booking.id })
+    }
+
+    // Has passengers but no customer → step 2
+    if (!booking.customerId) {
+      return response.redirect().toRoute('public.bookings.customer', { id: booking.id })
+    }
+
+    // Has customer → step 3 (summary)
+    return response.redirect().toRoute('public.bookings.summary', { id: booking.id })
+  }
+
+  async initiate({ request, response, session }: HttpContext) {
+    // Honeypot check
+    if (request.input('website')) {
+      return response.forbidden('Invalid request')
+    }
+
+    const tripId = request.input('trip')
+    if (!tripId) {
+      session.flash('error', 'Voyage non spécifié.')
+      return response.redirect().back()
+    }
+
     const trip = await Trip.query()
-      .where('id', params.tripId)
+      .where('id', tripId)
       .where('status', 'scheduled')
       .preload('tenant')
       .firstOrFail()
@@ -48,6 +76,38 @@ export default class BookingsController {
       return response.redirect().back()
     }
 
+    // Check for existing pending booking in session
+    const currentBookingId = session.get('currentBookingId')
+
+    if (currentBookingId) {
+      const existingBooking = await Booking.query()
+        .where('id', currentBookingId)
+        .where('status', 'pending')
+        .withCount('passengers', (q) => q.as('passengersCount'))
+        .first()
+
+      if (existingBooking) {
+        // Same trip → redirect to current step
+        if (existingBooking.tripId === trip.id) {
+          return this.redirectToCurrentStep(existingBooking, response)
+        }
+
+        // Different trip, no passengers → reuse booking
+        if (Number(existingBooking.$extras.passengersCount) === 0) {
+          existingBooking.tripId = trip.id
+          existingBooking.tenantId = trip.tenantId
+          await existingBooking.save()
+          return response.redirect().toRoute('public.bookings.passengers', { id: existingBooking.id })
+        }
+
+        // Different trip, has passengers → cancel old, create new
+        existingBooking.status = 'cancelled'
+        await existingBooking.save()
+        await this.seatAllocator.broadcastAvailability(existingBooking.tripId)
+      }
+    }
+
+    // Create new booking
     const booking = await Booking.create({
       tenantId: trip.tenantId,
       tripId: trip.id,
