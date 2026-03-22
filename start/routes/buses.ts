@@ -34,5 +34,5 @@ router
       .as('buses.destroy')
       .use(middleware.permission({ keys: ['vehicle:delete'] }))
   })
-  .prefix('buses')
+  .prefix('dashboard/buses')
   .use(middleware.auth())

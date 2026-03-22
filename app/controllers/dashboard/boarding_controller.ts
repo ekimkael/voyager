@@ -14,9 +14,13 @@ export default class BoardingController {
     const code = payload.code
 
     // Look up passenger by code OR qrCode, scoped to tenant
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
     const passenger = await Passenger.query()
       .where((query) => {
-        query.where('code', code).orWhere('qrCode', code)
+        query.where('code', code)
+        if (uuidRegex.test(code)) {
+          query.orWhere('qrCode', code)
+        }
       })
       .whereHas('booking', (q) => {
         q.where('tenantId', tenant!.id).where('status', 'confirmed')

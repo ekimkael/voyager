@@ -42,6 +42,9 @@ export type ScannedRoutes = {
     'employees.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'employees.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'employees.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'employees.roles': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'employees.assignRole': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'employees.revokeRole': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'assignmentId': ParamValue} }
     'trips.index': { paramsTuple?: []; params?: {} }
     'trips.create': { paramsTuple?: []; params?: {} }
     'trips.store': { paramsTuple?: []; params?: {} }
@@ -111,6 +114,7 @@ export type ScannedRoutes = {
     'employees.index': { paramsTuple?: []; params?: {} }
     'employees.create': { paramsTuple?: []; params?: {} }
     'employees.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'employees.roles': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'trips.index': { paramsTuple?: []; params?: {} }
     'trips.create': { paramsTuple?: []; params?: {} }
     'trips.history': { paramsTuple?: []; params?: {} }
@@ -160,6 +164,7 @@ export type ScannedRoutes = {
     'employees.index': { paramsTuple?: []; params?: {} }
     'employees.create': { paramsTuple?: []; params?: {} }
     'employees.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'employees.roles': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'trips.index': { paramsTuple?: []; params?: {} }
     'trips.create': { paramsTuple?: []; params?: {} }
     'trips.history': { paramsTuple?: []; params?: {} }
@@ -197,6 +202,7 @@ export type ScannedRoutes = {
     'buses.store': { paramsTuple?: []; params?: {} }
     'franchises.store': { paramsTuple?: []; params?: {} }
     'employees.store': { paramsTuple?: []; params?: {} }
+    'employees.assignRole': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'trips.store': { paramsTuple?: []; params?: {} }
     'public.bookings.initiate': { paramsTuple?: []; params?: {} }
     'public.bookings.storePassengers': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -228,6 +234,7 @@ export type ScannedRoutes = {
     'buses.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'franchises.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'employees.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'employees.revokeRole': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'assignmentId': ParamValue} }
     'trips.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'dashboard.bookings.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'roles.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }

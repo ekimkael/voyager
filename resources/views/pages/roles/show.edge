@@ -37,9 +37,7 @@
     <div class="mb-8">
       <h2 class="mb-4 text-lg font-semibold text-on-surface-strong">Permissions</h2>
 
-      @if(!role.isSystem)
-        @form({ route: 'roles.syncPermissions', routeParams: { id: role.id }, method: 'POST' })
-      @end
+      @form({ route: 'roles.syncPermissions', routeParams: { id: role.id }, method: 'POST' })
 
         {{-- CRUD Grid --}}
         <div class="mb-6 overflow-hidden rounded-radius border border-outline bg-surface">
@@ -58,8 +56,8 @@
                   <td class="px-6 py-4 font-medium text-on-surface-strong capitalize">{{ row.resource }}</td>
                   @each(action in crudActions)
                     <td class="px-6 py-4 text-center">
-                      @set('cell', row.actions[action])
-                      @if(cell.permissionId)
+                      @let(cell = row.actions[action])
+                      @if(cell && cell.permissionId)
                         @if(cell.inherited)
                           <label class="inline-flex items-center gap-1 cursor-default" title="Hérité de {{ cell.from }}">
                             <input type="checkbox" checked disabled
@@ -123,8 +121,6 @@
           </div>
         @end
 
-      @if(!role.isSystem)
-        @end {{-- close form --}}
       @end
     </div>
 

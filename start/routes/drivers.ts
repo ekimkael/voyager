@@ -6,5 +6,5 @@ router
   .group(() => {
     router.get('/', [controllers.Drivers, 'index']).as('drivers.index').use(middleware.permission({ keys: ['driver:read'] }))
   })
-  .prefix('drivers')
+  .prefix('dashboard/drivers')
   .use(middleware.auth())
