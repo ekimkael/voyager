@@ -4,9 +4,6 @@ type ParamValue = string | number | bigint | boolean
 
 export type ScannedRoutes = {
   ALL: {
-    'public.globalTrips.index': { paramsTuple?: []; params?: {} }
-    'public.tenants.show': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
-    'public.trips.index': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
     'new_account.create': { paramsTuple?: []; params?: {} }
     'new_account.store': { paramsTuple?: []; params?: {} }
     'session.create': { paramsTuple?: []; params?: {} }
@@ -77,15 +74,23 @@ export type ScannedRoutes = {
     'dashboard.tickets.download': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'passengerId': ParamValue} }
     'dashboard.boarding.index': { paramsTuple?: []; params?: {} }
     'dashboard.boarding.validate': { paramsTuple?: []; params?: {} }
+    'public.globalTrips.index': { paramsTuple?: []; params?: {} }
+    'public.tenants.show': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
+    'public.trips.index': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
+    'roles.index': { paramsTuple?: []; params?: {} }
+    'roles.create': { paramsTuple?: []; params?: {} }
+    'roles.store': { paramsTuple?: []; params?: {} }
+    'roles.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'roles.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'roles.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'roles.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'roles.syncPermissions': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'event_stream': { paramsTuple?: []; params?: {} }
     'subscribe': { paramsTuple?: []; params?: {} }
     'unsubscribe': { paramsTuple?: []; params?: {} }
     'home': { paramsTuple?: []; params?: {} }
   }
   GET: {
-    'public.globalTrips.index': { paramsTuple?: []; params?: {} }
-    'public.tenants.show': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
-    'public.trips.index': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
     'new_account.create': { paramsTuple?: []; params?: {} }
     'session.create': { paramsTuple?: []; params?: {} }
     'dashboard.index': { paramsTuple?: []; params?: {} }
@@ -124,13 +129,17 @@ export type ScannedRoutes = {
     'dashboard.bookings.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'dashboard.tickets.download': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'passengerId': ParamValue} }
     'dashboard.boarding.index': { paramsTuple?: []; params?: {} }
+    'public.globalTrips.index': { paramsTuple?: []; params?: {} }
+    'public.tenants.show': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
+    'public.trips.index': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
+    'roles.index': { paramsTuple?: []; params?: {} }
+    'roles.create': { paramsTuple?: []; params?: {} }
+    'roles.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'roles.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'event_stream': { paramsTuple?: []; params?: {} }
     'home': { paramsTuple?: []; params?: {} }
   }
   HEAD: {
-    'public.globalTrips.index': { paramsTuple?: []; params?: {} }
-    'public.tenants.show': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
-    'public.trips.index': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
     'new_account.create': { paramsTuple?: []; params?: {} }
     'session.create': { paramsTuple?: []; params?: {} }
     'dashboard.index': { paramsTuple?: []; params?: {} }
@@ -169,6 +178,13 @@ export type ScannedRoutes = {
     'dashboard.bookings.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'dashboard.tickets.download': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'passengerId': ParamValue} }
     'dashboard.boarding.index': { paramsTuple?: []; params?: {} }
+    'public.globalTrips.index': { paramsTuple?: []; params?: {} }
+    'public.tenants.show': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
+    'public.trips.index': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
+    'roles.index': { paramsTuple?: []; params?: {} }
+    'roles.create': { paramsTuple?: []; params?: {} }
+    'roles.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'roles.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'event_stream': { paramsTuple?: []; params?: {} }
     'home': { paramsTuple?: []; params?: {} }
   }
@@ -190,6 +206,8 @@ export type ScannedRoutes = {
     'public.bookings.verifySubmit': { paramsTuple?: []; params?: {} }
     'dashboard.bookings.store': { paramsTuple?: []; params?: {} }
     'dashboard.boarding.validate': { paramsTuple?: []; params?: {} }
+    'roles.store': { paramsTuple?: []; params?: {} }
+    'roles.syncPermissions': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'subscribe': { paramsTuple?: []; params?: {} }
     'unsubscribe': { paramsTuple?: []; params?: {} }
   }
@@ -202,6 +220,7 @@ export type ScannedRoutes = {
     'trips.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'trips.transition': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'dashboard.bookings.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'roles.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   DELETE: {
     'cities.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -211,10 +230,12 @@ export type ScannedRoutes = {
     'employees.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'trips.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'dashboard.bookings.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'roles.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   PATCH: {
     'franchises.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'employees.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'roles.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
 }
 declare module '@adonisjs/core/types/http' {
