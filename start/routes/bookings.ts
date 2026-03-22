@@ -1,11 +1,15 @@
 import router from '@adonisjs/core/services/router'
+import { middleware } from '#start/kernel'
 
 const BookingsController = () => import('#controllers/bookings_controller')
 const TicketsController = () => import('#controllers/tickets_controller')
 
 router
   .group(() => {
-    router.post('/trips/:tripId', [BookingsController, 'initiate']).as('public.bookings.initiate')
+    router
+      .post('/', [BookingsController, 'initiate'])
+      .as('public.bookings.initiate')
+      .use(middleware.throttle({ maxAttempts: 5, decayMinutes: 60 }))
 
     router
       .get('/:id/passengers', [BookingsController, 'passengers'])
