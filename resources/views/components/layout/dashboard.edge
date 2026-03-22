@@ -86,11 +86,6 @@
         icon: 'tabler:map-2',
         label: 'Voyages',
         })
-        @!sidebar.item({
-        href: route('trips.history'),
-        icon: 'tabler:history',
-        label: 'Historique',
-        })
         @end
         @can('permission', 'booking:read')
         @!sidebar.item({

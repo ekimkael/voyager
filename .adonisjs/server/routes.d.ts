@@ -4,6 +4,9 @@ type ParamValue = string | number | bigint | boolean
 
 export type ScannedRoutes = {
   ALL: {
+    'public.globalTrips.index': { paramsTuple?: []; params?: {} }
+    'public.tenants.show': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
+    'public.trips.index': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
     'new_account.create': { paramsTuple?: []; params?: {} }
     'new_account.store': { paramsTuple?: []; params?: {} }
     'session.create': { paramsTuple?: []; params?: {} }
@@ -50,7 +53,7 @@ export type ScannedRoutes = {
     'trips.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'trips.transition': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'trips.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'public.bookings.initiate': { paramsTuple: [ParamValue]; params: {'tripId': ParamValue} }
+    'public.bookings.initiate': { paramsTuple?: []; params?: {} }
     'public.bookings.passengers': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'public.bookings.storePassengers': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'public.bookings.customer': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -74,15 +77,15 @@ export type ScannedRoutes = {
     'dashboard.tickets.download': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'passengerId': ParamValue} }
     'dashboard.boarding.index': { paramsTuple?: []; params?: {} }
     'dashboard.boarding.validate': { paramsTuple?: []; params?: {} }
-    'public.globalTrips.index': { paramsTuple?: []; params?: {} }
-    'public.tenants.show': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
-    'public.trips.index': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
     'event_stream': { paramsTuple?: []; params?: {} }
     'subscribe': { paramsTuple?: []; params?: {} }
     'unsubscribe': { paramsTuple?: []; params?: {} }
     'home': { paramsTuple?: []; params?: {} }
   }
   GET: {
+    'public.globalTrips.index': { paramsTuple?: []; params?: {} }
+    'public.tenants.show': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
+    'public.trips.index': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
     'new_account.create': { paramsTuple?: []; params?: {} }
     'session.create': { paramsTuple?: []; params?: {} }
     'dashboard.index': { paramsTuple?: []; params?: {} }
@@ -121,13 +124,13 @@ export type ScannedRoutes = {
     'dashboard.bookings.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'dashboard.tickets.download': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'passengerId': ParamValue} }
     'dashboard.boarding.index': { paramsTuple?: []; params?: {} }
-    'public.globalTrips.index': { paramsTuple?: []; params?: {} }
-    'public.tenants.show': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
-    'public.trips.index': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
     'event_stream': { paramsTuple?: []; params?: {} }
     'home': { paramsTuple?: []; params?: {} }
   }
   HEAD: {
+    'public.globalTrips.index': { paramsTuple?: []; params?: {} }
+    'public.tenants.show': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
+    'public.trips.index': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
     'new_account.create': { paramsTuple?: []; params?: {} }
     'session.create': { paramsTuple?: []; params?: {} }
     'dashboard.index': { paramsTuple?: []; params?: {} }
@@ -166,9 +169,6 @@ export type ScannedRoutes = {
     'dashboard.bookings.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'dashboard.tickets.download': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'passengerId': ParamValue} }
     'dashboard.boarding.index': { paramsTuple?: []; params?: {} }
-    'public.globalTrips.index': { paramsTuple?: []; params?: {} }
-    'public.tenants.show': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
-    'public.trips.index': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
     'event_stream': { paramsTuple?: []; params?: {} }
     'home': { paramsTuple?: []; params?: {} }
   }
@@ -182,7 +182,7 @@ export type ScannedRoutes = {
     'franchises.store': { paramsTuple?: []; params?: {} }
     'employees.store': { paramsTuple?: []; params?: {} }
     'trips.store': { paramsTuple?: []; params?: {} }
-    'public.bookings.initiate': { paramsTuple: [ParamValue]; params: {'tripId': ParamValue} }
+    'public.bookings.initiate': { paramsTuple?: []; params?: {} }
     'public.bookings.storePassengers': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'public.bookings.storeCustomer': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'public.bookings.confirm': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }

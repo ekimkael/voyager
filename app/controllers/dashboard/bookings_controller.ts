@@ -243,7 +243,7 @@ export default class DashboardBookingsController {
       .firstOrFail()
 
     if (booking.trip.departureTime <= DateTime.now()) {
-      session.flash('error', 'Impossible d\'annuler une réservation pour un voyage passé.')
+      session.flash('error', "Impossible d'annuler une réservation pour un voyage passé.")
       return response.redirect().toRoute('dashboard.bookings.index')
     }
 
