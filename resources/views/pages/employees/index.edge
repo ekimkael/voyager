@@ -76,6 +76,12 @@
               </td>
               <td class="px-6 py-4 text-right">
                 <div class="flex items-center justify-end gap-2">
+                  @can('permission', 'role:assign')
+                    <a href="{{ route('employees.roles', { id: item.id }) }}"
+                      class="text-on-surface hover:text-primary transition-colors" title="Gérer les rôles">
+                      @svg('tabler:shield', { class: 'size-4' })
+                    </a>
+                  @end
                   @can('permission', 'user:update')
                     <a href="{{ route('employees.edit', { id: item.id }) }}"
                       class="text-on-surface hover:text-primary transition-colors">

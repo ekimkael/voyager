@@ -114,11 +114,13 @@
           icon: 'tabler:users',
           label: 'Employés',
           })
+          @can('permission', 'role:read')
           @!sidebar.item({
-          href: '#',
+          href: route('roles.index'),
           icon: 'tabler:shield',
           label: 'Rôles',
           })
+          @end
           @!sidebar.item({
           href: '#',
           icon: 'tabler:settings',
