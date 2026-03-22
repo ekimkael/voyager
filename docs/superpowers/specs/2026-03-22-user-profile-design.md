@@ -6,21 +6,23 @@ Permettre à l'utilisateur connecté de modifier ses informations personnelles (
 
 ## Pages & Routes
 
+Fichier de routes : `start/routes/profile.ts` (importé dans `start/routes.ts`).
+
 ### Routes dashboard (auth requise)
 
-| Méthode | URL | Contrôleur | Action |
-|---------|-----|------------|--------|
-| GET | `/dashboard/profile` | `ProfileController` | `show` |
-| PUT | `/dashboard/profile` | `ProfileController` | `update` |
-| POST | `/dashboard/profile/email` | `EmailChangeController` | `store` |
-| GET | `/dashboard/profile/security` | `SecurityController` | `show` |
-| PUT | `/dashboard/profile/security` | `SecurityController` | `update` |
+| Méthode | URL | Contrôleur | Action | Nom |
+|---------|-----|------------|--------|-----|
+| GET | `/dashboard/profile` | `ProfileController` | `show` | `profile.show` |
+| PUT | `/dashboard/profile` | `ProfileController` | `update` | `profile.update` |
+| POST | `/dashboard/profile/email` | `EmailChangeController` | `store` | `profile.email.store` |
+| GET | `/dashboard/profile/security` | `SecurityController` | `show` | `security.show` |
+| PUT | `/dashboard/profile/security` | `SecurityController` | `update` | `security.update` |
 
 ### Route publique (hors auth)
 
-| Méthode | URL | Contrôleur | Action |
-|---------|-----|------------|--------|
-| GET | `/email/confirm` | `EmailChangeController` | `confirm` |
+| Méthode | URL | Contrôleur | Action | Nom |
+|---------|-----|------------|--------|-----|
+| GET | `/email/confirm` | `EmailChangeController` | `confirm` | `email.confirm` |
 
 Le token est passé en query param : `/email/confirm?token=<token>`. Cette page utilise le layout auth (comme login/signup).
 
@@ -36,6 +38,8 @@ Le token est passé en query param : `/email/confirm?token=<token>`. Cette page 
 | `token` | string(64) | UNIQUE, NOT NULL |
 | `expires_at` | timestamp | NOT NULL |
 | `created_at` | timestamp | NOT NULL |
+
+Note : pas de colonne `updated_at` — cette table est en écriture unique (create → delete). Le modèle Lucid doit déclarer `static updatedAt = false` (ou équivalent) pour désactiver la gestion automatique.
 
 Règles :
 - À chaque nouvelle demande, les demandes précédentes non expirées du même utilisateur sont supprimées.
@@ -53,13 +57,20 @@ Aucune modification de la table `users` — les champs nécessaires (firstName, 
 
 ### EmailChangeController
 
-- `store()` — Vérifie le mot de passe actuel via `hash.verify()`. Vérifie que le nouvel email n'est pas déjà pris (scope tenant). Supprime les demandes précédentes de l'utilisateur. Crée un `EmailChangeRequest` avec token aléatoire (64 chars) et expiration à 1h. Envoie l'email de confirmation via `EmailChangeMail`. Redirige vers profil avec message "Un email de confirmation a été envoyé à [newEmail]".
-- `confirm()` — Récupère le token depuis `request.input('token')`. Cherche la demande en base. Si token invalide ou expiré → affiche la page avec message d'erreur. Si valide → met à jour l'email de l'utilisateur, supprime la demande, affiche la page avec message de succès. Si l'utilisateur est connecté, redirige vers `/dashboard/profile`. Sinon, redirige vers `/login`.
+- `store()` — Vérifie le mot de passe actuel via `hash.verify()`. Vérifie que le nouvel email n'est pas déjà pris (scope tenant). Supprime les demandes précédentes de l'utilisateur. Crée un `EmailChangeRequest` avec token généré via `string.generateRandom(64)` (depuis `@adonisjs/core/helpers/string`) et expiration à 1h. Envoie l'email de confirmation via `EmailChangeMail`. Redirige vers profil avec message "Un email de confirmation a été envoyé à [newEmail]".
+- `confirm()` — Récupère le token depuis `request.input('token')`. Cherche la demande en base. Rend toujours la vue `email_confirm.edge` (layout auth) :
+  - Token invalide ou expiré → affiche message d'erreur "Ce lien est invalide ou a expiré" + lien vers `/login`.
+  - Token valide → met à jour l'email de l'utilisateur, supprime la demande, affiche message de succès "Votre email a été mis à jour" + lien vers `/dashboard/profile` (si connecté) ou `/login` (sinon).
+  - En cas d'erreur de contrainte unique PostgreSQL (`23505`) lors de la mise à jour (race condition : email pris entre la demande et la confirmation) → affiche message d'erreur "Cet email est déjà utilisé par un autre compte" + lien vers `/dashboard/profile`.
 
 ### SecurityController
 
 - `show()` — Affiche le formulaire de changement de mot de passe.
 - `update()` — Vérifie le mot de passe actuel via `hash.verify()`. Valide le nouveau mot de passe avec `updatePasswordValidator`. Met à jour le mot de passe. Redirige vers la page sécurité avec message de succès.
+
+### Rate limiting
+
+Appliquer le `ThrottleMiddleware` sur la route `POST /dashboard/profile/email` pour limiter les demandes de changement d'email. Le middleware existant utilise une clé hardcodée — il faudra le rendre paramétrable (via options de route ou dérivation depuis le contexte) pour supporter ce nouveau cas d'usage.
 
 ## Validateurs
 
@@ -75,7 +86,7 @@ phone: vine.string().trim().maxLength(20).optional()
 
 ```typescript
 currentPassword: vine.string()
-newEmail: vine.string().email().maxLength(254)
+newEmail: vine.string().trim().email().maxLength(254)
 ```
 
 ### `updatePasswordValidator`
@@ -95,6 +106,7 @@ Dans le layout dashboard, les deux pages partagent :
 - **En-tête de section** sous les tabs : titre + description
 - **Formulaire** : labels à gauche, champs à droite, sections séparées par des dividers horizontaux
 - **Boutons d'action** (Annuler / Enregistrer) alignés à droite après un divider final
+- **Annuler** est un lien GET vers la même page (recharge en discardant les modifications)
 
 Design inspiré d'Untitled UI settings-04.
 
@@ -107,7 +119,7 @@ Layout dashboard. Tabs avec "Mon profil" actif.
 - Divider
 - Section Téléphone
 - Divider
-- Section Email : affiche l'email actuel + bouton "Modifier l'email" qui ouvre un formulaire inline (mot de passe actuel + nouvel email + bouton Envoyer la confirmation)
+- Section Email : affiche l'email actuel + bouton "Modifier l'email" qui ouvre un formulaire inline via Alpine.js (mot de passe actuel + nouvel email + bouton Envoyer la confirmation). Ce formulaire est un `<form>` séparé qui POST vers `route('profile.email.store')`.
 - Divider
 - Boutons Annuler / Enregistrer (pour le formulaire principal nom/prénom/téléphone)
 
@@ -126,15 +138,15 @@ Layout dashboard. Tabs avec "Sécurité" actif.
 
 ### `pages/profile/email_confirm.edge`
 
-Layout auth (comme login/signup). Affiche le résultat de la confirmation :
-- Succès : message "Votre email a été mis à jour" + lien de redirection
-- Erreur : message "Token invalide ou expiré" + lien vers login
+Layout auth (comme login/signup). Rend toujours une page statique (pas de redirect) :
+- Succès : message "Votre email a été mis à jour" + lien vers profil ou login
+- Erreur : message "Ce lien est invalide ou a expiré" ou "Cet email est déjà utilisé" + lien approprié
 
 ### `emails/email_change.edge`
 
 Template email de confirmation :
 - Sujet : "Confirmez votre nouvelle adresse email"
-- Contenu : salutation avec le prénom, explication de la demande, bouton/lien de confirmation, mention de l'expiration (1h), note "Si vous n'avez pas fait cette demande, ignorez cet email"
+- Contenu : salutation avec le prénom, explication de la demande, bouton/lien de confirmation (construit via `route('email.confirm', {}, { qs: { token } })`), mention de l'expiration (1h), note "Si vous n'avez pas fait cette demande, ignorez cet email"
 
 ## Setup Mail
 
@@ -175,6 +187,8 @@ Classe BaseMail qui reçoit l'utilisateur et l'URL de confirmation. Rend le temp
 | `token` | string |
 | `expiresAt` | DateTime |
 | `createdAt` | DateTime |
+
+`static updatedAt = false` — pas de colonne `updated_at`.
 
 Relations : `belongsTo(User)`.
 
