@@ -113,8 +113,9 @@
           </div>
         </div>
         <div class="shrink-0">
-          <form method="POST" action="{{ route('public.bookings.initiate', { tripId: item.trip.id }) }}">
+          <form method="POST" action="{{ route('public.bookings.initiate') }}?trip={{ item.trip.id }}">
             {{ csrfField() }}
+            <input type="text" name="website" class="sr-only" tabindex="-1" autocomplete="off" aria-hidden="true">
             <button type="submit"
               class="inline-flex w-full items-center justify-center rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-on-primary transition-all duration-200 hover:-translate-y-0.5 hover:bg-secondary hover:shadow-md sm:w-auto">
               Réserver
