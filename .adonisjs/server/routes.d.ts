@@ -88,6 +88,12 @@ export type ScannedRoutes = {
     'roles.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'roles.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'roles.syncPermissions': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'profile.show': { paramsTuple?: []; params?: {} }
+    'profile.update': { paramsTuple?: []; params?: {} }
+    'profile.email.store': { paramsTuple?: []; params?: {} }
+    'security.show': { paramsTuple?: []; params?: {} }
+    'security.update': { paramsTuple?: []; params?: {} }
+    'email.confirm': { paramsTuple?: []; params?: {} }
     'event_stream': { paramsTuple?: []; params?: {} }
     'subscribe': { paramsTuple?: []; params?: {} }
     'unsubscribe': { paramsTuple?: []; params?: {} }
@@ -140,6 +146,9 @@ export type ScannedRoutes = {
     'roles.create': { paramsTuple?: []; params?: {} }
     'roles.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'roles.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'profile.show': { paramsTuple?: []; params?: {} }
+    'security.show': { paramsTuple?: []; params?: {} }
+    'email.confirm': { paramsTuple?: []; params?: {} }
     'event_stream': { paramsTuple?: []; params?: {} }
     'home': { paramsTuple?: []; params?: {} }
   }
@@ -190,6 +199,9 @@ export type ScannedRoutes = {
     'roles.create': { paramsTuple?: []; params?: {} }
     'roles.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'roles.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'profile.show': { paramsTuple?: []; params?: {} }
+    'security.show': { paramsTuple?: []; params?: {} }
+    'email.confirm': { paramsTuple?: []; params?: {} }
     'event_stream': { paramsTuple?: []; params?: {} }
     'home': { paramsTuple?: []; params?: {} }
   }
@@ -214,6 +226,7 @@ export type ScannedRoutes = {
     'dashboard.boarding.validate': { paramsTuple?: []; params?: {} }
     'roles.store': { paramsTuple?: []; params?: {} }
     'roles.syncPermissions': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'profile.email.store': { paramsTuple?: []; params?: {} }
     'subscribe': { paramsTuple?: []; params?: {} }
     'unsubscribe': { paramsTuple?: []; params?: {} }
   }
@@ -227,6 +240,8 @@ export type ScannedRoutes = {
     'trips.transition': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'dashboard.bookings.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'roles.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'profile.update': { paramsTuple?: []; params?: {} }
+    'security.update': { paramsTuple?: []; params?: {} }
   }
   DELETE: {
     'cities.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }

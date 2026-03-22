@@ -23,4 +23,7 @@ export const controllers = {
   Tickets: () => import('#controllers/tickets_controller'),
   Trips: () => import('#controllers/trips_controller'),
   Roles: () => import('#controllers/roles_controller'),
+  Profile: () => import('#controllers/profile_controller'),
+  Security: () => import('#controllers/security_controller'),
+  EmailChange: () => import('#controllers/email_change_controller'),
 }

@@ -97,6 +97,23 @@ export class CustomerSchema extends BaseModel {
   declare updatedAt: DateTime
 }
 
+export class EmailChangeRequestSchema extends BaseModel {
+  static $columns = ['createdAt', 'expiresAt', 'id', 'newEmail', 'token', 'userId'] as const
+  $columns = EmailChangeRequestSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column.dateTime()
+  declare expiresAt: DateTime
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare newEmail: string
+  @column()
+  declare token: string
+  @column()
+  declare userId: string
+}
+
 export class FranchiseSchema extends BaseModel {
   static $columns = ['active', 'address', 'cityId', 'createdAt', 'id', 'name', 'phone', 'tenantId', 'updatedAt'] as const
   $columns = FranchiseSchema.$columns
