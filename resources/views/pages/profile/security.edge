@@ -1,0 +1,72 @@
+@layout.dashboard()
+<div class="mx-auto max-w-3xl">
+  {{-- Tabs --}}
+  <div class="mb-6 flex border-b border-outline">
+    <a href="{{ route('profile.show') }}"
+      class="px-4 pb-3 text-sm font-medium text-on-surface hover:text-on-surface-strong transition-colors">
+      Mon profil
+    </a>
+    <a href="{{ route('security.show') }}"
+      class="border-b-2 border-primary px-4 pb-3 text-sm font-medium text-on-surface-strong">
+      Sécurité
+    </a>
+  </div>
+
+  {{-- Header --}}
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold text-on-surface-strong">Mot de passe</h1>
+    <p class="mt-1 text-sm text-on-surface">Mettez à jour votre mot de passe</p>
+  </div>
+
+  {{-- Password Form --}}
+  @form({ route: 'security.update', method: 'PUT' })
+    {{-- Current Password --}}
+    <div class="grid grid-cols-1 gap-x-8 gap-y-1 sm:grid-cols-[200px_1fr] sm:items-start py-5">
+      <label class="text-sm font-medium text-on-surface-strong sm:pt-2">Mot de passe actuel</label>
+      <div>
+        @field.root({ name: 'currentPassword' })
+          @!input.control({ type: 'password', placeholder: '••••••••' })
+          @!field.error()
+        @end
+      </div>
+    </div>
+
+    <hr class="border-outline">
+
+    {{-- New Password --}}
+    <div class="grid grid-cols-1 gap-x-8 gap-y-1 sm:grid-cols-[200px_1fr] sm:items-start py-5">
+      <label class="text-sm font-medium text-on-surface-strong sm:pt-2">Nouveau mot de passe</label>
+      <div>
+        @field.root({ name: 'newPassword' })
+          @!input.control({ type: 'password', placeholder: '••••••••' })
+          @!field.error()
+        @end
+      </div>
+    </div>
+
+    <hr class="border-outline">
+
+    {{-- Confirm Password --}}
+    <div class="grid grid-cols-1 gap-x-8 gap-y-1 sm:grid-cols-[200px_1fr] sm:items-start py-5">
+      <label class="text-sm font-medium text-on-surface-strong sm:pt-2">Confirmer le mot de passe</label>
+      <div>
+        @field.root({ name: 'newPasswordConfirmation' })
+          @!input.control({ type: 'password', placeholder: '••••••••' })
+          @!field.error()
+        @end
+      </div>
+    </div>
+
+    <hr class="border-outline">
+
+    {{-- Action buttons --}}
+    <div class="flex items-center justify-end gap-3 pt-5">
+      <a href="{{ route('security.show') }}"
+        class="rounded-full border border-outline px-4 py-2 text-sm font-medium text-on-surface hover:bg-surface-alt transition-colors">
+        Annuler
+      </a>
+      @!button({ text: 'Enregistrer', type: 'submit' })
+    </div>
+  @end
+</div>
+@end
