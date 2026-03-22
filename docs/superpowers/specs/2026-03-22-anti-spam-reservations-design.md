@@ -155,5 +155,5 @@ L'URL d'initiation change de `POST /booking/trips/:tripId` à `POST /booking?tri
 | `app/controllers/bookings_controller.ts` | Logique session (réutilisation/annulation), honeypot, lire tripId depuis query string |
 | `app/middleware/throttle_middleware.ts` | Nouveau middleware de rate limiting |
 | `start/kernel.ts` | Enregistrer le middleware throttle |
-| `app/commands/booking_cancel_abandoned.ts` | Nouvelle commande ace |
+| `commands/booking_cancel_abandoned.ts` | Nouvelle commande ace |
 | Templates Edge (formulaire de réservation) | Ajouter le champ honeypot, mettre à jour l'URL du formulaire |
