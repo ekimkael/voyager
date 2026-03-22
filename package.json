@@ -65,6 +65,7 @@
     "@adonisjs/bouncer": "^4.0.0",
     "@adonisjs/core": "^7.0.0",
     "@adonisjs/lucid": "^22.0.0",
+    "@adonisjs/mail": "^10.0.1",
     "@adonisjs/session": "^8.0.0",
     "@adonisjs/shield": "^9.0.0",
     "@adonisjs/static": "^2.0.0",
