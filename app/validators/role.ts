@@ -16,7 +16,7 @@ export const updateRoleValidator = vine.compile(
 
 export const syncPermissionsValidator = vine.compile(
   vine.object({
-    permissions: vine.array(vine.string().uuid()),
+    permissions: vine.array(vine.string().uuid()).optional(),
   })
 )
 

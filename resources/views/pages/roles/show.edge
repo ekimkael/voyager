@@ -70,7 +70,7 @@
                           <input type="checkbox" {{ cell.granted ? 'checked' : '' }} disabled
                             class="size-4 rounded border-neutral-300 text-primary/50" />
                         @else
-                          <input type="checkbox" name="permissions" value="{{ cell.permissionId }}"
+                          <input type="checkbox" name="permissions[]" value="{{ cell.permissionId }}"
                             {{ cell.granted ? 'checked' : '' }}
                             class="size-4 rounded border-neutral-300 text-primary focus:ring-primary" />
                         @end
@@ -102,7 +102,7 @@
                       class="size-4 rounded border-neutral-300 text-primary/50" />
                     <span class="text-sm text-on-surface-strong">{{ perm.key }}</span>
                   @else
-                    <input type="checkbox" name="permissions" value="{{ perm.permissionId }}"
+                    <input type="checkbox" name="permissions[]" value="{{ perm.permissionId }}"
                       {{ perm.granted ? 'checked' : '' }}
                       class="size-4 rounded border-neutral-300 text-primary focus:ring-primary" />
                     <span class="text-sm text-on-surface-strong">{{ perm.key }}</span>

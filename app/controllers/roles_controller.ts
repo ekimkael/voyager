@@ -212,6 +212,16 @@ export default class RolesController {
         return response.redirect().back()
       }
 
+      const parentExists = await Role.query()
+        .where('id', payload.parentRoleId)
+        .where('tenantId', tenant!.id)
+        .first()
+
+      if (!parentExists) {
+        session.flash('error', 'Le rôle parent sélectionné est invalide.')
+        return response.redirect().back()
+      }
+
       let currentId: string | null = payload.parentRoleId
       let depth = 0
       while (currentId && depth < 4) {
@@ -296,11 +306,13 @@ export default class RolesController {
 
     const payload = await request.validateUsing(syncPermissionsValidator)
 
+    const permissionIds = payload.permissions ?? []
+
     await db.transaction(async (trx) => {
       await RolePermission.query({ client: trx }).where('roleId', role.id).delete()
 
-      if (payload.permissions.length > 0) {
-        const records = payload.permissions.map((permissionId) => ({
+      if (permissionIds.length > 0) {
+        const records = permissionIds.map((permissionId) => ({
           roleId: role.id,
           permissionId,
         }))
