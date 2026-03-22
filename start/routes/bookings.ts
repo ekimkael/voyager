@@ -9,7 +9,7 @@ router
     router
       .post('/', [BookingsController, 'initiate'])
       .as('public.bookings.initiate')
-      .use(middleware.throttle({ maxAttempts: 5, decayMinutes: 60 }))
+      .use(middleware.throttle({ maxAttempts: 5, decayMinutes: 60, key: 'throttle:booking:initiate' }))
 
     router
       .get('/:id/passengers', [BookingsController, 'passengers'])

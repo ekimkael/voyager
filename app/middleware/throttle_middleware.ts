@@ -12,11 +12,12 @@ export default class ThrottleMiddleware {
   async handle(
     ctx: HttpContext,
     next: NextFn,
-    options: { maxAttempts?: number; decayMinutes?: number } = {}
+    options: { maxAttempts?: number; decayMinutes?: number; key?: string } = {}
   ) {
     const maxAttempts = options.maxAttempts ?? 5
     const decayMinutes = options.decayMinutes ?? 60
-    const key = `throttle:booking:initiate:${ctx.request.ip()}`
+    const keyPrefix = options.key ?? 'throttle:global'
+    const key = `${keyPrefix}:${ctx.request.ip()}`
     const now = Date.now()
 
     const entry = store.get(key)
