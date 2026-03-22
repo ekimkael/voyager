@@ -25,41 +25,41 @@
       <div class="space-y-4">
 
         {{-- Passenger rows --}}
-        @each(passenger in booking.passengers)
+        @each((passenger, index) in booking.passengers)
           <div class="rounded-radius border border-outline bg-surface p-5">
             <h2 class="mb-4 text-sm font-semibold text-on-surface-strong">
               Passager — Siège {{ passenger.seatNumber }}
             </h2>
 
-            <input type="hidden" name="passengers[{{ $loop.index }}][id]" value="{{ passenger.id }}" />
+            <input type="hidden" name="passengers[{{ index }}][id]" value="{{ passenger.id }}" />
 
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <div>
-                <label for="p{{ $loop.index }}_firstName" class="mb-1 block text-sm font-medium text-on-surface">
+                <label for="p{{ index }}_firstName" class="mb-1 block text-sm font-medium text-on-surface">
                   Prénom <span class="text-danger">*</span>
                 </label>
                 <input type="text"
-                  name="passengers[{{ $loop.index }}][firstName]"
-                  id="p{{ $loop.index }}_firstName"
-                  value="{{ old('passengers.' + $loop.index + '.firstName') || passenger.firstName }}"
+                  name="passengers[{{ index }}][firstName]"
+                  id="p{{ index }}_firstName"
+                  value="{{ old('passengers.' + index + '.firstName') || passenger.firstName }}"
                   class="h-10 w-full rounded-radius border border-neutral-300 bg-surface px-4 text-sm text-on-surface-strong outline-none focus:border-primary focus:ring-1 focus:ring-primary" />
               </div>
               <div>
-                <label for="p{{ $loop.index }}_lastName" class="mb-1 block text-sm font-medium text-on-surface">
+                <label for="p{{ index }}_lastName" class="mb-1 block text-sm font-medium text-on-surface">
                   Nom <span class="text-danger">*</span>
                 </label>
                 <input type="text"
-                  name="passengers[{{ $loop.index }}][lastName]"
-                  id="p{{ $loop.index }}_lastName"
-                  value="{{ old('passengers.' + $loop.index + '.lastName') || passenger.lastName }}"
+                  name="passengers[{{ index }}][lastName]"
+                  id="p{{ index }}_lastName"
+                  value="{{ old('passengers.' + index + '.lastName') || passenger.lastName }}"
                   class="h-10 w-full rounded-radius border border-neutral-300 bg-surface px-4 text-sm text-on-surface-strong outline-none focus:border-primary focus:ring-1 focus:ring-primary" />
               </div>
               <div>
-                <label for="p{{ $loop.index }}_phone" class="mb-1 block text-sm font-medium text-on-surface">Téléphone</label>
+                <label for="p{{ index }}_phone" class="mb-1 block text-sm font-medium text-on-surface">Téléphone</label>
                 <input type="tel"
-                  name="passengers[{{ $loop.index }}][phone]"
-                  id="p{{ $loop.index }}_phone"
-                  value="{{ old('passengers.' + $loop.index + '.phone') || passenger.phone || '' }}"
+                  name="passengers[{{ index }}][phone]"
+                  id="p{{ index }}_phone"
+                  value="{{ old('passengers.' + index + '.phone') || passenger.phone || '' }}"
                   class="h-10 w-full rounded-radius border border-neutral-300 bg-surface px-4 text-sm text-on-surface-strong outline-none focus:border-primary focus:ring-1 focus:ring-primary" />
               </div>
             </div>

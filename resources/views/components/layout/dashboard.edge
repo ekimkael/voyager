@@ -1,5 +1,5 @@
 @layout.base()
-<div x-data="{ sidebarCollapsed: false, mobileSidebarOpen: false }" class="flex min-h-screen">
+<div x-data="{ sidebarCollapsed: false, mobileSidebarOpen: false }" class="flex h-screen">
 
   {{-- Mobile backdrop --}}
   <div x-show="mobileSidebarOpen" x-transition.opacity x-on:click="mobileSidebarOpen = false" x-cloak
@@ -186,7 +186,7 @@
   </aside>
 
   {{-- Main content area --}}
-  <div class="flex flex-1 flex-col" :class="sidebarCollapsed ? 'lg:ml-0' : 'lg:ml-0'">
+  <div class="flex flex-1 flex-col overflow-hidden" :class="sidebarCollapsed ? 'lg:ml-0' : 'lg:ml-0'">
 
     {{-- Mobile header --}}
     <header class="flex h-14 items-center border-b border-outline bg-surface px-4 lg:hidden">
@@ -197,7 +197,7 @@
     </header>
 
     {{-- Page content --}}
-    <main class="flex-1 bg-surface-alt p-6">
+    <main class="flex-1 overflow-y-auto bg-surface-alt p-6">
       @include('partials/flash_alerts')
       {{{ await $slots.main() }}}
     </main>
