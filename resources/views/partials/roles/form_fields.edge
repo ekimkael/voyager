@@ -1,0 +1,31 @@
+<div class="flex flex-col gap-6">
+  <div>
+    @field.root({ name: 'name' })
+      @!field.label({ text: 'Nom du rôle' })
+      @!input.control({ placeholder: 'Ex: Agent commercial', value: role?.name ?? '' })
+      @!field.error()
+    @end
+  </div>
+
+  <div>
+    @field.root({ name: 'parentRoleId' })
+      @!field.label({ text: 'Rôle parent (optionnel)' })
+      @!select.control({
+        options: [
+          { value: '', name: 'Aucun (rôle racine)' },
+          ...roles.map((r) => ({
+            value: r.id,
+            name: r.name,
+            isSelected: role ? role.parentRoleId === r.id : false,
+          }))
+        ]
+      })
+      @!field.error()
+    @end
+  </div>
+
+  <div class="flex items-center gap-3">
+    @!button({ text: role ? 'Mettre à jour' : 'Créer', type: 'submit' })
+    <a href="{{ route('roles.index') }}" class="text-sm text-on-surface hover:text-on-surface-strong transition-colors">Annuler</a>
+  </div>
+</div>
