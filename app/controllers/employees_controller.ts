@@ -5,6 +5,7 @@ import Role from '#models/role'
 import Franchise from '#models/franchise'
 import UserRoleAssignment from '#models/user_role_assignment'
 import { createEmployeeValidator, updateEmployeeValidator } from '#validators/employee'
+import { assignRoleValidator } from '#validators/role'
 
 export default class EmployeesController {
   async index({ view, tenant, request, auth }: HttpContext) {
@@ -233,6 +234,90 @@ export default class EmployeesController {
 
     session.flash('success', 'Employé désactivé avec succès')
     return response.redirect().toRoute('employees.index')
+  }
+
+  async roles({ params, view, tenant }: HttpContext) {
+    const employee = await User.query()
+      .where('id', params.id)
+      .where('tenantId', tenant!.id)
+      .firstOrFail()
+
+    const assignments = await UserRoleAssignment.query()
+      .where('userId', employee.id)
+      .preload('role')
+      .preload('granter')
+      .orderBy('createdAt', 'desc')
+
+    const assignedRoleIds = assignments.map((a) => a.roleId)
+
+    const availableRoles = await Role.query()
+      .where('tenantId', tenant!.id)
+      .if(assignedRoleIds.length > 0, (q) => q.whereNotIn('id', assignedRoleIds))
+      .orderBy('name')
+
+    return view.render('pages/employees/roles', {
+      employee,
+      assignments,
+      availableRoles,
+    })
+  }
+
+  async assignRole({ params, request, response, session, auth, tenant }: HttpContext) {
+    const employee = await User.query()
+      .where('id', params.id)
+      .where('tenantId', tenant!.id)
+      .firstOrFail()
+
+    const payload = await request.validateUsing(assignRoleValidator)
+
+    // Verify role belongs to this tenant
+    const role = await Role.query()
+      .where('id', payload.roleId)
+      .where('tenantId', tenant!.id)
+      .firstOrFail()
+
+    try {
+      await UserRoleAssignment.create({
+        userId: employee.id,
+        roleId: role.id,
+        grantedBy: auth.user!.id,
+        expiresAt: payload.expiresAt || null,
+        isTemporary: !!payload.expiresAt,
+      })
+    } catch (error) {
+      if (error.code === '23505') {
+        session.flash('error', 'Ce rôle est déjà assigné à cet employé.')
+        return response.redirect().back()
+      }
+      throw error
+    }
+
+    session.flash('success', `Rôle "${role.name}" assigné avec succès.`)
+    return response.redirect().toRoute('employees.roles', { id: employee.id })
+  }
+
+  async revokeRole({ params, response, session, auth, tenant }: HttpContext) {
+    const employee = await User.query()
+      .where('id', params.id)
+      .where('tenantId', tenant!.id)
+      .firstOrFail()
+
+    const assignment = await UserRoleAssignment.query()
+      .where('id', params.assignmentId)
+      .where('userId', employee.id)
+      .preload('role')
+      .firstOrFail()
+
+    // Prevent admin from removing their own Admin role
+    if (employee.id === auth.user!.id && assignment.role.name === 'Admin') {
+      session.flash('error', 'Vous ne pouvez pas retirer votre propre rôle Admin.')
+      return response.redirect().toRoute('employees.roles', { id: employee.id })
+    }
+
+    await assignment.delete()
+
+    session.flash('success', `Rôle "${assignment.role.name}" retiré avec succès.`)
+    return response.redirect().toRoute('employees.roles', { id: employee.id })
   }
 
   private async isAdminOrDispatcher(userId: string, tenantId: string): Promise<boolean> {
