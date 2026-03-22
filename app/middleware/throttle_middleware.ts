@@ -28,6 +28,7 @@ export default class ThrottleMiddleware {
           'error',
           `Trop de tentatives. Réessayez dans ${Math.ceil(retryAfterSeconds / 60)} minute(s).`
         )
+        ctx.response.header('Retry-After', String(retryAfterSeconds))
         ctx.response.status(429)
         return ctx.response.redirect().back()
       }

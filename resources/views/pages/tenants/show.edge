@@ -51,8 +51,9 @@
             {{ trip.departureTime.toFormat('dd/MM/yyyy HH:mm') }}
           </p>
         </div>
-        <form method="POST" action="{{ route('public.bookings.initiate', { tripId: trip.id }) }}">
+        <form method="POST" action="{{ route('public.bookings.initiate') }}?trip={{ trip.id }}">
           {{ csrfField() }}
+          <input type="text" name="website" class="sr-only" tabindex="-1" autocomplete="off" aria-hidden="true">
           <button type="submit"
             class="rounded-full border border-outline px-4 py-1.5 text-xs font-medium text-on-surface-strong transition-all duration-200 hover:-translate-y-0.5 hover:border-primary hover:text-primary">
             Réserver
