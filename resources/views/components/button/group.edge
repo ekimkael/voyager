@@ -1,0 +1,31 @@
+@let(orientation = $props.get('orientation') || 'horizontal')
+
+@let(orientationClasses = {
+'horizontal': [
+'[&>*:not(:first-child)]:rounded-l-none',
+'[&>*:not(:first-child)]:border-l-0',
+'[&>*:not(:last-child)]:rounded-r-none',
+],
+'vertical': [
+'flex-col',
+'[&>*:not(:first-child)]:rounded-t-none',
+'[&>*:not(:first-child)]:border-t-0',
+'[&>*:not(:last-child)]:rounded-b-none',
+],
+})
+
+@let(classes = [
+'flex', 'w-fit', 'items-stretch',
+'[&>*]:focus-visible:relative', '[&>*]:focus-visible:z-10',
+'[&>input]:flex-1',
+...orientationClasses[orientation] || orientationClasses['horizontal'],
+])
+
+<div {{ $props.except(['orientation']).merge({
+  role: 'group',
+  'data-slot': 'button-group',
+  'data-orientation': orientation,
+  class: classes,
+}).toAttrs() }}>
+  {{{ await $slots.main() }}}
+</div>

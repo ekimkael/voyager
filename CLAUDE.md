@@ -140,14 +140,15 @@ resources/
 - `layout/` — base.edge, dashboard.edge, public.edge
 - `form/` — Wrapper de formulaire avec CSRF
 - `field/` — root.edge, label.edge, error.edge
-- `input/` — control.edge
+- `input/` — control.edge, group.edge, addon.edge, group_control.edge
 - `select/` — control.edge
 - `textarea/` — control.edge
 - `checkbox/` — control.edge, group.edge
 - `radio/` — control.edge, group.edge
 - `alert/` — root.edge, title.edge, description.edge
-- `sidebar/` — item.edge
-- `avatar.edge`, `button.edge`, `link.edge`, `pagination.edge`
+- `button/` — index.edge (variants: default, destructive, outline, secondary, ghost, link; sizes: default, xs, sm, lg, icon, icon-xs, icon-sm, icon-lg), group.edge
+- `sidebar/` — header.edge, content.edge, footer.edge, group.edge, group_label.edge, menu.edge, menu_item.edge, menu_button.edge, separator.edge, trigger.edge
+- `avatar.edge`, `link.edge`, `pagination.edge`
 
 **Partials globaux** (`resources/views/partials/`) :
 - `flash_alerts.edge` — Messages flash

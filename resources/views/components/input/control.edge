@@ -1,26 +1,23 @@
 @let(useOldValue = !['password', 'file', 'checkbox', 'radio'].includes($props.get('type')))
 @let(inputValue = useOldValue
-  ? $context.oldValue || $props.get('value') || ''
-  : $props.get('value') || ''
+? $context.oldValue || $props.get('value') || ''
+: $props.get('value') || ''
 )
-@let(classes = ['h-10', 'w-full', 'rounded-full', 'border', 'border-neutral-300', 'bg-surface', 'px-4', 'text-sm', 'text-on-surface-strong', 'outline-none', 'focus:border-primary', 'focus:ring-1', 'focus:ring-primary', 'aria-[invalid=true]:border-danger'])
+@let(classes = [
+'h-9', 'w-full', 'min-w-0', 'rounded-md', 'border', 'border-outline', 'bg-transparent', 'px-3', 'py-1',
+'text-base', 'text-on-surface-strong', 'shadow-xs', 'outline-none',
+'transition-[color,box-shadow]',
+'selection:bg-primary', 'selection:text-on-primary',
+'file:inline-flex', 'file:h-7', 'file:border-0', 'file:bg-transparent', 'file:text-sm', 'file:font-medium', 'file:text-on-surface-strong',
+'placeholder:text-on-surface',
+'disabled:pointer-events-none', 'disabled:cursor-not-allowed', 'disabled:opacity-50',
+'md:text-sm',
+'focus-visible:border-primary', 'focus-visible:ring-[3px]', 'focus-visible:ring-primary/50',
+'aria-[invalid=true]:border-danger', 'aria-[invalid=true]:ring-danger/20',
+])
 
-<input {{ $props
-  .except(['value'])
-  .merge({
-    name: $context.name,
-    id: $context.id,
-    value: inputValue,
-    class: classes,
-    type: 'text',
-    'aria-invalid': $context.hasErrors ? 'true' : false,
-    'data-invalid': $context.hasErrors ? 'true' : false,
-    'autofocus': $context.hasErrors ? 'true' : false,
-    'aria-describedby': $context.hasErrors ? `${$context.id}-error` : '',
-  })
-  .mergeIf($props.get('keepChecked'), {
-    checked: !!(
-      $context.oldValue && ($context.oldValue === inputValue || $context.oldValue === 'on')
-    ),
-  })
-  .toAttrs() }} />
+<input {{ $props .except(['value']) .merge({ name: $context.name, id: $context.id, value: inputValue, class: classes,
+  type: 'text' , 'aria-invalid' : $context.hasErrors ? 'true' : false, 'data-invalid' : $context.hasErrors ? 'true' :
+  false, 'autofocus' : $context.hasErrors ? 'true' : false, 'aria-describedby' : $context.hasErrors ?
+  `${$context.id}-error` : '' , }) .mergeIf($props.get('keepChecked'), { checked: !!( $context.oldValue &&
+  ($context.oldValue===inputValue || $context.oldValue==='on' ) ), }) .toAttrs() }} />
