@@ -94,36 +94,50 @@
               @!badge({ variant: 'danger', text: 'Annulée' })
             @end
           @end
-          @table.cell()
-            @dropdown_menu.root()
-              @!dropdown_menu.trigger()
-              @dropdown_menu.content()
-                @dropdown_menu.item({ href: route('dashboard.bookings.show', { id: item.id }) })
+          <td class="px-4 py-3">
+            <div x-data="{ open: false }" class="relative">
+              <button @click="open = !open" type="button"
+                class="inline-flex size-6 shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap cursor-pointer transition-all outline-none hover:bg-surface-alt hover:text-on-surface-strong [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*=size-])]:size-4"
+                aria-haspopup="true" :aria-expanded="open">
+                @svg('tabler:dots', { class: 'size-4' })
+              </button>
+              <div x-show="open" x-transition @click.outside="open = false" @keydown.escape.window="open = false" x-cloak
+                class="absolute right-0 z-50 mt-1 min-w-[160px] rounded-lg border border-outline bg-surface p-1 shadow-md" role="menu">
+
+                <a href="{{ route('dashboard.bookings.show', { id: item.id }) }}" @click="open = false"
+                  class="flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-sm cursor-pointer text-on-surface-strong hover:bg-surface-alt transition-colors" role="menuitem">
                   @svg('tabler:eye', { class: 'size-4' })
                   Voir
-                @end
+                </a>
 
                 @can('permission', 'booking:update')
                   @if(item.status === 'confirmed')
-                    @dropdown_menu.item({ href: route('dashboard.bookings.edit', { id: item.id }) })
+                    <a href="{{ route('dashboard.bookings.edit', { id: item.id }) }}" @click="open = false"
+                      class="flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-sm cursor-pointer text-on-surface-strong hover:bg-surface-alt transition-colors" role="menuitem">
                       @svg('tabler:pencil', { class: 'size-4' })
                       Modifier
-                    @end
+                    </a>
                   @end
                 @end
 
                 @can('permission', 'booking:update')
                   @if(item.status !== 'cancelled')
-                    @!dropdown_menu.separator()
-                    @dropdown_menu.item({ href: route('dashboard.bookings.destroy', { id: item.id }), method: 'DELETE', variant: 'destructive', onclick: "return confirm('Annuler cette réservation ?')" })
-                      @svg('tabler:ban', { class: 'size-4' })
-                      Annuler
-                    @end
+                    <div class="my-1 border-t border-outline" role="separator"></div>
+                    <form action="{{ route('dashboard.bookings.destroy', { id: item.id }) }}" method="POST" class="w-full">
+                      {{ csrfField() }}
+                      <input type="hidden" name="_method" value="DELETE" />
+                      <button type="submit" @click="open = false" onclick="return confirm('Annuler cette réservation ?')"
+                        class="flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-sm cursor-pointer text-danger hover:bg-surface-alt transition-colors" role="menuitem">
+                        @svg('tabler:ban', { class: 'size-4' })
+                        Annuler
+                      </button>
+                    </form>
                   @end
                 @end
-              @end
-            @end
-          @end
+
+              </div>
+            </div>
+          </td>
         @end
       @end
 

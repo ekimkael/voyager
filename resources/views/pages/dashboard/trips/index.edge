@@ -77,57 +77,88 @@
                 @!badge({ variant: 'warning', text: 'En cours' })
               @end
             @end
-            @table.cell()
-              @dropdown_menu.root()
-                @!dropdown_menu.trigger()
-                @dropdown_menu.content()
+            <td class="px-4 py-3">
+              <div x-data="{ open: false }" class="relative">
+                <button @click="open = !open" type="button"
+                  class="inline-flex size-6 shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap cursor-pointer transition-all outline-none hover:bg-surface-alt hover:text-on-surface-strong [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*=size-])]:size-4"
+                  aria-haspopup="true" :aria-expanded="open">
+                  @svg('tabler:dots', { class: 'size-4' })
+                </button>
+                <div x-show="open" x-transition @click.outside="open = false" @keydown.escape.window="open = false" x-cloak
+                  class="absolute right-0 z-50 mt-1 min-w-[160px] rounded-lg border border-outline bg-surface p-1 shadow-md" role="menu">
+
                   @can('permission', 'trip:update')
                     @if(item.status === 'scheduled')
-                      @dropdown_menu.item({ href: route('trips.transition', { id: item.id }), method: 'PUT', hiddenInputs: { status: 'in_progress' }, onclick: "return confirm('Démarrer ce voyage ?')" })
-                        @svg('tabler:player-play', { class: 'size-4' })
-                        Démarrer
-                      @end
+                      <form action="{{ route('trips.transition', { id: item.id }) }}" method="POST" class="w-full">
+                        {{ csrfField() }}
+                        <input type="hidden" name="_method" value="PUT" />
+                        <input type="hidden" name="status" value="in_progress" />
+                        <button type="submit" @click="open = false" onclick="return confirm('Démarrer ce voyage ?')"
+                          class="flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-sm cursor-pointer text-on-surface-strong hover:bg-surface-alt transition-colors" role="menuitem">
+                          @svg('tabler:player-play', { class: 'size-4' })
+                          Démarrer
+                        </button>
+                      </form>
                     @end
 
                     @if(item.status === 'in_progress')
-                      @dropdown_menu.item({ href: route('trips.transition', { id: item.id }), method: 'PUT', hiddenInputs: { status: 'completed' }, onclick: "return confirm('Marquer ce voyage comme terminé ?')" })
-                        @svg('tabler:circle-check', { class: 'size-4' })
-                        Compléter
-                      @end
+                      <form action="{{ route('trips.transition', { id: item.id }) }}" method="POST" class="w-full">
+                        {{ csrfField() }}
+                        <input type="hidden" name="_method" value="PUT" />
+                        <input type="hidden" name="status" value="completed" />
+                        <button type="submit" @click="open = false" onclick="return confirm('Marquer ce voyage comme terminé ?')"
+                          class="flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-sm cursor-pointer text-on-surface-strong hover:bg-surface-alt transition-colors" role="menuitem">
+                          @svg('tabler:circle-check', { class: 'size-4' })
+                          Compléter
+                        </button>
+                      </form>
                     @end
 
                     @if(item.status === 'scheduled' || item.status === 'in_progress')
-                      @dropdown_menu.item({ href: route('trips.edit', { id: item.id }) })
+                      <a href="{{ route('trips.edit', { id: item.id }) }}" @click="open = false"
+                        class="flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-sm cursor-pointer text-on-surface-strong hover:bg-surface-alt transition-colors" role="menuitem">
                         @svg('tabler:pencil', { class: 'size-4' })
                         Modifier
-                      @end
+                      </a>
                     @end
                   @end
 
                   @if(item.status === 'scheduled' || item.status === 'in_progress')
-                    @!dropdown_menu.separator()
+                    <div class="my-1 border-t border-outline" role="separator"></div>
                   @end
 
                   @can('permission', 'trip:update')
                     @if(item.status === 'scheduled' || item.status === 'in_progress')
-                      @dropdown_menu.item({ href: route('trips.transition', { id: item.id }), method: 'PUT', variant: 'destructive', hiddenInputs: { status: 'cancelled' }, onclick: "return confirm('Annuler ce voyage ?')" })
-                        @svg('tabler:x', { class: 'size-4' })
-                        Annuler
-                      @end
+                      <form action="{{ route('trips.transition', { id: item.id }) }}" method="POST" class="w-full">
+                        {{ csrfField() }}
+                        <input type="hidden" name="_method" value="PUT" />
+                        <input type="hidden" name="status" value="cancelled" />
+                        <button type="submit" @click="open = false" onclick="return confirm('Annuler ce voyage ?')"
+                          class="flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-sm cursor-pointer text-danger hover:bg-surface-alt transition-colors" role="menuitem">
+                          @svg('tabler:x', { class: 'size-4' })
+                          Annuler
+                        </button>
+                      </form>
                     @end
                   @end
 
                   @can('permission', 'trip:delete')
                     @if(item.status === 'scheduled')
-                      @dropdown_menu.item({ href: route('trips.destroy', { id: item.id }), method: 'DELETE', variant: 'destructive', onclick: "return confirm('Supprimer ce voyage ?')" })
-                        @svg('tabler:trash', { class: 'size-4' })
-                        Supprimer
-                      @end
+                      <form action="{{ route('trips.destroy', { id: item.id }) }}" method="POST" class="w-full">
+                        {{ csrfField() }}
+                        <input type="hidden" name="_method" value="DELETE" />
+                        <button type="submit" @click="open = false" onclick="return confirm('Supprimer ce voyage ?')"
+                          class="flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-sm cursor-pointer text-danger hover:bg-surface-alt transition-colors" role="menuitem">
+                          @svg('tabler:trash', { class: 'size-4' })
+                          Supprimer
+                        </button>
+                      </form>
                     @end
                   @end
-                @end
-              @end
-            @end
+
+                </div>
+              </div>
+            </td>
           @end
         @end
 
