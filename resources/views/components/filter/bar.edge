@@ -1,19 +1,18 @@
 @let(action = $props.get('action') || '')
-@let(cols = String($props.get('cols') || '4'))
-@let(colsMap = { '3': 'lg:grid-cols-3', '4': 'lg:grid-cols-4', '6': 'lg:grid-cols-6' })
-@let(colsClass = colsMap[cols] || colsMap['4'])
+@let(hasActiveFilters = Object.values(request.qs()).some(v => v))
 
-<form method="GET" {{ action ? `action="${action}"` : '' }} class="mb-6">
-  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 {{ colsClass }}">
-    {{{ await $slots.main() }}}
-  </div>
-  <div class="mt-4 flex items-center gap-3">
-    @button({ type: 'submit', variant: 'default', size: 'sm' })
-      @svg('tabler:filter', { class: 'size-4' })
-      Filtrer
-    @end
-    <a href="{{ action || request.url() }}" class="text-sm text-on-surface hover:text-on-surface-strong transition-colors">
-      Réinitialiser
+<form method="GET" action="{{ action }}" class="mb-6 flex flex-wrap items-center gap-2">
+  {{{ await $slots.main() }}}
+  <button type="submit"
+    class="inline-flex size-9 shrink-0 items-center justify-center rounded-md bg-primary text-on-primary shadow-xs hover:bg-primary/90 transition-colors cursor-pointer"
+    title="Rechercher">
+    @svg('tabler:search', { class: 'size-4' })
+  </button>
+  @if(hasActiveFilters)
+    <a href="{{ action || request.url() }}"
+      class="inline-flex size-9 shrink-0 items-center justify-center rounded-md border border-outline text-on-surface shadow-xs hover:bg-surface-alt hover:text-on-surface-strong transition-colors"
+      title="Réinitialiser">
+      @svg('tabler:x', { class: 'size-4' })
     </a>
-  </div>
+  @end
 </form>

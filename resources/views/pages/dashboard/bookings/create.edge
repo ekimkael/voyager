@@ -76,7 +76,7 @@
                 <option value="{{ trip.id }}">
                   {{ trip.route.departureCity.name }} → {{ trip.route.arrivalCity.name }} —
                   {{ trip.departureTime.toFormat('dd/MM/yyyy HH:mm') }} —
-                  {{ seatCounts[trip.id] }} places disponibles
+                  {{ Intl.NumberFormat('fr-FR').format(seatCounts[trip.id]) }} places disponibles
                 </option>
               @end
             </select>

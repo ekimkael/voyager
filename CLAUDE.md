@@ -133,6 +133,7 @@ resources/
 - Icons via `@svg('tabler:icon-name')`
 - Permissions dans les vues : `@can('permission', 'key')`
 - URLs : `route('route.name', { params })`
+- **Formatage des nombres** : toujours utiliser `Intl.NumberFormat('fr-FR')` pour les chiffres et `Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XAF' })` pour les montants. Ne jamais afficher de nombre brut.
 
 ### Pièges Edge.js (scope et parsing)
 - **Jamais de texte inline après un tag Edge.js** : `@component()Texte@end` provoque "Unexpected token". Toujours mettre le contenu sur des lignes séparées :
@@ -177,7 +178,7 @@ resources/
 - `badge/` — index.edge (variants: success, warning, danger, info, neutral; icône + texte)
 - `dropdown_menu/` — root.edge, trigger.edge, content.edge, item.edge (props: href, method, variant, hiddenInputs), separator.edge
 - `table/` — root.edge, header.edge, row.edge, cell.edge (prop: head), empty.edge (props: colspan, message)
-- `filter/` — bar.edge (props: action, cols), field.edge (props: label, name)
+- `filter/` — bar.edge (props: action), field.edge (props: basis)
 - `avatar.edge`, `link.edge`, `pagination.edge`
 
 **Partials globaux** (`resources/views/partials/`) :
@@ -191,6 +192,14 @@ Exemples :
 - `pages/dashboard/cities/_form.edge`
 - `pages/dashboard/employees/_form.edge`
 - etc.
+
+### Filtres dashboard
+- **Layout inline** : tous les champs et boutons sur une seule ligne (`flex flex-wrap`), pas de grille
+- **Pas de labels** : utiliser des `placeholder` descriptifs ou la première `<option>` du `<select>` comme indication (ex: "Tous les statuts", "Toutes les franchises")
+- **Bouton rechercher** : icône loupe (`tabler:search`), pas de texte
+- **Bouton réinitialiser** : icône X (`tabler:x`), affiché uniquement quand des filtres sont actifs
+- **Partial dédié** : extraire les filtres dans un partial `_filters.edge` dans le dossier du module (ex: `pages/dashboard/bookings/_filters.edge`), inclus via `@include('pages/dashboard/bookings/_filters')`
+- **Composants** : utiliser `@filter.bar({ action })` + `@filter.field()` (prop optionnelle `basis` pour la largeur min : '32'-'56', défaut '44')
 
 ## Design & UI
 

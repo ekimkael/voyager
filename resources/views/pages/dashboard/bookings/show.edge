@@ -5,16 +5,16 @@
         Réservation #{{ booking.id.substring(0, 8).toUpperCase() }}
       </h1>
       <a href="{{ route('dashboard.bookings.index') }}"
-        class="inline-flex items-center gap-2 rounded-radius border border-outline px-4 py-2.5 text-sm font-medium text-on-surface hover:bg-surface-alt transition-colors">
+        class="inline-flex items-center gap-2 rounded-md border border-outline bg-surface px-4 py-2 text-sm font-medium text-on-surface shadow-xs hover:bg-surface-alt hover:text-on-surface-strong">
         @svg('tabler:arrow-left', { class: 'size-4' })
-        <span>Retour</span>
+        Retour
       </a>
     </div>
 
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
 
       {{-- Trip details card --}}
-      <div class="rounded-radius border border-outline bg-surface p-5">
+      <div class="rounded-lg border border-outline bg-surface p-5">
         <h2 class="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-on-surface">
           @svg('tabler:map-2', { class: 'size-4' })
           Voyage
@@ -31,20 +31,20 @@
           </div>
           <div class="mt-2">
             @if(booking.trip.status === 'scheduled')
-              <span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">Planifié</span>
+              @!badge({ variant: 'info', text: 'Planifié' })
             @elseif(booking.trip.status === 'in_progress')
-              <span class="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">En cours</span>
+              @!badge({ variant: 'warning', text: 'En cours' })
             @elseif(booking.trip.status === 'completed')
-              <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">Terminé</span>
+              @!badge({ variant: 'success', text: 'Terminé' })
             @else
-              <span class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">Annulé</span>
+              @!badge({ variant: 'danger', text: 'Annulé' })
             @end
           </div>
         </div>
       </div>
 
       {{-- Customer info card --}}
-      <div class="rounded-radius border border-outline bg-surface p-5">
+      <div class="rounded-lg border border-outline bg-surface p-5">
         <h2 class="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-on-surface">
           @svg('tabler:user', { class: 'size-4' })
           Client
@@ -65,60 +65,60 @@
       </div>
 
       {{-- Payment status card --}}
-      <div class="rounded-radius border border-outline bg-surface p-5">
+      <div class="rounded-lg border border-outline bg-surface p-5">
         <h2 class="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-on-surface">
           @svg('tabler:credit-card', { class: 'size-4' })
           Paiement
         </h2>
         <div class="space-y-2 text-sm">
-          <div class="text-2xl font-bold text-on-surface-strong">{{ booking.totalAmount }} FCFA</div>
+          <div class="text-2xl font-bold text-on-surface-strong">{{ Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XAF' }).format(booking.totalAmount) }}</div>
           @if(booking.payment)
             <div class="text-on-surface">
               Méthode : {{ booking.payment.paymentMethod === 'cash' ? 'Espèces' : booking.payment.paymentMethod }}
             </div>
             <div class="mt-2">
               @if(booking.payment.status === 'success')
-                <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">Payé</span>
+                @!badge({ variant: 'success', text: 'Payé' })
               @elseif(booking.payment.status === 'pending')
-                <span class="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">En attente</span>
+                @!badge({ variant: 'warning', text: 'En attente' })
               @else
-                <span class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">Échoué</span>
+                @!badge({ variant: 'danger', text: 'Échoué' })
               @end
             </div>
           @else
-            <span class="inline-flex items-center rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-medium text-neutral-800">Aucun paiement</span>
+            @!badge({ variant: 'neutral', text: 'Aucun paiement' })
           @end
         </div>
       </div>
     </div>
 
     {{-- Booking status + actions --}}
-    <div class="mt-6 flex items-center gap-4 rounded-radius border border-outline bg-surface p-5">
+    <div class="mt-6 flex items-center gap-4 rounded-lg border border-outline bg-surface p-5">
       <div class="flex-1">
         <span class="text-sm font-medium text-on-surface">Statut de la réservation :</span>
         <span class="ml-2">
           @if(booking.status === 'pending')
-            <span class="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">En attente</span>
+            @!badge({ variant: 'warning', text: 'En attente' })
           @elseif(booking.status === 'confirmed')
-            <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">Confirmée</span>
+            @!badge({ variant: 'success', text: 'Confirmée' })
           @else
-            <span class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">Annulée</span>
+            @!badge({ variant: 'danger', text: 'Annulée' })
           @end
         </span>
       </div>
       @can('permission', 'booking:update')
         @if(booking.status === 'confirmed' && booking.trip.departureTime > new Date())
           <a href="{{ route('dashboard.bookings.edit', { id: booking.id }) }}"
-            class="inline-flex items-center gap-2 rounded-radius border border-outline px-4 py-2 text-sm font-medium text-on-surface hover:bg-surface-alt transition-colors">
+            class="inline-flex items-center gap-2 rounded-md border border-outline px-4 py-2 text-sm font-medium text-on-surface hover:bg-surface-alt transition-colors">
             @svg('tabler:edit', { class: 'size-4' })
-            <span>Modifier</span>
+            Modifier
           </a>
           @form({ route: 'dashboard.bookings.destroy', routeParams: { id: booking.id }, method: 'DELETE' })
             <button type="submit"
-              class="inline-flex cursor-pointer items-center gap-2 rounded-radius bg-danger px-4 py-2 text-sm font-medium text-white hover:opacity-90 transition-opacity"
+              class="inline-flex cursor-pointer items-center gap-2 rounded-md bg-danger px-4 py-2 text-sm font-medium text-white hover:opacity-90 transition-opacity"
               onclick="return confirm('Annuler cette réservation ? Cette action est irréversible.')">
               @svg('tabler:ban', { class: 'size-4' })
-              <span>Annuler la réservation</span>
+              Annuler la réservation
             </button>
           @end
         @end
@@ -128,51 +128,60 @@
     {{-- Passengers table --}}
     <div class="mt-6">
       <h2 class="mb-4 text-base font-semibold text-on-surface-strong">Passagers</h2>
-      <div class="overflow-hidden rounded-radius border border-outline bg-surface">
-        <table class="w-full text-left text-sm">
-          <thead class="border-b border-outline bg-surface-alt text-xs uppercase tracking-wider text-on-surface">
-            <tr>
-              <th class="px-6 py-3">Nom</th>
-              <th class="px-6 py-3">Siège</th>
-              <th class="px-6 py-3">Code</th>
-              <th class="px-6 py-3">Statut</th>
-              <th class="px-6 py-3 text-right">Ticket</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-outline">
-            @each(passenger in booking.passengers)
-              <tr class="hover:bg-surface-alt/50">
-                <td class="px-6 py-4 font-medium text-on-surface-strong">
-                  {{ passenger.firstName }} {{ passenger.lastName }}
-                </td>
-                <td class="px-6 py-4 text-on-surface">{{ passenger.seatNumber }}</td>
-                <td class="px-6 py-4 font-mono text-xs text-on-surface">{{ passenger.code }}</td>
-                <td class="px-6 py-4">
-                  @if(passenger.status === 'boarded')
-                    <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">Embarqué</span>
-                  @else
-                    <span class="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">En attente</span>
-                  @end
-                </td>
-                <td class="px-6 py-4 text-right">
-                  <a href="{{ route('dashboard.tickets.download', { id: booking.id, passengerId: passenger.id }) }}"
-                    class="inline-flex items-center gap-1.5 text-sm text-primary hover:text-secondary transition-colors"
-                    target="_blank">
-                    @svg('tabler:download', { class: 'size-4' })
-                    <span>Ticket</span>
-                  </a>
-                </td>
-              </tr>
-            @end
-          </tbody>
-        </table>
 
-        @if(!booking.passengers.length)
-          <div class="px-6 py-12 text-center text-on-surface">
-            Aucun passager enregistré.
-          </div>
+      @table.root()
+        @table.header()
+          @table.cell({ head: true })
+            Nom
+          @end
+          @table.cell({ head: true })
+            Siège
+          @end
+          @table.cell({ head: true })
+            Code
+          @end
+          @table.cell({ head: true })
+            Statut
+          @end
+          @table.cell({ head: true })
+          @end
         @end
-      </div>
+
+        <tbody>
+          @each(passenger in booking.passengers)
+            @table.row()
+              @table.cell()
+                <span class="font-medium">{{ passenger.firstName }} {{ passenger.lastName }}</span>
+              @end
+              @table.cell()
+                {{ passenger.seatNumber }}
+              @end
+              @table.cell()
+                <span class="font-mono text-xs">{{ passenger.code }}</span>
+              @end
+              @table.cell()
+                @if(passenger.status === 'boarded')
+                  @!badge({ variant: 'success', text: 'Embarqué' })
+                @else
+                  @!badge({ variant: 'warning', text: 'En attente' })
+                @end
+              @end
+              <td class="px-4 py-3 text-right">
+                <a href="{{ route('dashboard.tickets.download', { id: booking.id, passengerId: passenger.id }) }}"
+                  class="inline-flex items-center gap-1.5 text-sm text-primary hover:text-secondary transition-colors"
+                  target="_blank">
+                  @svg('tabler:download', { class: 'size-4' })
+                  Ticket
+                </a>
+              </td>
+            @end
+          @end
+
+          @if(!booking.passengers.length)
+            @!table.empty({ colspan: 5, message: 'Aucun passager enregistré.' })
+          @end
+        </tbody>
+      @end
     </div>
   </div>
 @end

@@ -9,84 +9,7 @@
     </a>
   </div>
 
-  {{-- Filter bar --}}
-  @filter.bar({ action: route('trips.history'), cols: '6' })
-    @filter.field({ label: 'Statut', name: 'status' })
-      <select name="status" id="status"
-        class="h-9 w-full min-w-0 rounded-md border border-outline bg-transparent px-3 py-1 text-sm text-on-surface-strong shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-primary focus-visible:ring-[3px] focus-visible:ring-primary/50 md:text-sm">
-        <option value="">Tous</option>
-        <option value="completed" {{ filters.status === 'completed' ? 'selected' : '' }}>Terminé</option>
-        <option value="cancelled" {{ filters.status === 'cancelled' ? 'selected' : '' }}>Annulé</option>
-      </select>
-    @end
-
-    @filter.field({ label: 'Route', name: 'route_id' })
-      <select name="route_id" id="route_id"
-        class="h-9 w-full min-w-0 rounded-md border border-outline bg-transparent px-3 py-1 text-sm text-on-surface-strong shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-primary focus-visible:ring-[3px] focus-visible:ring-primary/50 md:text-sm">
-        <option value="">Toutes</option>
-        @each(r in routes)
-          <option value="{{ r.id }}" {{ filters.route_id === r.id ? 'selected' : '' }}>
-            {{ r.code }} — {{ r.departureCity.name }} → {{ r.arrivalCity.name }}
-          </option>
-        @end
-      </select>
-    @end
-
-    @filter.field({ label: 'Chauffeur', name: 'driver_id' })
-      <select name="driver_id" id="driver_id"
-        class="h-9 w-full min-w-0 rounded-md border border-outline bg-transparent px-3 py-1 text-sm text-on-surface-strong shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-primary focus-visible:ring-[3px] focus-visible:ring-primary/50 md:text-sm">
-        <option value="">Tous</option>
-        @each(d in drivers)
-          <option value="{{ d.id }}" {{ filters.driver_id === d.id ? 'selected' : '' }}>
-            {{ d.fullName }}
-          </option>
-        @end
-      </select>
-    @end
-
-    @filter.field({ label: 'Bus', name: 'bus_id' })
-      <select name="bus_id" id="bus_id"
-        class="h-9 w-full min-w-0 rounded-md border border-outline bg-transparent px-3 py-1 text-sm text-on-surface-strong shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-primary focus-visible:ring-[3px] focus-visible:ring-primary/50 md:text-sm">
-        <option value="">Tous</option>
-        @each(b in buses)
-          <option value="{{ b.id }}" {{ filters.bus_id === b.id ? 'selected' : '' }}>
-            {{ b.licensePlate }} — {{ b.brand }} {{ b.model }}
-          </option>
-        @end
-      </select>
-    @end
-
-    @filter.field({ label: 'Classe', name: 'travel_class' })
-      <select name="travel_class" id="travel_class"
-        class="h-9 w-full min-w-0 rounded-md border border-outline bg-transparent px-3 py-1 text-sm text-on-surface-strong shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-primary focus-visible:ring-[3px] focus-visible:ring-primary/50 md:text-sm">
-        <option value="">Toutes</option>
-        <option value="standard" {{ filters.travel_class === 'standard' ? 'selected' : '' }}>Standard</option>
-        <option value="vip" {{ filters.travel_class === 'vip' ? 'selected' : '' }}>VIP</option>
-      </select>
-    @end
-
-    @filter.field({ label: 'Date de départ (du)', name: 'date_from' })
-      <input type="date" name="date_from" id="date_from" value="{{ filters.date_from || '' }}"
-        class="h-9 w-full min-w-0 rounded-md border border-outline bg-transparent px-3 py-1 text-sm text-on-surface-strong shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-primary focus-visible:ring-[3px] focus-visible:ring-primary/50 md:text-sm" />
-    @end
-
-    @filter.field({ label: 'Date de départ (au)', name: 'date_to' })
-      <input type="date" name="date_to" id="date_to" value="{{ filters.date_to || '' }}"
-        class="h-9 w-full min-w-0 rounded-md border border-outline bg-transparent px-3 py-1 text-sm text-on-surface-strong shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-primary focus-visible:ring-[3px] focus-visible:ring-primary/50 md:text-sm" />
-    @end
-
-    @filter.field({ label: 'Prix min (FCFA)', name: 'price_min' })
-      <input type="number" name="price_min" id="price_min" min="0" step="1"
-        value="{{ filters.price_min !== undefined ? filters.price_min : '' }}"
-        class="h-9 w-full min-w-0 rounded-md border border-outline bg-transparent px-3 py-1 text-sm text-on-surface-strong shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-primary focus-visible:ring-[3px] focus-visible:ring-primary/50 md:text-sm" />
-    @end
-
-    @filter.field({ label: 'Prix max (FCFA)', name: 'price_max' })
-      <input type="number" name="price_max" id="price_max" min="0" step="1"
-        value="{{ filters.price_max !== undefined ? filters.price_max : '' }}"
-        class="h-9 w-full min-w-0 rounded-md border border-outline bg-transparent px-3 py-1 text-sm text-on-surface-strong shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-primary focus-visible:ring-[3px] focus-visible:ring-primary/50 md:text-sm" />
-    @end
-  @end
+  @include('pages/dashboard/trips/_filters')
 
   {{-- Results table --}}
   @table.root()
@@ -137,7 +60,7 @@
             @end
           @end
           @table.cell()
-            {{ item.price }} FCFA
+            {{ Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XAF' }).format(item.price) }}
           @end
           @table.cell()
             @if(item.status === 'completed')

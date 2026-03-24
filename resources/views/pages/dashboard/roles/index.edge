@@ -4,128 +4,140 @@
       <h1 class="text-2xl font-bold text-on-surface-strong">Rôles</h1>
       @can('permission', 'role:create')
         <a href="{{ route('roles.create') }}"
-          class="inline-flex items-center gap-2 rounded-radius bg-primary px-4 py-2.5 text-sm font-medium text-on-primary hover:bg-secondary transition-colors">
+          class="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-on-primary shadow-xs hover:bg-primary/90">
           @svg('tabler:plus', { class: 'size-4' })
-          <span>Nouveau rôle</span>
+          Nouveau rôle
         </a>
       @end
     </div>
 
-    <div class="overflow-hidden rounded-radius border border-outline bg-surface">
-      <table class="w-full text-left text-sm">
-        <thead class="border-b border-outline bg-surface-alt text-xs uppercase tracking-wider text-on-surface">
-          <tr>
-            <th class="px-6 py-3">Nom</th>
-            <th class="px-6 py-3">Type</th>
-            <th class="px-6 py-3">Parent</th>
-            <th class="px-6 py-3">Permissions</th>
-            <th class="px-6 py-3">Utilisateurs</th>
-            <th class="px-6 py-3 text-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-outline">
-          @each(role in rootRoles)
-            <tr class="hover:bg-surface-alt/50">
-              <td class="px-6 py-4 font-medium text-on-surface-strong">
-                {{ role.name }}
-              </td>
-              <td class="px-6 py-4">
-                @if(role.isSystem)
-                  <span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">Système</span>
-                @else
-                  <span class="inline-flex items-center rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-medium text-neutral-800">Custom</span>
-                @end
-              </td>
-              <td class="px-6 py-4 text-on-surface">—</td>
-              <td class="px-6 py-4 text-on-surface">{{ role.$extras.permissionsCount }}</td>
-              <td class="px-6 py-4 text-on-surface">{{ role.$extras.usersCount }}</td>
-              <td class="px-6 py-4 text-right">
-                <div class="flex items-center justify-end gap-2">
-                  @can('permission', 'role:read')
-                    <a href="{{ route('roles.show', { id: role.id }) }}"
-                      class="text-on-surface hover:text-primary transition-colors" title="Voir">
-                      @svg('tabler:eye', { class: 'size-4' })
-                    </a>
-                  @end
-                  @if(!role.isSystem)
-                    @can('permission', 'role:update')
-                      <a href="{{ route('roles.edit', { id: role.id }) }}"
-                        class="text-on-surface hover:text-primary transition-colors" title="Modifier">
-                        @svg('tabler:edit', { class: 'size-4' })
-                      </a>
-                    @end
-                    @can('permission', 'role:delete')
-                      @form({ route: 'roles.destroy', routeParams: { id: role.id }, method: 'DELETE' })
-                        <button type="submit"
-                          class="cursor-pointer text-on-surface hover:text-danger transition-colors"
-                          onclick="return confirm('Supprimer ce rôle ?')" title="Supprimer">
-                          @svg('tabler:trash', { class: 'size-4' })
-                        </button>
-                      @end
-                    @end
-                  @end
-                </div>
-              </td>
-            </tr>
+    @table.root()
+      @table.header()
+        @table.cell({ head: true })
+          Nom
+        @end
+        @table.cell({ head: true })
+          Type
+        @end
+        @table.cell({ head: true })
+          Parent
+        @end
+        @table.cell({ head: true })
+          Permissions
+        @end
+        @table.cell({ head: true })
+          Utilisateurs
+        @end
+        @table.cell({ head: true })
+        @end
+      @end
 
-            @if(childMap.has(role.id))
-              @each(child in childMap.get(role.id))
-                <tr class="hover:bg-surface-alt/50 bg-surface-alt/20">
-                  <td class="px-6 py-4 font-medium text-on-surface-strong">
-                    <span class="ml-6 inline-flex items-center gap-1">
-                      @svg('tabler:corner-down-right', { class: 'size-4 text-on-surface' })
-                      {{ child.name }}
-                    </span>
-                  </td>
-                  <td class="px-6 py-4">
-                    @if(child.isSystem)
-                      <span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">Système</span>
-                    @else
-                      <span class="inline-flex items-center rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-medium text-neutral-800">Custom</span>
-                    @end
-                  </td>
-                  <td class="px-6 py-4 text-on-surface">{{ role.name }}</td>
-                  <td class="px-6 py-4 text-on-surface">{{ child.$extras.permissionsCount }}</td>
-                  <td class="px-6 py-4 text-on-surface">{{ child.$extras.usersCount }}</td>
-                  <td class="px-6 py-4 text-right">
-                    <div class="flex items-center justify-end gap-2">
-                      @can('permission', 'role:read')
-                        <a href="{{ route('roles.show', { id: child.id }) }}"
-                          class="text-on-surface hover:text-primary transition-colors" title="Voir">
-                          @svg('tabler:eye', { class: 'size-4' })
-                        </a>
-                      @end
-                      @if(!child.isSystem)
-                        @can('permission', 'role:update')
-                          <a href="{{ route('roles.edit', { id: child.id }) }}"
-                            class="text-on-surface hover:text-primary transition-colors" title="Modifier">
-                            @svg('tabler:edit', { class: 'size-4' })
-                          </a>
-                        @end
-                        @can('permission', 'role:delete')
-                          @form({ route: 'roles.destroy', routeParams: { id: child.id }, method: 'DELETE' })
-                            <button type="submit"
-                              class="cursor-pointer text-on-surface hover:text-danger transition-colors"
-                              onclick="return confirm('Supprimer ce rôle ?')" title="Supprimer">
-                              @svg('tabler:trash', { class: 'size-4' })
-                            </button>
-                          @end
-                        @end
-                      @end
-                    </div>
-                  </td>
-                </tr>
+      <tbody>
+        @each(role in rootRoles)
+          @table.row()
+            @table.cell()
+              <span class="font-medium">{{ role.name }}</span>
+            @end
+            @table.cell()
+              @if(role.isSystem)
+                @!badge({ variant: 'info', text: 'Système' })
+              @else
+                @!badge({ variant: 'neutral', text: 'Custom' })
               @end
             @end
+            @table.cell()
+              —
+            @end
+            @table.cell()
+              {{ role.$extras.permissionsCount }}
+            @end
+            @table.cell()
+              {{ role.$extras.usersCount }}
+            @end
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-end gap-2">
+                @can('permission', 'role:read')
+                  <a href="{{ route('roles.show', { id: role.id }) }}"
+                    class="text-on-surface hover:text-primary transition-colors" title="Voir">
+                    @svg('tabler:eye', { class: 'size-4' })
+                  </a>
+                @end
+                @if(!role.isSystem)
+                  @can('permission', 'role:update')
+                    <a href="{{ route('roles.edit', { id: role.id }) }}"
+                      class="text-on-surface hover:text-primary transition-colors" title="Modifier">
+                      @svg('tabler:edit', { class: 'size-4' })
+                    </a>
+                  @end
+                  @can('permission', 'role:delete')
+                    @form({ route: 'roles.destroy', routeParams: { id: role.id }, method: 'DELETE' })
+                      <button type="submit"
+                        class="cursor-pointer text-on-surface hover:text-danger transition-colors"
+                        onclick="return confirm('Supprimer ce rôle ?')" title="Supprimer">
+                        @svg('tabler:trash', { class: 'size-4' })
+                      </button>
+                    @end
+                  @end
+                @end
+              </div>
+            </td>
           @end
-        </tbody>
-      </table>
 
-      @if(!rootRoles.length)
-        <div class="px-6 py-12 text-center text-on-surface">
-          Aucun rôle trouvé.
-        </div>
-      @end
-    </div>
+          @if(childMap.has(role.id))
+            @each(child in childMap.get(role.id))
+              <tr class="border-b border-outline last:border-0 hover:bg-surface-alt/50 transition-colors bg-surface-alt/20">
+                <td class="px-4 py-3 text-on-surface-strong whitespace-nowrap">
+                  <span class="ml-6 inline-flex items-center gap-1">
+                    @svg('tabler:corner-down-right', { class: 'size-4 text-on-surface' })
+                    <span class="font-medium">{{ child.name }}</span>
+                  </span>
+                </td>
+                <td class="px-4 py-3 text-on-surface-strong whitespace-nowrap">
+                  @if(child.isSystem)
+                    @!badge({ variant: 'info', text: 'Système' })
+                  @else
+                    @!badge({ variant: 'neutral', text: 'Custom' })
+                  @end
+                </td>
+                <td class="px-4 py-3 text-on-surface-strong whitespace-nowrap">{{ role.name }}</td>
+                <td class="px-4 py-3 text-on-surface-strong whitespace-nowrap">{{ child.$extras.permissionsCount }}</td>
+                <td class="px-4 py-3 text-on-surface-strong whitespace-nowrap">{{ child.$extras.usersCount }}</td>
+                <td class="px-4 py-3">
+                  <div class="flex items-center justify-end gap-2">
+                    @can('permission', 'role:read')
+                      <a href="{{ route('roles.show', { id: child.id }) }}"
+                        class="text-on-surface hover:text-primary transition-colors" title="Voir">
+                        @svg('tabler:eye', { class: 'size-4' })
+                      </a>
+                    @end
+                    @if(!child.isSystem)
+                      @can('permission', 'role:update')
+                        <a href="{{ route('roles.edit', { id: child.id }) }}"
+                          class="text-on-surface hover:text-primary transition-colors" title="Modifier">
+                          @svg('tabler:edit', { class: 'size-4' })
+                        </a>
+                      @end
+                      @can('permission', 'role:delete')
+                        @form({ route: 'roles.destroy', routeParams: { id: child.id }, method: 'DELETE' })
+                          <button type="submit"
+                            class="cursor-pointer text-on-surface hover:text-danger transition-colors"
+                            onclick="return confirm('Supprimer ce rôle ?')" title="Supprimer">
+                            @svg('tabler:trash', { class: 'size-4' })
+                          </button>
+                        @end
+                      @end
+                    @end
+                  </div>
+                </td>
+              </tr>
+            @end
+          @end
+        @end
+
+        @if(!rootRoles.length)
+          @!table.empty({ colspan: 6, message: 'Aucun rôle trouvé.' })
+        @end
+      </tbody>
+    @end
   </div>
 @end

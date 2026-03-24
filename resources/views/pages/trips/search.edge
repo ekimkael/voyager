@@ -108,8 +108,8 @@
             <span
               class="inline-flex items-center rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-medium text-neutral-700">Standard</span>
             @end
-            <span class="font-semibold text-on-surface-strong">{{ item.trip.price }} FCFA</span>
-            <span class="text-on-surface">{{ item.availableSeats }} place(s)</span>
+            <span class="font-semibold text-on-surface-strong">{{ Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XAF' }).format(item.trip.price) }}</span>
+            <span class="text-on-surface">{{ Intl.NumberFormat('fr-FR').format(item.availableSeats) }} place(s)</span>
           </div>
         </div>
         <div class="shrink-0">

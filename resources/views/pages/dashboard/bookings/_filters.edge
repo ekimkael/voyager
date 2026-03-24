@@ -1,0 +1,21 @@
+@filter.bar({ action: route('dashboard.bookings.index') })
+  @filter.field()
+    <input type="date" name="date" id="date" value="{{ filters.date || '' }}"
+      class="h-9 w-full min-w-0 rounded-md border border-outline bg-transparent px-3 py-1 text-sm text-on-surface-strong shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-primary focus-visible:ring-[3px] focus-visible:ring-primary/50" />
+  @end
+
+  @filter.field()
+    <select name="status" id="status"
+      class="h-9 w-full min-w-0 rounded-md border border-outline bg-transparent px-3 py-1 text-sm text-on-surface-strong shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-primary focus-visible:ring-[3px] focus-visible:ring-primary/50">
+      <option value="">Tous les statuts</option>
+      <option value="pending" {{ filters.status === 'pending' ? 'selected' : '' }}>En attente</option>
+      <option value="confirmed" {{ filters.status === 'confirmed' ? 'selected' : '' }}>Confirmée</option>
+      <option value="cancelled" {{ filters.status === 'cancelled' ? 'selected' : '' }}>Annulée</option>
+    </select>
+  @end
+
+  @filter.field()
+    <input type="text" name="code" id="code" value="{{ filters.code || '' }}" placeholder="Code passager"
+      class="h-9 w-full min-w-0 rounded-md border border-outline bg-transparent px-3 py-1 text-sm text-on-surface-strong shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-primary focus-visible:ring-[3px] focus-visible:ring-primary/50" />
+  @end
+@end

@@ -15,7 +15,7 @@
 
     {{-- Assign Role Form --}}
     @if(availableRoles.length)
-      <div class="mb-6 rounded-radius border border-outline bg-surface p-6">
+      <div class="mb-6 rounded-lg border border-outline bg-surface p-6">
         <h2 class="mb-4 text-sm font-semibold uppercase tracking-wider text-on-surface">Assigner un rôle</h2>
         @form({ route: 'employees.assignRole', routeParams: { id: employee.id }, method: 'POST' })
           <div class="flex items-end gap-4">
@@ -47,65 +47,71 @@
     @end
 
     {{-- Current Roles --}}
-    <div class="overflow-hidden rounded-radius border border-outline bg-surface">
-      <table class="w-full text-left text-sm">
-        <thead class="border-b border-outline bg-surface-alt text-xs uppercase tracking-wider text-on-surface">
-          <tr>
-            <th class="px-6 py-3">Rôle</th>
-            <th class="px-6 py-3">Assigné le</th>
-            <th class="px-6 py-3">Expire le</th>
-            <th class="px-6 py-3">Accordé par</th>
-            <th class="px-6 py-3 text-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-outline">
-          @each(assignment in assignments)
-            <tr class="hover:bg-surface-alt/50 {{ assignment.expiresAt && assignment.expiresAt < new Date() ? 'opacity-50' : '' }}">
-              <td class="px-6 py-4 font-medium text-on-surface-strong">
-                <a href="{{ route('roles.show', { id: assignment.role.id }) }}" class="hover:text-primary transition-colors">
-                  {{ assignment.role.name }}
-                </a>
-                @if(assignment.role.isSystem)
-                  <span class="ml-1 inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">Système</span>
-                @end
-                @if(assignment.isTemporary)
-                  <span class="ml-1 inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">Temporaire</span>
-                @end
-              </td>
-              <td class="px-6 py-4 text-on-surface">{{ assignment.createdAt.toFormat('dd/MM/yyyy') }}</td>
-              <td class="px-6 py-4 text-on-surface">
-                @if(assignment.expiresAt)
-                  @if(assignment.expiresAt < new Date())
-                    <span class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">
-                      Expiré {{ assignment.expiresAt.toFormat('dd/MM/yyyy') }}
-                    </span>
-                  @else
-                    {{ assignment.expiresAt.toFormat('dd/MM/yyyy') }}
-                  @end
-                @else
-                  Permanent
-                @end
-              </td>
-              <td class="px-6 py-4 text-on-surface">{{ assignment.granter?.fullName || '—' }}</td>
-              <td class="px-6 py-4 text-right">
-                @form({ route: 'employees.revokeRole', routeParams: { id: employee.id, assignmentId: assignment.id }, method: 'DELETE' })
-                  <button type="submit"
-                    class="cursor-pointer text-on-surface hover:text-danger transition-colors"
-                    onclick="return confirm('Retirer ce rôle ?')">
-                    @svg('tabler:trash', { class: 'size-4' })
-                  </button>
-                @end
-              </td>
-            </tr>
-          @end
-        </tbody>
-      </table>
-
-      @if(!assignments.length)
-        <div class="px-6 py-12 text-center text-on-surface">
-          Aucun rôle assigné à cet employé.
-        </div>
+    @table.root()
+      @table.header()
+        @table.cell({ head: true })
+          Rôle
+        @end
+        @table.cell({ head: true })
+          Assigné le
+        @end
+        @table.cell({ head: true })
+          Expire le
+        @end
+        @table.cell({ head: true })
+          Accordé par
+        @end
+        @table.cell({ head: true })
+        @end
       @end
-    </div>
+
+      <tbody>
+        @each(assignment in assignments)
+          <tr class="border-b border-outline last:border-0 hover:bg-surface-alt/50 transition-colors {{ assignment.expiresAt && assignment.expiresAt < new Date() ? 'opacity-50' : '' }}">
+            <td class="px-4 py-3 text-on-surface-strong whitespace-nowrap">
+              <a href="{{ route('roles.show', { id: assignment.role.id }) }}" class="font-medium hover:text-primary transition-colors">
+                {{ assignment.role.name }}
+              </a>
+              @if(assignment.role.isSystem)
+                @!badge({ variant: 'info', text: 'Système' })
+              @end
+              @if(assignment.isTemporary)
+                @!badge({ variant: 'warning', text: 'Temporaire' })
+              @end
+            </td>
+            <td class="px-4 py-3 text-on-surface-strong whitespace-nowrap">
+              {{ assignment.createdAt.toFormat('dd/MM/yyyy') }}
+            </td>
+            <td class="px-4 py-3 text-on-surface-strong whitespace-nowrap">
+              @if(assignment.expiresAt)
+                @if(assignment.expiresAt < new Date())
+                  @!badge({ variant: 'danger', text: 'Expiré ' + assignment.expiresAt.toFormat('dd/MM/yyyy') })
+                @else
+                  {{ assignment.expiresAt.toFormat('dd/MM/yyyy') }}
+                @end
+              @else
+                Permanent
+              @end
+            </td>
+            <td class="px-4 py-3 text-on-surface-strong whitespace-nowrap">
+              {{ assignment.granter?.fullName || '—' }}
+            </td>
+            <td class="px-4 py-3">
+              @form({ route: 'employees.revokeRole', routeParams: { id: employee.id, assignmentId: assignment.id }, method: 'DELETE' })
+                <button type="submit"
+                  class="cursor-pointer text-on-surface hover:text-danger transition-colors"
+                  onclick="return confirm('Retirer ce rôle ?')">
+                  @svg('tabler:trash', { class: 'size-4' })
+                </button>
+              @end
+            </td>
+          </tr>
+        @end
+
+        @if(!assignments.length)
+          @!table.empty({ colspan: 5, message: 'Aucun rôle assigné à cet employé.' })
+        @end
+      </tbody>
+    @end
   </div>
 @end

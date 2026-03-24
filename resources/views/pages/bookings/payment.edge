@@ -74,7 +74,7 @@
     <h1 class="mb-1 text-xl font-semibold text-on-surface-strong">Paiement</h1>
     <p class="mb-6 text-sm text-on-surface">
       Montant à payer :
-      <span class="text-2xl font-bold text-primary">{{ booking.totalAmount }} FCFA</span>
+      <span class="text-2xl font-bold text-primary">{{ Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XAF' }).format(booking.totalAmount) }}</span>
     </p>
 
     <form method="POST" action="{{ route('public.bookings.processPayment', { id: booking.id }) }}" x-data="{

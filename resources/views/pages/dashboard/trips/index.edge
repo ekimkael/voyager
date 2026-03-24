@@ -68,7 +68,7 @@
               @end
             @end
             @table.cell()
-              {{ item.price }} FCFA
+              {{ Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XAF' }).format(item.price) }}
             @end
             @table.cell()
               @if(item.status === 'scheduled')
@@ -78,14 +78,28 @@
               @end
             @end
             <td class="px-4 py-3">
-              <div x-data="{ open: false }" class="relative">
-                <button @click="open = !open" type="button"
+              <div x-data="{
+                open: false,
+                pos: {},
+                toggle() {
+                  if (!this.open) {
+                    const rect = this.$refs.btn.getBoundingClientRect()
+                    const spaceBelow = window.innerHeight - rect.bottom
+                    this.pos = spaceBelow < 200
+                      ? { bottom: (window.innerHeight - rect.top + 4) + 'px', right: (window.innerWidth - rect.right) + 'px' }
+                      : { top: (rect.bottom + 4) + 'px', right: (window.innerWidth - rect.right) + 'px' }
+                  }
+                  this.open = !this.open
+                }
+              }" class="relative">
+                <button x-ref="btn" @click="toggle()" type="button"
                   class="inline-flex size-6 shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap cursor-pointer transition-all outline-none hover:bg-surface-alt hover:text-on-surface-strong [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*=size-])]:size-4"
                   aria-haspopup="true" :aria-expanded="open">
                   @svg('tabler:dots', { class: 'size-4' })
                 </button>
-                <div x-show="open" x-transition @click.outside="open = false" @keydown.escape.window="open = false" x-cloak
-                  class="absolute right-0 z-50 mt-1 min-w-[160px] rounded-lg border border-outline bg-surface p-1 shadow-md" role="menu">
+                <div x-show="open" x-transition @click.outside="open = false" @keydown.escape.window="open = false" @scroll.window="open = false" x-cloak
+                  :style="pos"
+                  class="fixed z-50 min-w-[160px] rounded-lg border border-outline bg-surface p-1 shadow-md" role="menu">
 
                   @can('permission', 'trip:update')
                     @if(item.status === 'scheduled')

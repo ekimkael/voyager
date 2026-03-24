@@ -4,113 +4,100 @@
       <h1 class="text-2xl font-bold text-on-surface-strong">Employés</h1>
       @can('permission', 'user:create')
         <a href="{{ route('employees.create') }}"
-          class="inline-flex items-center gap-2 rounded-radius bg-primary px-4 py-2.5 text-sm font-medium text-on-primary hover:bg-secondary transition-colors">
+          class="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-on-primary shadow-xs hover:bg-primary/90">
           @svg('tabler:plus', { class: 'size-4' })
-          <span>Nouvel employé</span>
+          Nouvel employé
         </a>
       @end
     </div>
 
-    {{-- Franchise filter --}}
-    @if(!isScopedToFranchise)
-      <div class="mb-6 rounded-radius border border-outline bg-surface p-4">
-        @form({ route: 'employees.index', method: 'GET' })
-          <div class="flex items-center gap-4">
-            <label for="franchise_id" class="text-sm font-medium text-on-surface">Filtrer par franchise</label>
-            <select name="franchise_id" id="franchise_id"
-              class="h-10 w-64 rounded-radius border border-neutral-300 bg-surface px-4 text-sm text-on-surface-strong outline-none focus:border-primary focus:ring-1 focus:ring-primary">
-              <option value="">Toutes les franchises</option>
-              @each(f in franchises)
-                <option value="{{ f.id }}" {{ filterFranchiseId === f.id ? 'selected' : '' }}>
-                  {{ f.name }} — {{ f.city.name }}
-                </option>
-              @end
-            </select>
-            <button type="submit"
-              class="inline-flex items-center gap-2 rounded-radius bg-primary px-4 py-2.5 text-sm font-medium text-on-primary hover:bg-secondary transition-colors">
-              @svg('tabler:filter', { class: 'size-4' })
-              <span>Filtrer</span>
-            </button>
-            @if(filterFranchiseId)
-              <a href="{{ route('employees.index') }}"
-                class="text-sm text-on-surface hover:text-on-surface-strong transition-colors">
-                Réinitialiser
-              </a>
-            @end
-          </div>
+    @include('pages/dashboard/employees/_filters')
+
+    @table.root()
+      @table.header()
+        @table.cell({ head: true })
+          Nom
         @end
-      </div>
-    @end
-
-    <div class="overflow-hidden rounded-radius border border-outline bg-surface">
-      <table class="w-full text-left text-sm">
-        <thead class="border-b border-outline bg-surface-alt text-xs uppercase tracking-wider text-on-surface">
-          <tr>
-            <th class="px-6 py-3">Nom</th>
-            <th class="px-6 py-3">Email</th>
-            <th class="px-6 py-3">Téléphone</th>
-            <th class="px-6 py-3">Franchise</th>
-            <th class="px-6 py-3">Rôle</th>
-            <th class="px-6 py-3">Statut</th>
-            <th class="px-6 py-3 text-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-outline">
-          @each(item in employees)
-            <tr class="hover:bg-surface-alt/50">
-              <td class="px-6 py-4 font-medium text-on-surface-strong">{{ item.fullName }}</td>
-              <td class="px-6 py-4 text-on-surface">{{ item.email }}</td>
-              <td class="px-6 py-4 text-on-surface">{{ item.phone || '—' }}</td>
-              <td class="px-6 py-4 text-on-surface">{{ item.franchise?.name || '—' }}</td>
-              <td class="px-6 py-4 text-on-surface">
-                {{ item.roleAssignments?.[0]?.role?.name || '—' }}
-              </td>
-              <td class="px-6 py-4">
-                @if(item.status === 'active')
-                  <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">Actif</span>
-                @elseif(item.status === 'suspended')
-                  <span class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">Suspendu</span>
-                @else
-                  <span class="inline-flex items-center rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-medium text-neutral-800">Inactif</span>
-                @end
-              </td>
-              <td class="px-6 py-4 text-right">
-                <div class="flex items-center justify-end gap-2">
-                  @can('permission', 'role:assign')
-                    <a href="{{ route('employees.roles', { id: item.id }) }}"
-                      class="text-on-surface hover:text-primary transition-colors" title="Gérer les rôles">
-                      @svg('tabler:shield', { class: 'size-4' })
-                    </a>
-                  @end
-                  @can('permission', 'user:update')
-                    <a href="{{ route('employees.edit', { id: item.id }) }}"
-                      class="text-on-surface hover:text-primary transition-colors">
-                      @svg('tabler:edit', { class: 'size-4' })
-                    </a>
-                  @end
-                  @can('permission', 'user:delete')
-                    @form({ route: 'employees.destroy', routeParams: { id: item.id }, method: 'DELETE' })
-                      <button type="submit"
-                        class="cursor-pointer text-on-surface hover:text-danger transition-colors"
-                        onclick="return confirm('Désactiver cet employé ?')">
-                        @svg('tabler:trash', { class: 'size-4' })
-                      </button>
-                    @end
-                  @end
-                </div>
-              </td>
-            </tr>
-          @end
-        </tbody>
-      </table>
-
-      @if(!employees.length)
-        <div class="px-6 py-12 text-center text-on-surface">
-          Aucun employé trouvé.
-        </div>
+        @table.cell({ head: true })
+          Email
+        @end
+        @table.cell({ head: true })
+          Téléphone
+        @end
+        @table.cell({ head: true })
+          Franchise
+        @end
+        @table.cell({ head: true })
+          Rôle
+        @end
+        @table.cell({ head: true })
+          Statut
+        @end
+        @table.cell({ head: true })
+        @end
       @end
 
-      @!pagination({ paginator: employees })
-    </div>
+      <tbody>
+        @each(item in employees)
+          @table.row()
+            @table.cell()
+              <span class="font-medium">{{ item.fullName }}</span>
+            @end
+            @table.cell()
+              {{ item.email }}
+            @end
+            @table.cell()
+              {{ item.phone || '—' }}
+            @end
+            @table.cell()
+              {{ item.franchise?.name || '—' }}
+            @end
+            @table.cell()
+              {{ item.roleAssignments?.[0]?.role?.name || '—' }}
+            @end
+            @table.cell()
+              @if(item.status === 'active')
+                @!badge({ variant: 'success', text: 'Actif' })
+              @elseif(item.status === 'suspended')
+                @!badge({ variant: 'danger', text: 'Suspendu' })
+              @else
+                @!badge({ variant: 'neutral', text: 'Inactif' })
+              @end
+            @end
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-end gap-2">
+                @can('permission', 'role:assign')
+                  <a href="{{ route('employees.roles', { id: item.id }) }}"
+                    class="text-on-surface hover:text-primary transition-colors" title="Gérer les rôles">
+                    @svg('tabler:shield', { class: 'size-4' })
+                  </a>
+                @end
+                @can('permission', 'user:update')
+                  <a href="{{ route('employees.edit', { id: item.id }) }}"
+                    class="text-on-surface hover:text-primary transition-colors">
+                    @svg('tabler:edit', { class: 'size-4' })
+                  </a>
+                @end
+                @can('permission', 'user:delete')
+                  @form({ route: 'employees.destroy', routeParams: { id: item.id }, method: 'DELETE' })
+                    <button type="submit"
+                      class="cursor-pointer text-on-surface hover:text-danger transition-colors"
+                      onclick="return confirm('Désactiver cet employé ?')">
+                      @svg('tabler:trash', { class: 'size-4' })
+                    </button>
+                  @end
+                @end
+              </div>
+            </td>
+          @end
+        @end
+
+        @if(!employees.length)
+          @!table.empty({ colspan: 7, message: 'Aucun employé trouvé.' })
+        @end
+      </tbody>
+    @end
+
+    @!pagination({ paginator: employees })
   </div>
 @end

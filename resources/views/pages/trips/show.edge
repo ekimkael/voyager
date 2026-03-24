@@ -69,11 +69,11 @@
         </div>
         <div>
           <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Prix</p>
-          <p class="mt-1.5 text-sm font-medium text-on-surface-strong">{{ trip.price }} FCFA</p>
+          <p class="mt-1.5 text-sm font-medium text-on-surface-strong">{{ Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XAF' }).format(trip.price) }}</p>
         </div>
         <div>
           <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Places</p>
-          <p class="mt-1.5 text-sm font-medium text-on-surface-strong">{{ availableSeats }}</p>
+          <p class="mt-1.5 text-sm font-medium text-on-surface-strong">{{ Intl.NumberFormat('fr-FR').format(availableSeats) }}</p>
         </div>
       </div>
 
