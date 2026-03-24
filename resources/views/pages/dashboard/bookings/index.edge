@@ -37,13 +37,26 @@
   {{-- Table --}}
   @table.root()
     @table.header()
-      @table.cell({ head: true })Date@end
-      @table.cell({ head: true })Voyage@end
-      @table.cell({ head: true })Client@end
-      @table.cell({ head: true })Passagers@end
-      @table.cell({ head: true })Montant@end
-      @table.cell({ head: true })Statut@end
-      @table.cell({ head: true })@end
+      @table.cell({ head: true })
+        Date
+      @end
+      @table.cell({ head: true })
+        Voyage
+      @end
+      @table.cell({ head: true })
+        Client
+      @end
+      @table.cell({ head: true })
+        Passagers
+      @end
+      @table.cell({ head: true })
+        Montant
+      @end
+      @table.cell({ head: true })
+        Statut
+      @end
+      @table.cell({ head: true })
+      @end
     @end
 
     <tbody>
@@ -66,7 +79,9 @@
               <span class="text-on-surface/50">—</span>
             @end
           @end
-          @table.cell(){{ item.passengers.length }}@end
+          @table.cell()
+            {{ item.passengers.length }}
+          @end
           @table.cell()
             {{ Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XAF' }).format(item.totalAmount) }}
           @end

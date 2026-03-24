@@ -91,13 +91,27 @@
   {{-- Results table --}}
   @table.root()
     @table.header()
-      @table.cell({ head: true })Route@end
-      @table.cell({ head: true })Bus@end
-      @table.cell({ head: true })Chauffeur@end
-      @table.cell({ head: true })Départ@end
-      @table.cell({ head: true })Classe@end
-      @table.cell({ head: true })Tarif@end
-      @table.cell({ head: true })Statut@end
+      @table.cell({ head: true })
+        Route
+      @end
+      @table.cell({ head: true })
+        Bus
+      @end
+      @table.cell({ head: true })
+        Chauffeur
+      @end
+      @table.cell({ head: true })
+        Départ
+      @end
+      @table.cell({ head: true })
+        Classe
+      @end
+      @table.cell({ head: true })
+        Tarif
+      @end
+      @table.cell({ head: true })
+        Statut
+      @end
     @end
 
     <tbody>
@@ -106,9 +120,15 @@
           @table.cell()
             <span class="font-medium">{{ item.route.departureCity.name }} → {{ item.route.arrivalCity.name }}</span>
           @end
-          @table.cell(){{ item.bus.licensePlate }}@end
-          @table.cell(){{ item.driver.fullName }}@end
-          @table.cell(){{ item.departureTime.toFormat('dd LLL yyyy - HH:mm', { locale: 'fr' }) }}@end
+          @table.cell()
+            {{ item.bus.licensePlate }}
+          @end
+          @table.cell()
+            {{ item.driver.fullName }}
+          @end
+          @table.cell()
+            {{ item.departureTime.toFormat('dd LLL yyyy - HH:mm', { locale: 'fr' }) }}
+          @end
           @table.cell()
             @if(item.travelClass === 'vip')
               @badge({ variant: 'info', text: 'VIP' })
@@ -118,7 +138,9 @@
               @end
             @end
           @end
-          @table.cell(){{ item.price }} FCFA@end
+          @table.cell()
+            {{ item.price }} FCFA
+          @end
           @table.cell()
             @if(item.status === 'completed')
               @badge({ variant: 'success', text: 'Terminé' })
