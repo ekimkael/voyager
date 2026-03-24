@@ -62,11 +62,9 @@
             @end
             @table.cell()
               @if(item.travelClass === 'vip')
-                @badge({ variant: 'info', text: 'VIP' })
-                @end
+                @!badge({ variant: 'info', text: 'VIP' })
               @else
-                @badge({ variant: 'neutral', text: 'Standard' })
-                @end
+                @!badge({ variant: 'neutral', text: 'Standard' })
               @end
             @end
             @table.cell()
@@ -74,17 +72,14 @@
             @end
             @table.cell()
               @if(item.status === 'scheduled')
-                @badge({ variant: 'info', text: 'Planifié' })
-                @end
+                @!badge({ variant: 'info', text: 'Planifié' })
               @else
-                @badge({ variant: 'warning', text: 'En cours' })
-                @end
+                @!badge({ variant: 'warning', text: 'En cours' })
               @end
             @end
             @table.cell()
               @dropdown_menu.root()
-                @dropdown_menu.trigger()
-                @end
+                @!dropdown_menu.trigger()
                 @dropdown_menu.content()
                   @can('permission', 'trip:update')
                     @if(item.status === 'scheduled')
@@ -110,8 +105,7 @@
                   @end
 
                   @if(item.status === 'scheduled' || item.status === 'in_progress')
-                    @dropdown_menu.separator()
-                    @end
+                    @!dropdown_menu.separator()
                   @end
 
                   @can('permission', 'trip:update')
@@ -138,8 +132,7 @@
         @end
 
         @if(!trips.length)
-          @table.empty({ colspan: 8, message: 'Aucun voyage actif' })
-          @end
+          @!table.empty({ colspan: 8, message: 'Aucun voyage actif' })
         @end
       </tbody>
     @end

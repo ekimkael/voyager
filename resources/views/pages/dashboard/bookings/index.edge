@@ -87,20 +87,16 @@
           @end
           @table.cell()
             @if(item.status === 'pending')
-              @badge({ variant: 'warning', text: 'En attente' })
-              @end
+              @!badge({ variant: 'warning', text: 'En attente' })
             @elseif(item.status === 'confirmed')
-              @badge({ variant: 'success', text: 'Confirmée' })
-              @end
+              @!badge({ variant: 'success', text: 'Confirmée' })
             @else
-              @badge({ variant: 'danger', text: 'Annulée' })
-              @end
+              @!badge({ variant: 'danger', text: 'Annulée' })
             @end
           @end
           @table.cell()
             @dropdown_menu.root()
-              @dropdown_menu.trigger()
-              @end
+              @!dropdown_menu.trigger()
               @dropdown_menu.content()
                 @dropdown_menu.item({ href: route('dashboard.bookings.show', { id: item.id }) })
                   @svg('tabler:eye', { class: 'size-4' })
@@ -118,8 +114,7 @@
 
                 @can('permission', 'booking:update')
                   @if(item.status !== 'cancelled')
-                    @dropdown_menu.separator()
-                    @end
+                    @!dropdown_menu.separator()
                     @dropdown_menu.item({ href: route('dashboard.bookings.destroy', { id: item.id }), method: 'DELETE', variant: 'destructive', onclick: "return confirm('Annuler cette réservation ?')" })
                       @svg('tabler:ban', { class: 'size-4' })
                       Annuler
@@ -133,8 +128,7 @@
       @end
 
       @if(!bookings.length)
-        @table.empty({ colspan: 7, message: 'Aucune réservation trouvée' })
-        @end
+        @!table.empty({ colspan: 7, message: 'Aucune réservation trouvée' })
       @end
     </tbody>
   @end

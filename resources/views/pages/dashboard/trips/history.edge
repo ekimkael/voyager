@@ -131,11 +131,9 @@
           @end
           @table.cell()
             @if(item.travelClass === 'vip')
-              @badge({ variant: 'info', text: 'VIP' })
-              @end
+              @!badge({ variant: 'info', text: 'VIP' })
             @else
-              @badge({ variant: 'neutral', text: 'Standard' })
-              @end
+              @!badge({ variant: 'neutral', text: 'Standard' })
             @end
           @end
           @table.cell()
@@ -143,19 +141,16 @@
           @end
           @table.cell()
             @if(item.status === 'completed')
-              @badge({ variant: 'success', text: 'Terminé' })
-              @end
+              @!badge({ variant: 'success', text: 'Terminé' })
             @else
-              @badge({ variant: 'danger', text: 'Annulé' })
-              @end
+              @!badge({ variant: 'danger', text: 'Annulé' })
             @end
           @end
         @end
       @end
 
       @if(!trips.length)
-        @table.empty({ colspan: 7, message: 'Aucun voyage dans l\'historique' })
-        @end
+        @!table.empty({ colspan: 7, message: 'Aucun voyage dans l\'historique' })
       @end
     </tbody>
   @end
