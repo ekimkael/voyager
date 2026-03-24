@@ -76,7 +76,6 @@ export const systemRoles = [
   {
     name: 'Dispatcher',
     permissions: [
-      'city:read',
       'franchise:read',
       'route:create',
       'route:read',
@@ -100,7 +99,6 @@ export const systemRoles = [
   {
     name: 'Chauffeur',
     permissions: [
-      'city:read',
       'franchise:read',
       'user:read',
       'route:read',
@@ -113,7 +111,6 @@ export const systemRoles = [
   {
     name: 'Lecteur',
     permissions: [
-      'city:read',
       'franchise:read',
       'vehicle:read',
       'route:read',

@@ -18,6 +18,9 @@ export default class extends BaseSeeder {
           { scope: 'global', isSystem: true }
         )
 
+        // Remove existing permissions
+        await RolePermission.query().where('roleId', role.id).delete()
+
         const permKeys =
           roleDef.permissions === '*' ? [...permissionMap.keys()] : roleDef.permissions
 
