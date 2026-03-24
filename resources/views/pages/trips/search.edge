@@ -93,7 +93,7 @@
                 <circle cx="12" cy="12" r="10" />
                 <polyline points="12 6 12 12 16 14" />
               </svg>
-              {{ item.trip.departureTime.toFormat('dd/MM/yyyy HH:mm') }}
+              {{ item.trip.departureTime.toFormat('dd MMM yyyy à HH:mm', { locale: 'fr' }) }}
             </span>
             <span>
               <a href="{{ route('public.tenants.show', { tenantSlug: item.trip.tenant.slug }) }}"

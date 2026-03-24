@@ -58,7 +58,7 @@
               {{ item.driver.fullName }}
             @end
             @table.cell()
-              {{ item.departureTime.toFormat('dd/MM/yyyy HH:mm') }}
+              {{ item.departureTime.toFormat('dd MMM yyyy à HH:mm', { locale: 'fr' }) }}
             @end
             @table.cell()
               @if(item.travelClass === 'vip')

@@ -48,7 +48,7 @@
               <circle cx="12" cy="12" r="10" />
               <polyline points="12 6 12 12 16 14" />
             </svg>
-            {{ trip.departureTime.toFormat('dd/MM/yyyy HH:mm') }}
+            {{ trip.departureTime.toFormat('dd MMM yyyy à HH:mm', { locale: 'fr' }) }}
           </p>
         </div>
         <form method="POST" action="{{ route('public.bookings.initiate') }}?trip={{ trip.id }}">

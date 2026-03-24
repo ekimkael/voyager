@@ -42,12 +42,12 @@
       @each(item in bookings)
         @table.row()
           @table.cell()
-            {{ item.createdAt.toFormat('dd/MM/yyyy HH:mm') }}
+            {{ item.createdAt.toFormat('dd MMM yyyy à HH:mm', { locale: 'fr' }) }}
           @end
           @table.cell()
             <span class="font-medium">{{ item.trip.route.departureCity.name }} → {{ item.trip.route.arrivalCity.name }}</span>
             <span class="block text-xs text-on-surface">
-              {{ item.trip.departureTime.toFormat('dd/MM/yyyy HH:mm') }}
+              {{ item.trip.departureTime.toFormat('dd MMM yyyy à HH:mm', { locale: 'fr' }) }}
             </span>
           @end
           @table.cell()

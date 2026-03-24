@@ -155,13 +155,13 @@
             <tr class="border-b border-outline last:border-0 hover:bg-surface-alt/50 transition-colors {{ assignment.expiresAt && assignment.expiresAt < new Date() ? 'opacity-50' : '' }}">
               <td class="px-4 py-3 text-on-surface-strong whitespace-nowrap font-medium">{{ assignment.user.fullName }}</td>
               <td class="px-4 py-3 text-on-surface-strong whitespace-nowrap">{{ assignment.user.email }}</td>
-              <td class="px-4 py-3 text-on-surface-strong whitespace-nowrap">{{ assignment.createdAt.toFormat('dd/MM/yyyy') }}</td>
+              <td class="px-4 py-3 text-on-surface-strong whitespace-nowrap">{{ assignment.createdAt.toFormat('dd MMM yyyy', { locale: 'fr' }) }}</td>
               <td class="px-4 py-3 text-on-surface-strong whitespace-nowrap">
                 @if(assignment.expiresAt)
                   @if(assignment.expiresAt < new Date())
-                    @!badge({ variant: 'danger', text: 'Expiré ' + assignment.expiresAt.toFormat('dd/MM/yyyy') })
+                    @!badge({ variant: 'danger', text: 'Expiré ' + assignment.expiresAt.toFormat('dd MMM yyyy', { locale: 'fr' }) })
                   @else
-                    {{ assignment.expiresAt.toFormat('dd/MM/yyyy') }}
+                    {{ assignment.expiresAt.toFormat('dd MMM yyyy', { locale: 'fr' }) }}
                   @end
                 @else
                   <span class="text-on-surface">Permanent</span>

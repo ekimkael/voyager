@@ -24,7 +24,7 @@
             {{ booking.trip.route.departureCity.name }} → {{ booking.trip.route.arrivalCity.name }}
           </div>
           <div class="text-on-surface">
-            Départ : {{ booking.trip.departureTime.toFormat('dd/MM/yyyy HH:mm') }}
+            Départ : {{ booking.trip.departureTime.toFormat('dd MMM yyyy à HH:mm', { locale: 'fr' }) }}
           </div>
           <div class="text-on-surface">
             Bus : {{ booking.trip.bus.licensePlate }}
