@@ -1,6 +1,7 @@
 @let(variant = $props.get('variant') || 'default')
 @let(href = $props.get('href'))
 @let(method = $props.get('method'))
+@let(hiddenInputs = $props.get('hiddenInputs') || {})
 
 @let(variantClasses = {
   default: 'text-on-surface-strong',
@@ -15,8 +16,10 @@
     @if(method.toUpperCase() !== 'POST')
       <input type="hidden" name="_method" value="{{ method.toUpperCase() }}" />
     @end
-    {{{ await $slots.hiddenFields?.() ?? '' }}}
-    <button {{ $props.except(['variant', 'href', 'method']).merge({
+    @each(key in Object.keys(hiddenInputs))
+      <input type="hidden" name="{{ key }}" value="{{ hiddenInputs[key] }}" />
+    @end
+    <button {{ $props.except(['variant', 'href', 'method', 'hiddenInputs']).merge({
       type: 'submit',
       class: baseClasses,
       role: 'menuitem',
