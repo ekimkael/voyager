@@ -1,0 +1,9 @@
+@let(message = $props.get('message') || 'Aucun résultat trouvé')
+@let(colspan = $props.get('colspan') || 1)
+
+<tr>
+  <td colspan="{{ colspan }}" class="px-4 py-12 text-center text-on-surface">
+    @svg('tabler:inbox', { class: 'mx-auto size-10 text-on-surface/40 mb-2' })
+    <p>{{ message }}</p>
+  </td>
+</tr>

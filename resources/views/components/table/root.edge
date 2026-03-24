@@ -1,0 +1,8 @@
+<div {{ $props.merge({
+  class: ['overflow-x-auto', 'rounded-lg', 'border', 'border-outline'],
+  'data-slot': 'table',
+}).toAttrs() }}>
+  <table class="w-full text-left text-sm">
+    {{{ await $slots.main() }}}
+  </table>
+</div>

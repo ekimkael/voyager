@@ -1,0 +1,5 @@
+<tr {{ $props.merge({
+  class: ['border-b', 'border-outline', 'last:border-0', 'hover:bg-surface-alt/50', 'transition-colors'],
+}).toAttrs() }}>
+  {{{ await $slots.main() }}}
+</tr>
