@@ -1,82 +1,85 @@
 @layout.dashboard()
-  <div class="flex min-h-full items-center justify-center">
-    <div class="w-full max-w-md">
+<div class="flex min-h-full items-center justify-center">
+  <div class="w-full max-w-md">
 
-      <div class="mb-6 text-center">
-        <div class="mx-auto mb-3 flex size-12 items-center justify-center rounded-full bg-primary/10">
-          @svg('tabler:qrcode', { class: 'size-6 text-primary' })
-        </div>
-        <h1 class="text-2xl font-bold text-on-surface-strong">Validation d'embarquement</h1>
-        <p class="mt-1 text-sm text-on-surface">Saisissez le code passager ou scannez le QR code.</p>
+    <div class="mb-6 text-center">
+      <div class="mx-auto mb-3 flex size-12 items-center justify-center rounded-full bg-primary/10">
+        @svg('tabler:qrcode', { class: 'size-6 text-primary' })
       </div>
-
-      {{-- Flash messages --}}
-      @if(flashMessages.has('success'))
-        @alert.root({ variant: 'success', class: 'mb-4' })
-          <div class="flex items-start gap-3">
-            @svg('tabler:circle-check', { class: 'size-5 shrink-0 mt-0.5' })
-            <div>
-              @alert.title()
-                Embarquement validé
-              @end
-              @alert.description()
-                {{ flashMessages.get('success') }}
-              @end
-            </div>
-          </div>
-        @end
-      @end
-
-      @if(flashMessages.has('warning'))
-        @alert.root({ variant: 'default', class: 'mb-4 border-warning bg-warning/10 text-warning' })
-          <div class="flex items-start gap-3">
-            @svg('tabler:alert-triangle', { class: 'size-5 shrink-0 mt-0.5' })
-            <div>
-              @alert.title()
-                Attention
-              @end
-              @alert.description()
-                {{ flashMessages.get('warning') }}
-              @end
-            </div>
-          </div>
-        @end
-      @end
-
-      @if(flashMessages.has('error'))
-        @alert.root({ variant: 'destructive', class: 'mb-4' })
-          <div class="flex items-start gap-3">
-            @svg('tabler:circle-x', { class: 'size-5 shrink-0 mt-0.5' })
-            <div>
-              @alert.title()
-                Erreur
-              @end
-              @alert.description()
-                {{ flashMessages.get('error') }}
-              @end
-            </div>
-          </div>
-        @end
-      @end
-
-      {{-- Boarding form --}}
-      <div class="rounded-lg border border-outline bg-surface p-6">
-        @form({ route: 'dashboard.boarding.validate', method: 'POST' })
-          <div class="space-y-4">
-            <input type="text" name="code" id="code"
-              autofocus
-              autocomplete="off"
-              placeholder="Code passager ou QR code"
-              class="h-12 w-full rounded-md border border-outline bg-transparent px-4 text-center text-lg font-medium tracking-wider text-on-surface-strong shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-primary focus-visible:ring-[3px] focus-visible:ring-primary/50" />
-
-            @button({ type: 'submit', class: 'w-full justify-center gap-2 h-11' })
-              @svg('tabler:scan', { class: 'size-5' })
-              Valider
-            @end
-          </div>
-        @end
-      </div>
-
+      <h1 class="text-2xl font-bold text-on-surface-strong">Validation d'embarquement</h1>
+      <p class="mt-1 text-sm text-on-surface">Saisissez le code passager ou scannez le QR code.</p>
     </div>
+
+    {{-- Flash messages --}}
+    @if(flashMessages.has('success'))
+    @alert.root({ variant: 'success', class: 'mb-4' })
+    <div class="flex items-start gap-3">
+      @svg('tabler:circle-check', { class: 'size-5 shrink-0 mt-0.5' })
+      <div>
+        @alert.title()
+        Embarquement validé
+        @end
+        @alert.description()
+        {{ flashMessages.get('success') }}
+        @end
+      </div>
+    </div>
+    @end
+    @end
+
+    @if(flashMessages.has('warning'))
+    @alert.root({ variant: 'default', class: 'mb-4 border-warning bg-warning/10 text-warning' })
+    <div class="flex items-start gap-3">
+      @svg('tabler:alert-triangle', { class: 'size-5 shrink-0 mt-0.5' })
+      <div>
+        @alert.title()
+        Attention
+        @end
+        @alert.description()
+        {{ flashMessages.get('warning') }}
+        @end
+      </div>
+    </div>
+    @end
+    @end
+
+    @if(flashMessages.has('error'))
+    @alert.root({ variant: 'destructive', class: 'mb-4' })
+    <div class="flex items-start gap-3">
+      @svg('tabler:circle-x', { class: 'size-5 shrink-0 mt-0.5' })
+      <div>
+        @alert.title()
+        Erreur
+        @end
+        @alert.description()
+        {{ flashMessages.get('error') }}
+        @end
+      </div>
+    </div>
+    @end
+    @end
+
+    {{-- Boarding form --}}
+    <div class="rounded-lg border border-outline bg-surface p-6">
+      @form({ route: 'dashboard.boarding.validate', method: 'POST' })
+      <div class="space-y-2">
+        @!input.control({
+        type: 'text',
+        name: 'code',
+        id: 'code',
+        autofocus: true,
+        autocomplete: 'off',
+        class: 'text-center',
+        placeholder: `Code passager ou QR code` })
+
+        @button({ type: 'submit', class: 'w-full justify-center gap-2' })
+        @svg('tabler:scan', { class: 'size-5' })
+        Valider
+        @end
+      </div>
+      @end
+    </div>
+
   </div>
+</div>
 @end
