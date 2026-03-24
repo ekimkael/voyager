@@ -13,7 +13,6 @@ export const controllers = {
     Bookings: () => import('#controllers/dashboard/bookings_controller'),
     Tickets: () => import('#controllers/dashboard/tickets_controller'),
   },
-  Drivers: () => import('#controllers/drivers_controller'),
   EmailChange: () => import('#controllers/email_change_controller'),
   Employees: () => import('#controllers/employees_controller'),
   Franchises: () => import('#controllers/franchises_controller'),

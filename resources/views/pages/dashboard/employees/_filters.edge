@@ -1,26 +1,26 @@
 @if(!isScopedToFranchise)
-  @filter.bar({ action: route('employees.index') })
-    @filter.field()
-      <select name="franchise_id" id="franchise_id"
-        class="h-9 w-full min-w-0 rounded-md border border-outline bg-transparent px-3 py-1 text-sm text-on-surface-strong shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-primary focus-visible:ring-[3px] focus-visible:ring-primary/50">
-        <option value="">Toutes les franchises</option>
-        @each(f in franchises)
-          <option value="{{ f.id }}" {{ filters.franchise_id === f.id ? 'selected' : '' }}>
-            {{ f.name }} — {{ f.city.name }}
-          </option>
-        @end
-      </select>
-    @end
-    @filter.field({ basis: '40' })
-      <select name="role_id" id="role_id"
-        class="h-9 w-full min-w-0 rounded-md border border-outline bg-transparent px-3 py-1 text-sm text-on-surface-strong shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-primary focus-visible:ring-[3px] focus-visible:ring-primary/50">
-        <option value="">Tous les rôles</option>
-        @each(r in roles)
-          <option value="{{ r.id }}" {{ filters.role_id === r.id ? 'selected' : '' }}>
-            {{ r.name }}
-          </option>
-        @end
-      </select>
-    @end
+@filter.bar({ action: route('employees.index') })
+@filter.field()
+<select name="franchise_id" id="franchise_id"
+  class="h-9 w-full max-w-fit rounded-md border border-outline bg-transparent px-3 py-1 text-sm text-on-surface-strong shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-primary focus-visible:ring-[3px] focus-visible:ring-primary/50">
+  <option value="">Toutes les franchises</option>
+  @each(f in franchises)
+  <option value="{{ f.id }}" {{ filters.franchise_id===f.id ? 'selected' : '' }}>
+    {{ f.name }} — {{ f.city.name }}
+  </option>
   @end
+</select>
+@end
+@filter.field()
+<select name="role_id" id="role_id"
+  class="h-9 w-full max-w-fit rounded-md border border-outline bg-transparent px-3 py-1 text-sm text-on-surface-strong shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-primary focus-visible:ring-[3px] focus-visible:ring-primary/50">
+  <option value="">Tous les rôles</option>
+  @each(r in roles)
+  <option value="{{ r.id }}" {{ filters.role_id===r.id ? 'selected' : '' }}>
+    {{ r.name }}
+  </option>
+  @end
+</select>
+@end
+@end
 @end

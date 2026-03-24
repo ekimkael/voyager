@@ -36,13 +36,6 @@ export const permissions = [
   { resource: 'stop', action: 'update', description: 'Update a stop' },
   { resource: 'stop', action: 'delete', description: 'Delete a stop', isSensitive: true },
 
-  // Drivers
-  { resource: 'driver', action: 'create', description: 'Register a driver' },
-  { resource: 'driver', action: 'read', description: 'View drivers' },
-  { resource: 'driver', action: 'update', description: 'Update driver info' },
-  { resource: 'driver', action: 'delete', description: 'Remove a driver', isSensitive: true },
-  { resource: 'driver', action: 'assign', description: 'Assign driver to a route' },
-
   // Trips
   { resource: 'trip', action: 'create', description: 'Schedule a trip' },
   { resource: 'trip', action: 'read', description: 'View trips' },
@@ -93,8 +86,6 @@ export const systemRoles = [
       'stop:read',
       'stop:update',
       'stop:delete',
-      'driver:read',
-      'driver:assign',
       'vehicle:read',
       'vehicle:assign',
       'trip:create',
@@ -114,8 +105,6 @@ export const systemRoles = [
       'user:read',
       'route:read',
       'stop:read',
-      'driver:read',
-      'driver:update',
       'vehicle:read',
       'trip:read',
       'boarding:validate',
@@ -129,7 +118,6 @@ export const systemRoles = [
       'vehicle:read',
       'route:read',
       'stop:read',
-      'driver:read',
       'user:read',
       'role:read',
       'trip:read',

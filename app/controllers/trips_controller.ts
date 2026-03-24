@@ -38,9 +38,6 @@ export default class TripsController {
       .if(filters.route_id, (builder) => {
         builder.where('routeId', filters.route_id)
       })
-      .if(filters.driver_id, (builder) => {
-        builder.where('driverId', filters.driver_id)
-      })
       .if(filters.bus_id, (builder) => {
         builder.where('busId', filters.bus_id)
       })
@@ -71,30 +68,16 @@ export default class TripsController {
     trips.queryString(queryFilters)
 
     // Load filter dropdown data in parallel — all queries are independent
-    // Note: drivers query is inlined (not using getDrivers()) because getDrivers()
-    // filters by status='active', but history needs ALL drivers including inactive ones
-    // since historical trips may reference now-inactive drivers.
-    const [routes, buses, chauffeurRole] = await Promise.all([
+    const [routes, buses] = await Promise.all([
       Route.query()
         .where('companyId', company!.id)
         .preload('departureCity')
         .preload('arrivalCity')
         .orderBy('code'),
       Bus.query().where('companyId', company!.id).orderBy('licensePlate'),
-      Role.query().where('companyId', company!.id).where('name', 'Chauffeur').first(),
     ])
 
-    const drivers = chauffeurRole
-      ? await User.query()
-          .where('companyId', company!.id)
-          .whereHas('roleAssignments', (q) => {
-            q.where('roleId', chauffeurRole.id)
-          })
-          .orderBy('firstName')
-          .orderBy('lastName')
-      : []
-
-    return view.render('pages/dashboard/trips/history', { trips, routes, buses, drivers, filters })
+    return view.render('pages/dashboard/trips/history', { trips, routes, buses, filters })
   }
 
   async create({ view, company }: HttpContext) {
@@ -468,9 +451,6 @@ export default class TripsController {
     }
     if (typeof qs.route_id === 'string' && uuidRegex.test(qs.route_id)) {
       filters.route_id = qs.route_id
-    }
-    if (typeof qs.driver_id === 'string' && uuidRegex.test(qs.driver_id)) {
-      filters.driver_id = qs.driver_id
     }
     if (typeof qs.bus_id === 'string' && uuidRegex.test(qs.bus_id)) {
       filters.bus_id = qs.bus_id

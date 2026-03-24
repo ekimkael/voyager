@@ -66,13 +66,6 @@
         label: 'Routes',
         })
         @end
-        @can('permission', 'driver:read')
-        @!sidebar.item({
-        href: route('drivers.index'),
-        icon: 'tabler:steering-wheel',
-        label: 'Conducteurs',
-        })
-        @end
         @can('permission', 'franchise:read')
         @!sidebar.item({
         href: route('franchises.index'),

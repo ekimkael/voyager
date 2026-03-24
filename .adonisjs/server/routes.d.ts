@@ -32,7 +32,6 @@ export type ScannedRoutes = {
     'buses.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'buses.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'buses.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'drivers.index': { paramsTuple?: []; params?: {} }
     'franchises.performance': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'franchises.index': { paramsTuple?: []; params?: {} }
     'franchises.create': { paramsTuple?: []; params?: {} }
@@ -119,7 +118,6 @@ export type ScannedRoutes = {
     'buses.index': { paramsTuple?: []; params?: {} }
     'buses.create': { paramsTuple?: []; params?: {} }
     'buses.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'drivers.index': { paramsTuple?: []; params?: {} }
     'franchises.performance': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'franchises.index': { paramsTuple?: []; params?: {} }
     'franchises.create': { paramsTuple?: []; params?: {} }
@@ -175,7 +173,6 @@ export type ScannedRoutes = {
     'buses.index': { paramsTuple?: []; params?: {} }
     'buses.create': { paramsTuple?: []; params?: {} }
     'buses.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'drivers.index': { paramsTuple?: []; params?: {} }
     'franchises.performance': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'franchises.index': { paramsTuple?: []; params?: {} }
     'franchises.create': { paramsTuple?: []; params?: {} }

@@ -1,7 +1,8 @@
-@let(basis = $props.get('basis') || '44')
-@let(basisMap = { '32': 'basis-32', '36': 'basis-36', '40': 'basis-40', '44': 'basis-44', '48': 'basis-48', '52': 'basis-52', '56': 'basis-56' })
-@let(basisClass = basisMap[basis] || 'basis-44')
+@let(basis = $props.get('basis') || 'auto')
+@let(basisMap = { '32': 'basis-32', '36': 'basis-36', '40': 'basis-40', '44': 'basis-44', '48': 'basis-48', '52':
+'basis-52', '56': 'basis-56' })
+@let(basisClass = basisMap[basis] || 'basis-auto')
 
-<div class="min-w-0 flex-1 {{ basisClass }}">
+<div class="{{ basisClass }}">
   {{{ await $slots.main() }}}
 </div>
