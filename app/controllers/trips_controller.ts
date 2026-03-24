@@ -27,48 +27,45 @@ export default class TripsController {
   async history({ view, request, company }: HttpContext) {
     const filters = this.parseHistoryFilters(request.qs())
 
+    const { page, ...queryFilters } = filters
+
     const query = Trip.query()
       .where('companyId', company!.id)
       .whereIn('status', ['completed', 'cancelled'])
-
-    if (filters.status) {
-      query.where('status', filters.status)
-    }
-    if (filters.route_id) {
-      query.where('routeId', filters.route_id)
-    }
-    if (filters.driver_id) {
-      query.where('driverId', filters.driver_id)
-    }
-    if (filters.bus_id) {
-      query.where('busId', filters.bus_id)
-    }
-    if (filters.travel_class) {
-      query.where('travelClass', filters.travel_class)
-    }
-    if (filters.date_from) {
-      query.where('departureTime', '>=', filters.date_from)
-    }
-    if (filters.date_to) {
-      const nextDay = DateTime.fromISO(filters.date_to).plus({ days: 1 }).toISODate()
-      if (nextDay) query.where('departureTime', '<', nextDay)
-    }
-    if (filters.price_min !== undefined) {
-      query.where('price', '>=', filters.price_min)
-    }
-    if (filters.price_max !== undefined) {
-      query.where('price', '<=', filters.price_max)
-    }
-
-    query
+      .if(filters.status, (builder) => {
+        builder.where('status', filters.status)
+      })
+      .if(filters.route_id, (builder) => {
+        builder.where('routeId', filters.route_id)
+      })
+      .if(filters.driver_id, (builder) => {
+        builder.where('driverId', filters.driver_id)
+      })
+      .if(filters.bus_id, (builder) => {
+        builder.where('busId', filters.bus_id)
+      })
+      .if(filters.travel_class, (builder) => {
+        builder.where('travelClass', filters.travel_class)
+      })
+      .if(filters.date_from, (builder) => {
+        builder.where('departureTime', '>=', filters.date_from)
+      })
+      .if(filters.date_to, (builder) => {
+        const nextDay = DateTime.fromISO(filters.date_to).plus({ days: 1 }).toISODate()
+        if (nextDay) builder.where('departureTime', '<', nextDay)
+      })
+      .if(filters.price_min !== undefined, (builder) => {
+        builder.where('price', '>=', filters.price_min)
+      })
+      .if(filters.price_max !== undefined, (builder) => {
+        builder.where('price', '<=', filters.price_max)
+      })
       .preload('route', (q) => {
         q.preload('departureCity').preload('arrivalCity')
       })
       .preload('bus')
       .preload('driver')
       .orderBy('departureTime', 'desc')
-
-    const { page, ...queryFilters } = filters
     const trips = await query.paginate(page, 20)
     trips.baseUrl('/dashboard/trips/history')
     trips.queryString(queryFilters)

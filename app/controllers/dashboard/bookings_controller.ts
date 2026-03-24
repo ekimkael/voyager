@@ -14,45 +14,36 @@ export default class DashboardBookingsController {
   private seatAllocator = new SeatAllocator()
 
   async index({ view, company, auth, request }: HttpContext) {
+    const filters = request.qs()
     const page = request.input('page', 1)
-    const date = request.input('date') || null
-    const tripId = request.input('trip_id') || null
-    const status = request.input('status') || null
-    const code = request.input('code') || null
 
     const isScopedToFranchise = !!(
       auth.user!.franchiseId && !(await this.isAdminOrDispatcher(auth.user!.id, company!.id))
     )
 
-    const query = Booking.query().where('companyId', company!.id)
-
-    if (isScopedToFranchise) {
-      query.where('franchiseId', auth.user!.franchiseId!)
-    }
-
-    if (date) {
-      const dt = DateTime.fromISO(date)
-      if (dt.isValid) {
-        const nextDay = dt.plus({ days: 1 }).toISODate()
-        query.whereHas('trip', (q) => {
-          q.where('departureTime', '>=', date).where('departureTime', '<', nextDay!)
-        })
-      }
-    }
-
-    if (tripId) {
-      query.where('tripId', tripId)
-    }
-
-    if (status) {
-      query.where('status', status)
-    }
-
-    if (code) {
-      query.whereHas('passengers', (q) => q.where('code', code))
-    }
-
-    query
+    const query = Booking.query()
+      .where('companyId', company!.id)
+      .if(isScopedToFranchise, (builder) => {
+        builder.where('franchiseId', auth.user!.franchiseId!)
+      })
+      .if(filters.date, (builder) => {
+        const dt = DateTime.fromISO(filters.date)
+        if (dt.isValid) {
+          const nextDay = dt.plus({ days: 1 }).toISODate()
+          builder.whereHas('trip', (q) => {
+            q.where('departureTime', '>=', filters.date).where('departureTime', '<', nextDay!)
+          })
+        }
+      })
+      .if(filters.trip_id, (builder) => {
+        builder.where('tripId', filters.trip_id)
+      })
+      .if(filters.status, (builder) => {
+        builder.where('status', filters.status)
+      })
+      .if(filters.code, (builder) => {
+        builder.whereHas('passengers', (q) => q.where('code', filters.code))
+      })
       .preload('trip', (q) => {
         q.preload('route', (rq) => {
           rq.preload('departureCity').preload('arrivalCity')
@@ -64,18 +55,12 @@ export default class DashboardBookingsController {
 
     const bookings = await query.paginate(page, 20)
     bookings.baseUrl('/dashboard/bookings')
-
-    const qs: Record<string, string> = {}
-    if (date) qs.date = date
-    if (tripId) qs.trip_id = tripId
-    if (status) qs.status = status
-    if (code) qs.code = code
-    bookings.queryString(qs)
+    bookings.queryString(filters)
 
     return view.render('pages/dashboard/bookings/index', {
       bookings,
       isScopedToFranchise,
-      filters: { date, tripId, status, code },
+      filters,
     })
   }
 

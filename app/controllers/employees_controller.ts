@@ -9,8 +9,12 @@ import { assignRoleValidator } from '#validators/role'
 
 export default class EmployeesController {
   async index({ view, company, request, auth }: HttpContext) {
+    const filters = request.qs()
     const page = request.input('page', 1)
-    const filterFranchiseId = request.input('franchise_id') || null
+
+    const isScopedToFranchise = !!(
+      auth.user!.franchiseId && !(await this.isAdminOrDispatcher(auth.user!.id, company!.id))
+    )
 
     const query = User.query()
       .where('companyId', company!.id)
@@ -18,24 +22,23 @@ export default class EmployeesController {
       .preload('roleAssignments', (q) => {
         q.preload('role')
       })
+      .if(isScopedToFranchise, (builder) => {
+        builder.where('franchiseId', auth.user!.franchiseId!)
+      })
+      .if(!isScopedToFranchise && filters.franchise_id, (builder) => {
+        builder.where('franchiseId', filters.franchise_id)
+      })
+      .if(filters.role_id, (builder) => {
+        builder.whereHas('roleAssignments', (q) => {
+          q.where('roleId', filters.role_id)
+        })
+      })
       .orderBy('firstName')
       .orderBy('lastName')
 
-    const isScopedToFranchise = !!(
-      auth.user!.franchiseId && !(await this.isAdminOrDispatcher(auth.user!.id, company!.id))
-    )
-
-    if (isScopedToFranchise) {
-      query.where('franchiseId', auth.user!.franchiseId!)
-    } else if (filterFranchiseId) {
-      query.where('franchiseId', filterFranchiseId)
-    }
-
     const employees = await query.paginate(page, 20)
     employees.baseUrl('/employees')
-    if (filterFranchiseId) {
-      employees.queryString({ franchise_id: filterFranchiseId })
-    }
+    employees.queryString(filters)
 
     const franchises = await Franchise.query()
       .where('companyId', company!.id)
@@ -43,10 +46,16 @@ export default class EmployeesController {
       .preload('city')
       .orderBy('name')
 
+    const roles = await Role.query()
+      .where('companyId', company!.id)
+      .where('isSystem', true)
+      .orderBy('name')
+
     return view.render('pages/dashboard/employees/index', {
       employees,
       franchises,
-      filterFranchiseId,
+      roles,
+      filters,
       isScopedToFranchise,
     })
   }
