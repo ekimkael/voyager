@@ -1,7 +1,7 @@
 import { BaseSchema } from '@adonisjs/lucid/schema'
 
 export default class extends BaseSchema {
-  protected tableName = 'tenants'
+  protected tableName = 'companies'
 
   async up() {
     this.schema.createTable(this.tableName, (table) => {
@@ -11,7 +11,7 @@ export default class extends BaseSchema {
       table
         .enum('plan', ['free', 'pro', 'enterprise'], {
           useNative: true,
-          enumName: 'tenant_plan',
+          enumName: 'company_plan',
         })
         .defaultTo('free')
         .notNullable()
@@ -22,6 +22,6 @@ export default class extends BaseSchema {
 
   async down() {
     this.schema.dropTable(this.tableName)
-    this.schema.raw('DROP TYPE IF EXISTS "tenant_plan"')
+    this.schema.raw('DROP TYPE IF EXISTS "company_plan"')
   }
 }

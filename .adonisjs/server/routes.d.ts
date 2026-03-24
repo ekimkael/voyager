@@ -82,8 +82,8 @@ export type ScannedRoutes = {
     'dashboard.boarding.index': { paramsTuple?: []; params?: {} }
     'dashboard.boarding.validate': { paramsTuple?: []; params?: {} }
     'public.globalTrips.index': { paramsTuple?: []; params?: {} }
-    'public.tenants.show': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
-    'public.trips.index': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
+    'public.companies.show': { paramsTuple: [ParamValue]; params: {'companySlug': ParamValue} }
+    'public.trips.index': { paramsTuple: [ParamValue]; params: {'companySlug': ParamValue} }
     'roles.index': { paramsTuple?: []; params?: {} }
     'roles.create': { paramsTuple?: []; params?: {} }
     'roles.store': { paramsTuple?: []; params?: {} }
@@ -146,8 +146,8 @@ export type ScannedRoutes = {
     'dashboard.tickets.download': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'passengerId': ParamValue} }
     'dashboard.boarding.index': { paramsTuple?: []; params?: {} }
     'public.globalTrips.index': { paramsTuple?: []; params?: {} }
-    'public.tenants.show': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
-    'public.trips.index': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
+    'public.companies.show': { paramsTuple: [ParamValue]; params: {'companySlug': ParamValue} }
+    'public.trips.index': { paramsTuple: [ParamValue]; params: {'companySlug': ParamValue} }
     'roles.index': { paramsTuple?: []; params?: {} }
     'roles.create': { paramsTuple?: []; params?: {} }
     'roles.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -201,8 +201,8 @@ export type ScannedRoutes = {
     'dashboard.tickets.download': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'passengerId': ParamValue} }
     'dashboard.boarding.index': { paramsTuple?: []; params?: {} }
     'public.globalTrips.index': { paramsTuple?: []; params?: {} }
-    'public.tenants.show': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
-    'public.trips.index': { paramsTuple: [ParamValue]; params: {'tenantSlug': ParamValue} }
+    'public.companies.show': { paramsTuple: [ParamValue]; params: {'companySlug': ParamValue} }
+    'public.trips.index': { paramsTuple: [ParamValue]; params: {'companySlug': ParamValue} }
     'roles.index': { paramsTuple?: []; params?: {} }
     'roles.create': { paramsTuple?: []; params?: {} }
     'roles.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }

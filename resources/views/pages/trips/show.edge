@@ -1,7 +1,7 @@
 @layout.public()
 <div class="mx-auto max-w-2xl">
   <div class="mb-5 animate-fade-rise">
-    <a href="{{ tenantSlug ? route('public.trips.index', { tenantSlug }) : route('public.globalTrips.index') }}"
+    <a href="{{ companySlug ? route('public.trips.index', { companySlug }) : route('public.globalTrips.index') }}"
       class="inline-flex items-center gap-1.5 text-sm text-on-surface transition-colors hover:text-on-surface-strong">
       <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

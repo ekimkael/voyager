@@ -14,7 +14,7 @@ export default class extends BaseSchema {
       table.unique(['name', 'country'])
     })
 
-    // Cities are global — bypass RLS so all tenants can access
+    // Cities are global — bypass RLS so all companies can access
     this.schema.raw(`
       ALTER TABLE ${this.tableName} ENABLE ROW LEVEL SECURITY;
       CREATE POLICY cities_global_access ON ${this.tableName} USING (true) WITH CHECK (true);

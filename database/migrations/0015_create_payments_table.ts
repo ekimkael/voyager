@@ -4,11 +4,6 @@ export default class extends BaseSchema {
   protected tableName = 'payments'
 
   async up() {
-    this.schema.raw("CREATE TYPE payment_method AS ENUM ('cash', 'mobile_money', 'card')")
-    this.schema.raw(
-      "CREATE TYPE payment_status AS ENUM ('pending', 'success', 'failed', 'refunded')"
-    )
-
     this.schema.createTable(this.tableName, (table) => {
       table.uuid('id').primary().defaultTo(this.raw('gen_random_uuid()'))
       table
@@ -22,7 +17,6 @@ export default class extends BaseSchema {
       table
         .enum('payment_method', ['cash', 'mobile_money', 'card'], {
           useNative: true,
-          existingType: true,
           enumName: 'payment_method',
         })
         .notNullable()
@@ -30,7 +24,6 @@ export default class extends BaseSchema {
       table
         .enum('status', ['pending', 'success', 'failed', 'refunded'], {
           useNative: true,
-          existingType: true,
           enumName: 'payment_status',
         })
         .defaultTo('pending')

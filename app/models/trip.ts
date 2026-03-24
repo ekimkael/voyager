@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
 import { BaseModel, belongsTo, column, hasMany } from '@adonisjs/lucid/orm'
 import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
-import Tenant from '#models/tenant'
+import Company from '#models/company'
 import Route from '#models/route'
 import Bus from '#models/bus'
 import User from '#models/user'
@@ -12,7 +12,7 @@ export default class Trip extends BaseModel {
   declare id: string
 
   @column()
-  declare tenantId: string
+  declare companyId: string
 
   @column()
   declare routeId: string
@@ -44,8 +44,8 @@ export default class Trip extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
 
-  @belongsTo(() => Tenant)
-  declare tenant: BelongsTo<typeof Tenant>
+  @belongsTo(() => Company)
+  declare company: BelongsTo<typeof Company>
 
   @belongsTo(() => Route)
   declare route: BelongsTo<typeof Route>

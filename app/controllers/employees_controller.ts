@@ -8,12 +8,12 @@ import { createEmployeeValidator, updateEmployeeValidator } from '#validators/em
 import { assignRoleValidator } from '#validators/role'
 
 export default class EmployeesController {
-  async index({ view, tenant, request, auth }: HttpContext) {
+  async index({ view, company, request, auth }: HttpContext) {
     const page = request.input('page', 1)
     const filterFranchiseId = request.input('franchise_id') || null
 
     const query = User.query()
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .preload('franchise')
       .preload('roleAssignments', (q) => {
         q.preload('role')
@@ -22,7 +22,7 @@ export default class EmployeesController {
       .orderBy('lastName')
 
     const isScopedToFranchise = !!(
-      auth.user!.franchiseId && !(await this.isAdminOrDispatcher(auth.user!.id, tenant!.id))
+      auth.user!.franchiseId && !(await this.isAdminOrDispatcher(auth.user!.id, company!.id))
     )
 
     if (isScopedToFranchise) {
@@ -38,7 +38,7 @@ export default class EmployeesController {
     }
 
     const franchises = await Franchise.query()
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .where('active', true)
       .preload('city')
       .orderBy('name')
@@ -51,19 +51,19 @@ export default class EmployeesController {
     })
   }
 
-  async create({ view, tenant, auth }: HttpContext) {
+  async create({ view, company, auth }: HttpContext) {
     const isScopedToFranchise = !!(
-      auth.user!.franchiseId && !(await this.isAdminOrDispatcher(auth.user!.id, tenant!.id))
+      auth.user!.franchiseId && !(await this.isAdminOrDispatcher(auth.user!.id, company!.id))
     )
 
     const franchises = await Franchise.query()
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .where('active', true)
       .preload('city')
       .orderBy('name')
 
     const roles = await Role.query()
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .where('isSystem', true)
       .orderBy('name')
 
@@ -75,12 +75,12 @@ export default class EmployeesController {
     })
   }
 
-  async store({ request, response, session, tenant, auth }: HttpContext) {
+  async store({ request, response, session, company, auth }: HttpContext) {
     const payload = await request.validateUsing(createEmployeeValidator)
 
     // Server-side enforcement: scoped agents can only create employees in their own franchise
     const isScopedToFranchise = !!(
-      auth.user!.franchiseId && !(await this.isAdminOrDispatcher(auth.user!.id, tenant!.id))
+      auth.user!.franchiseId && !(await this.isAdminOrDispatcher(auth.user!.id, company!.id))
     )
     if (isScopedToFranchise) {
       payload.franchiseId = auth.user!.franchiseId!
@@ -90,7 +90,7 @@ export default class EmployeesController {
       await db.transaction(async (trx) => {
         const user = await User.create(
           {
-            tenantId: tenant!.id,
+            companyId: company!.id,
             firstName: payload.firstName,
             lastName: payload.lastName,
             email: payload.email,
@@ -122,27 +122,27 @@ export default class EmployeesController {
     return response.redirect().toRoute('employees.index')
   }
 
-  async edit({ params, view, tenant, auth }: HttpContext) {
+  async edit({ params, view, company, auth }: HttpContext) {
     const employee = await User.query()
       .where('id', params.id)
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .preload('roleAssignments', (q) => {
         q.preload('role')
       })
       .firstOrFail()
 
     const isScopedToFranchise = !!(
-      auth.user!.franchiseId && !(await this.isAdminOrDispatcher(auth.user!.id, tenant!.id))
+      auth.user!.franchiseId && !(await this.isAdminOrDispatcher(auth.user!.id, company!.id))
     )
 
     const franchises = await Franchise.query()
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .where('active', true)
       .preload('city')
       .orderBy('name')
 
     const roles = await Role.query()
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .where('isSystem', true)
       .orderBy('name')
 
@@ -155,17 +155,17 @@ export default class EmployeesController {
     })
   }
 
-  async update({ params, request, response, session, tenant, auth }: HttpContext) {
+  async update({ params, request, response, session, company, auth }: HttpContext) {
     const employee = await User.query()
       .where('id', params.id)
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .firstOrFail()
 
     const payload = await request.validateUsing(updateEmployeeValidator)
 
     // Server-side enforcement: scoped agents can only assign employees to their own franchise
     const isScopedToFranchise = !!(
-      auth.user!.franchiseId && !(await this.isAdminOrDispatcher(auth.user!.id, tenant!.id))
+      auth.user!.franchiseId && !(await this.isAdminOrDispatcher(auth.user!.id, company!.id))
     )
     if (isScopedToFranchise) {
       payload.franchiseId = auth.user!.franchiseId!
@@ -207,14 +207,14 @@ export default class EmployeesController {
     return response.redirect().toRoute('employees.index')
   }
 
-  async destroy({ params, response, session, tenant }: HttpContext) {
+  async destroy({ params, response, session, company }: HttpContext) {
     const employee = await User.query()
       .where('id', params.id)
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .firstOrFail()
 
     const adminRole = await Role.query()
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .where('name', 'Admin')
       .first()
 
@@ -228,7 +228,7 @@ export default class EmployeesController {
         const activeAdminCount = await UserRoleAssignment.query()
           .where('roleId', adminRole.id)
           .whereHas('user', (q) => {
-            q.where('tenantId', tenant!.id).where('status', 'active')
+            q.where('companyId', company!.id).where('status', 'active')
           })
           .count('* as total')
 
@@ -246,10 +246,10 @@ export default class EmployeesController {
     return response.redirect().toRoute('employees.index')
   }
 
-  async roles({ params, view, tenant }: HttpContext) {
+  async roles({ params, view, company }: HttpContext) {
     const employee = await User.query()
       .where('id', params.id)
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .firstOrFail()
 
     const assignments = await UserRoleAssignment.query()
@@ -261,7 +261,7 @@ export default class EmployeesController {
     const assignedRoleIds = assignments.map((a) => a.roleId)
 
     const availableRoles = await Role.query()
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .if(assignedRoleIds.length > 0, (q) => q.whereNotIn('id', assignedRoleIds))
       .orderBy('name')
 
@@ -272,18 +272,18 @@ export default class EmployeesController {
     })
   }
 
-  async assignRole({ params, request, response, session, auth, tenant }: HttpContext) {
+  async assignRole({ params, request, response, session, auth, company }: HttpContext) {
     const employee = await User.query()
       .where('id', params.id)
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .firstOrFail()
 
     const payload = await request.validateUsing(assignRoleValidator)
 
-    // Verify role belongs to this tenant
+    // Verify role belongs to this company
     const role = await Role.query()
       .where('id', payload.roleId)
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .firstOrFail()
 
     try {
@@ -306,10 +306,10 @@ export default class EmployeesController {
     return response.redirect().toRoute('employees.roles', { id: employee.id })
   }
 
-  async revokeRole({ params, response, session, auth, tenant }: HttpContext) {
+  async revokeRole({ params, response, session, auth, company }: HttpContext) {
     const employee = await User.query()
       .where('id', params.id)
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .firstOrFail()
 
     const assignment = await UserRoleAssignment.query()
@@ -330,11 +330,11 @@ export default class EmployeesController {
     return response.redirect().toRoute('employees.roles', { id: employee.id })
   }
 
-  private async isAdminOrDispatcher(userId: string, tenantId: string): Promise<boolean> {
+  private async isAdminOrDispatcher(userId: string, companyId: string): Promise<boolean> {
     const assignment = await UserRoleAssignment.query()
       .where('userId', userId)
       .whereHas('role', (q) => {
-        q.where('tenantId', tenantId).whereIn('name', ['Admin', 'Dispatcher'])
+        q.where('companyId', companyId).whereIn('name', ['Admin', 'Dispatcher'])
       })
       .first()
 

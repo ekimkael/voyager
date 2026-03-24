@@ -2,7 +2,7 @@ import { test } from '@japa/runner'
 import testUtils from '@adonisjs/core/services/test_utils'
 import db from '@adonisjs/lucid/services/db'
 import router from '@adonisjs/core/services/router'
-import TenantService from '#services/tenant_service'
+import CompanyService from '#services/company_service'
 import { middleware } from '#start/kernel'
 
 // Register the test route at module load time so it is available when the HTTP
@@ -15,13 +15,13 @@ router
 
 test.group('Permission middleware', (group) => {
   group.setup(async () => {
-    const { default: PermissionsSeeder } = await import('#database/seeders/permissions_seeder')
+    const { default: PermissionsSeeder } = await import('#database/seeders/00_permissions_seeder')
     await new PermissionsSeeder(db.connection()).run()
   })
   group.each.setup(() => testUtils.db().withGlobalTransaction())
 
   test('admin passes permission middleware', async ({ client }) => {
-    const { user } = await TenantService.createWithAdmin({
+    const { user } = await CompanyService.createWithAdmin({
       companyName: 'Test Co',
       firstName: 'A',
       lastName: 'B',
@@ -38,7 +38,7 @@ test.group('Permission middleware', (group) => {
   })
 
   test('user without permission is redirected to dashboard', async ({ client }) => {
-    const { tenant } = await TenantService.createWithAdmin({
+    const { company } = await CompanyService.createWithAdmin({
       companyName: 'Test Co',
       firstName: 'A',
       lastName: 'B',
@@ -49,7 +49,7 @@ test.group('Permission middleware', (group) => {
     const UserModule = await import('#models/user')
     const User = UserModule.default
     const noRoleUser = await User.create({
-      tenantId: tenant.id,
+      companyId: company.id,
       firstName: 'C',
       lastName: 'D',
       email: 'c@test.co',

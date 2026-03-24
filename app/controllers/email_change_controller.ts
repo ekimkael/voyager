@@ -5,12 +5,12 @@ import hash from '@adonisjs/core/services/hash'
 import mail from '@adonisjs/mail/services/main'
 import { DateTime } from 'luxon'
 import User from '#models/user'
-import EmailChangeRequest from '#models/email_change_request'
+import Token from '#models/token'
 import EmailChangeMail from '#mails/email_change_mail'
 import { changeEmailValidator } from '#validators/profile'
 
 export default class EmailChangeController {
-  async store({ request, response, session, auth, tenant }: HttpContext) {
+  async store({ request, response, session, auth, company }: HttpContext) {
     const payload = await request.validateUsing(changeEmailValidator)
     const user = auth.user!
 
@@ -21,7 +21,7 @@ export default class EmailChangeController {
     }
 
     const emailTaken = await User.query()
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .where('email', payload.newEmail)
       .whereNot('id', user.id)
       .first()
@@ -31,14 +31,15 @@ export default class EmailChangeController {
       return response.redirect().back()
     }
 
-    await EmailChangeRequest.query().where('userId', user.id).delete()
+    await Token.query().where('userId', user.id).where('type', 'email_change').delete()
 
     const token = randomBytes(32).toString('hex')
 
-    await EmailChangeRequest.create({
+    await Token.create({
       userId: user.id,
-      newEmail: payload.newEmail,
+      type: 'email_change',
       token,
+      metadata: { newEmail: payload.newEmail },
       expiresAt: DateTime.now().plus({ hours: 1 }),
     })
 
@@ -51,9 +52,9 @@ export default class EmailChangeController {
   }
 
   async confirm({ request, view, auth }: HttpContext) {
-    const token = request.input('token')
+    const tokenValue = request.input('token')
 
-    if (!token) {
+    if (!tokenValue) {
       return view.render('pages/profile/email_confirm', {
         status: 'error',
         message: 'Ce lien est invalide ou a expiré',
@@ -61,12 +62,13 @@ export default class EmailChangeController {
       })
     }
 
-    const emailChangeRequest = await EmailChangeRequest.query()
-      .where('token', token)
+    const tokenRecord = await Token.query()
+      .where('token', tokenValue)
+      .where('type', 'email_change')
       .preload('user')
       .first()
 
-    if (!emailChangeRequest || emailChangeRequest.expiresAt < DateTime.now()) {
+    if (!tokenRecord || tokenRecord.isExpired || tokenRecord.isUsed) {
       return view.render('pages/profile/email_confirm', {
         status: 'error',
         message: 'Ce lien est invalide ou a expiré',
@@ -75,10 +77,13 @@ export default class EmailChangeController {
     }
 
     try {
-      const user = emailChangeRequest.user
-      user.email = emailChangeRequest.newEmail
+      const user = tokenRecord.user
+      const metadata = tokenRecord.metadata as { newEmail: string }
+      user.email = metadata.newEmail
       await user.save()
-      await emailChangeRequest.delete()
+
+      tokenRecord.usedAt = DateTime.now()
+      await tokenRecord.save()
 
       return view.render('pages/profile/email_confirm', {
         status: 'success',

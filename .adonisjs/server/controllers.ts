@@ -18,6 +18,7 @@ export const controllers = {
   Employees: () => import('#controllers/employees_controller'),
   Franchises: () => import('#controllers/franchises_controller'),
   NewAccount: () => import('#controllers/new_account_controller'),
+  PasswordReset: () => import('#controllers/password_reset_controller'),
   Profile: () => import('#controllers/profile_controller'),
   Roles: () => import('#controllers/roles_controller'),
   Routes: () => import('#controllers/routes_controller'),
@@ -26,5 +27,4 @@ export const controllers = {
   Session: () => import('#controllers/session_controller'),
   Tickets: () => import('#controllers/tickets_controller'),
   Trips: () => import('#controllers/trips_controller'),
-  PasswordReset: () => import('#controllers/password_reset_controller'),
 }

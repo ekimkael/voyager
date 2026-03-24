@@ -4,9 +4,9 @@ import Trip from '#models/trip'
 import { createBusValidator, updateBusValidator } from '#validators/bus'
 
 export default class BusesController {
-  async index({ view, tenant }: HttpContext) {
+  async index({ view, company }: HttpContext) {
     const buses = await Bus.query()
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .where('active', true)
       .orderBy('licensePlate')
 
@@ -17,12 +17,12 @@ export default class BusesController {
     return view.render('pages/dashboard/buses/edit')
   }
 
-  async store({ request, response, session, tenant }: HttpContext) {
+  async store({ request, response, session, company }: HttpContext) {
     const payload = await request.validateUsing(createBusValidator)
 
     try {
       await Bus.create({
-        tenantId: tenant!.id,
+        companyId: company!.id,
         licensePlate: payload.licensePlate,
         brand: payload.brand,
         model: payload.model,
@@ -43,14 +43,14 @@ export default class BusesController {
     return response.redirect().toRoute('buses.index')
   }
 
-  async edit({ params, view, tenant }: HttpContext) {
-    const bus = await Bus.query().where('id', params.id).where('tenantId', tenant!.id).firstOrFail()
+  async edit({ params, view, company }: HttpContext) {
+    const bus = await Bus.query().where('id', params.id).where('companyId', company!.id).firstOrFail()
 
     return view.render('pages/dashboard/buses/edit', { bus })
   }
 
-  async update({ params, request, response, session, tenant }: HttpContext) {
-    const bus = await Bus.query().where('id', params.id).where('tenantId', tenant!.id).firstOrFail()
+  async update({ params, request, response, session, company }: HttpContext) {
+    const bus = await Bus.query().where('id', params.id).where('companyId', company!.id).firstOrFail()
 
     const payload = await request.validateUsing(updateBusValidator)
 
@@ -77,8 +77,8 @@ export default class BusesController {
     return response.redirect().toRoute('buses.index')
   }
 
-  async destroy({ params, response, session, tenant }: HttpContext) {
-    const bus = await Bus.query().where('id', params.id).where('tenantId', tenant!.id).firstOrFail()
+  async destroy({ params, response, session, company }: HttpContext) {
+    const bus = await Bus.query().where('id', params.id).where('companyId', company!.id).firstOrFail()
 
     const activeTrips = await Trip.query()
       .where('busId', bus.id)

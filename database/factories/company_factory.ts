@@ -1,8 +1,8 @@
 import factory from '@adonisjs/lucid/factories'
-import Tenant from '#models/tenant'
+import Company from '#models/company'
 
-export const TenantFactory = factory
-  .define(Tenant, async ({ faker }) => {
+export const CompanyFactory = factory
+  .define(Company, async ({ faker }) => {
     const name = faker.helpers.arrayElement([
       'General Express Voyages',
       'Touristique Express',

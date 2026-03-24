@@ -1,20 +1,20 @@
 import { test } from '@japa/runner'
 import testUtils from '@adonisjs/core/services/test_utils'
 import db from '@adonisjs/lucid/services/db'
-import TenantService from '#services/tenant_service'
+import CompanyService from '#services/company_service'
 import Role from '#models/role'
 import RolePermission from '#models/role_permission'
 
-test.group('TenantService', (group) => {
+test.group('CompanyService', (group) => {
   group.setup(async () => {
-    // Seed permissions catalog (required by TenantService)
-    const { default: PermissionsSeeder } = await import('#database/seeders/permissions_seeder')
+    // Seed permissions catalog (required by CompanyService)
+    const { default: PermissionsSeeder } = await import('#database/seeders/00_permissions_seeder')
     await new PermissionsSeeder(db.connection()).run()
   })
   group.each.setup(() => testUtils.db().withGlobalTransaction())
 
-  test('createWithAdmin creates tenant, admin user, and system roles', async ({ assert }) => {
-    const result = await TenantService.createWithAdmin({
+  test('createWithAdmin creates company, admin user, and system roles', async ({ assert }) => {
+    const result = await CompanyService.createWithAdmin({
       companyName: 'TransCo Test',
       firstName: 'John',
       lastName: 'Doe',
@@ -22,14 +22,14 @@ test.group('TenantService', (group) => {
       password: 'password123',
     })
 
-    assert.exists(result.tenant)
+    assert.exists(result.company)
     assert.exists(result.user)
-    assert.equal(result.tenant.name, 'TransCo Test')
-    assert.equal(result.tenant.slug, 'transco-test')
-    assert.equal(result.user.tenantId, result.tenant.id)
+    assert.equal(result.company.name, 'TransCo Test')
+    assert.equal(result.company.slug, 'transco-test')
+    assert.equal(result.user.companyId, result.company.id)
 
     // Verify system roles were created
-    const roles = await Role.query().where('tenant_id', result.tenant.id)
+    const roles = await Role.query().where('company_id', result.company.id)
     assert.equal(roles.length, 4)
     const roleNames = roles.map((r) => r.name).sort()
     assert.deepEqual(roleNames, ['Admin', 'Chauffeur', 'Dispatcher', 'Lecteur'])
@@ -49,7 +49,7 @@ test.group('TenantService', (group) => {
   })
 
   test('createWithAdmin generates unique slug on conflict', async ({ assert }) => {
-    const first = await TenantService.createWithAdmin({
+    const first = await CompanyService.createWithAdmin({
       companyName: 'TransCo',
       firstName: 'A',
       lastName: 'B',
@@ -57,7 +57,7 @@ test.group('TenantService', (group) => {
       password: 'password123',
     })
 
-    const second = await TenantService.createWithAdmin({
+    const second = await CompanyService.createWithAdmin({
       companyName: 'TransCo',
       firstName: 'C',
       lastName: 'D',
@@ -65,7 +65,7 @@ test.group('TenantService', (group) => {
       password: 'password123',
     })
 
-    assert.notEqual(first.tenant.slug, second.tenant.slug)
-    assert.isTrue(second.tenant.slug.startsWith('transco-'))
+    assert.notEqual(first.company.slug, second.company.slug)
+    assert.isTrue(second.company.slug.startsWith('transco-'))
   })
 })

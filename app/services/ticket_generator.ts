@@ -1,10 +1,10 @@
 import PDFDocument from 'pdfkit'
 import QRCode from 'qrcode'
 import type Passenger from '#models/passenger'
-import type Tenant from '#models/tenant'
+import type Company from '#models/company'
 
 interface TicketData {
-  tenant: Tenant
+  company: Company
   passenger: Passenger
   tripInfo: {
     departureCity: string
@@ -19,7 +19,7 @@ interface TicketData {
 
 export default class TicketGenerator {
   async generate(data: TicketData): Promise<Buffer> {
-    const { tenant, passenger, tripInfo } = data
+    const { company, passenger, tripInfo } = data
 
     const qrBuffer = await QRCode.toBuffer(passenger.qrCode, {
       width: 120,
@@ -38,7 +38,7 @@ export default class TicketGenerator {
       doc.on('error', reject)
 
       // Header
-      doc.fontSize(14).font('Helvetica-Bold').text(tenant.name, { align: 'center' })
+      doc.fontSize(14).font('Helvetica-Bold').text(company.name, { align: 'center' })
       doc.moveDown(0.3)
       doc.fontSize(8).font('Helvetica').text('Ticket de transport', { align: 'center' })
       doc.moveDown(0.5)
@@ -81,7 +81,7 @@ export default class TicketGenerator {
 
       // Footer
       doc.fontSize(6).font('Helvetica')
-      doc.text('Présentez ce ticket à l\'embarquement', { align: 'center' })
+      doc.text("Présentez ce ticket à l'embarquement", { align: 'center' })
 
       doc.end()
     })

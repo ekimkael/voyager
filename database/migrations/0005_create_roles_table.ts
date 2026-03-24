@@ -6,7 +6,12 @@ export default class extends BaseSchema {
   async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.uuid('id').primary().defaultTo(this.raw('gen_random_uuid()'))
-      table.uuid('tenant_id').notNullable().references('id').inTable('tenants').onDelete('CASCADE')
+      table
+        .uuid('company_id')
+        .notNullable()
+        .references('id')
+        .inTable('companies')
+        .onDelete('CASCADE')
       table.uuid('parent_role_id').nullable().references('id').inTable('roles').onDelete('SET NULL')
       table.string('name').notNullable()
       table
@@ -20,7 +25,7 @@ export default class extends BaseSchema {
       table.timestamp('created_at').notNullable()
       table.timestamp('updated_at').notNullable()
 
-      table.unique(['tenant_id', 'name'])
+      table.unique(['company_id', 'name'])
     })
   }
 

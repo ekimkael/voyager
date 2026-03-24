@@ -3,9 +3,9 @@ import User from '#models/user'
 import Role from '#models/role'
 
 export default class DriversController {
-  async index({ view, tenant }: HttpContext) {
+  async index({ view, company }: HttpContext) {
     const chauffeurRole = await Role.query()
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .where('name', 'Chauffeur')
       .first()
 
@@ -14,7 +14,7 @@ export default class DriversController {
     }
 
     const drivers = await User.query()
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .whereHas('roleAssignments', (query) => {
         query.where('roleId', chauffeurRole.id)
       })

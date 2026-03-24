@@ -8,9 +8,9 @@ import Role from '#models/role'
 import { createTripValidator, updateTripValidator } from '#validators/trip'
 
 export default class TripsController {
-  async index({ view, tenant }: HttpContext) {
+  async index({ view, company }: HttpContext) {
     const trips = await Trip.query()
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .whereIn('status', ['scheduled', 'in_progress'])
       .preload('route', (query) => {
         query.preload('departureCity').preload('arrivalCity')
@@ -22,11 +22,11 @@ export default class TripsController {
     return view.render('pages/dashboard/trips/index', { trips })
   }
 
-  async history({ view, request, tenant }: HttpContext) {
+  async history({ view, request, company }: HttpContext) {
     const filters = this.parseHistoryFilters(request.qs())
 
     const query = Trip.query()
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .whereIn('status', ['completed', 'cancelled'])
 
     if (filters.status) {
@@ -77,17 +77,17 @@ export default class TripsController {
     // since historical trips may reference now-inactive drivers.
     const [routes, buses, chauffeurRole] = await Promise.all([
       Route.query()
-        .where('tenantId', tenant!.id)
+        .where('companyId', company!.id)
         .preload('departureCity')
         .preload('arrivalCity')
         .orderBy('code'),
-      Bus.query().where('tenantId', tenant!.id).orderBy('licensePlate'),
-      Role.query().where('tenantId', tenant!.id).where('name', 'Chauffeur').first(),
+      Bus.query().where('companyId', company!.id).orderBy('licensePlate'),
+      Role.query().where('companyId', company!.id).where('name', 'Chauffeur').first(),
     ])
 
     const drivers = chauffeurRole
       ? await User.query()
-          .where('tenantId', tenant!.id)
+          .where('companyId', company!.id)
           .whereHas('roleAssignments', (q) => {
             q.where('roleId', chauffeurRole.id)
           })
@@ -98,26 +98,26 @@ export default class TripsController {
     return view.render('pages/dashboard/trips/history', { trips, routes, buses, drivers, filters })
   }
 
-  async create({ view, tenant }: HttpContext) {
+  async create({ view, company }: HttpContext) {
     const routes = await Route.query()
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .where('status', 'active')
       .preload('departureCity')
       .preload('arrivalCity')
       .orderBy('code')
 
     const buses = await Bus.query()
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .where('active', true)
       .where('status', 'available')
       .orderBy('licensePlate')
 
-    const drivers = await this.getDrivers(tenant!.id)
+    const drivers = await this.getDrivers(company!.id)
 
     return view.render('pages/dashboard/trips/edit', { routes, buses, drivers })
   }
 
-  async store({ request, response, session, tenant }: HttpContext) {
+  async store({ request, response, session, company }: HttpContext) {
     const payload = await request.validateUsing(createTripValidator)
     const departureTime = DateTime.fromISO(payload.departureTime)
     const arrivalTime = DateTime.fromISO(payload.arrivalTime)
@@ -132,24 +132,24 @@ export default class TripsController {
       return response.redirect().back()
     }
 
-    // Verify referenced entities belong to the current tenant
+    // Verify referenced entities belong to the current company
     await Route.query()
       .where('id', payload.routeId)
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .where('status', 'active')
       .firstOrFail()
     await Bus.query()
       .where('id', payload.busId)
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .where('active', true)
       .firstOrFail()
-    await this.verifyDriver(payload.driverId, tenant!.id)
+    await this.verifyDriver(payload.driverId, company!.id)
 
     const busOverlap = await this.checkBusOverlap(
       payload.busId,
       departureTime,
       arrivalTime,
-      tenant!.id
+      company!.id
     )
     if (busOverlap) {
       session.flash('error', 'Ce véhicule est déjà assigné à un autre voyage sur cette période.')
@@ -160,7 +160,7 @@ export default class TripsController {
       payload.driverId,
       departureTime,
       arrivalTime,
-      tenant!.id
+      company!.id
     )
     if (driverOverlap) {
       session.flash('error', 'Ce conducteur est déjà assigné à un autre voyage sur cette période.')
@@ -168,7 +168,7 @@ export default class TripsController {
     }
 
     await Trip.create({
-      tenantId: tenant!.id,
+      companyId: company!.id,
       routeId: payload.routeId,
       busId: payload.busId,
       driverId: payload.driverId,
@@ -183,10 +183,10 @@ export default class TripsController {
     return response.redirect().toRoute('trips.index')
   }
 
-  async edit({ params, view, response, tenant }: HttpContext) {
+  async edit({ params, view, response, company }: HttpContext) {
     const trip = await Trip.query()
       .where('id', params.id)
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .firstOrFail()
 
     if (trip.status === 'completed' || trip.status === 'cancelled') {
@@ -194,29 +194,29 @@ export default class TripsController {
     }
 
     const routes = await Route.query()
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .where('status', 'active')
       .preload('departureCity')
       .preload('arrivalCity')
       .orderBy('code')
 
     const buses = await Bus.query()
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .where('active', true)
       .where((query) => {
         query.where('status', 'available').orWhere('id', trip.busId)
       })
       .orderBy('licensePlate')
 
-    const drivers = await this.getDrivers(tenant!.id, trip.driverId)
+    const drivers = await this.getDrivers(company!.id, trip.driverId)
 
     return view.render('pages/dashboard/trips/edit', { trip, routes, buses, drivers })
   }
 
-  async update({ params, request, response, session, tenant }: HttpContext) {
+  async update({ params, request, response, session, company }: HttpContext) {
     const trip = await Trip.query()
       .where('id', params.id)
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .firstOrFail()
 
     if (trip.status === 'completed' || trip.status === 'cancelled') {
@@ -238,26 +238,26 @@ export default class TripsController {
       return response.redirect().back()
     }
 
-    // Verify referenced entities belong to the current tenant
+    // Verify referenced entities belong to the current company
     await Route.query()
       .where('id', payload.routeId)
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .where('status', 'active')
       .firstOrFail()
 
     await Bus.query()
       .where('id', payload.busId)
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .where('active', true)
       .firstOrFail()
 
-    await this.verifyDriver(payload.driverId, tenant!.id)
+    await this.verifyDriver(payload.driverId, company!.id)
 
     const busOverlap = await this.checkBusOverlap(
       payload.busId,
       departureTime,
       arrivalTime,
-      tenant!.id,
+      company!.id,
       trip.id
     )
 
@@ -270,7 +270,7 @@ export default class TripsController {
       payload.driverId,
       departureTime,
       arrivalTime,
-      tenant!.id,
+      company!.id,
       trip.id
     )
 
@@ -295,10 +295,10 @@ export default class TripsController {
     return response.redirect().toRoute('trips.index')
   }
 
-  async transition({ params, request, response, session, tenant }: HttpContext) {
+  async transition({ params, request, response, session, company }: HttpContext) {
     const trip = await Trip.query()
       .where('id', params.id)
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .firstOrFail()
 
     const { status } = request.only(['status'])
@@ -338,10 +338,10 @@ export default class TripsController {
     return response.redirect().toRoute('trips.index')
   }
 
-  async destroy({ params, response, session, tenant }: HttpContext) {
+  async destroy({ params, response, session, company }: HttpContext) {
     const trip = await Trip.query()
       .where('id', params.id)
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .firstOrFail()
 
     if (trip.status === 'in_progress') {
@@ -363,11 +363,11 @@ export default class TripsController {
     busId: string,
     departureTime: DateTime,
     arrivalTime: DateTime,
-    tenantId: string,
+    companyId: string,
     excludeTripId?: string
   ): Promise<boolean> {
     const query = Trip.query()
-      .where('tenantId', tenantId)
+      .where('companyId', companyId)
       .where('busId', busId)
       .whereIn('status', ['scheduled', 'in_progress'])
       .where('departureTime', '<', arrivalTime.toSQL()!)
@@ -385,11 +385,11 @@ export default class TripsController {
     driverId: string,
     departureTime: DateTime,
     arrivalTime: DateTime,
-    tenantId: string,
+    companyId: string,
     excludeTripId?: string
   ): Promise<boolean> {
     const query = Trip.query()
-      .where('tenantId', tenantId)
+      .where('companyId', companyId)
       .where('driverId', driverId)
       .whereIn('status', ['scheduled', 'in_progress'])
       .where('departureTime', '<', arrivalTime.toSQL()!)
@@ -403,15 +403,15 @@ export default class TripsController {
     return Number(result[0].$extras.total) > 0
   }
 
-  private async verifyDriver(driverId: string, tenantId: string): Promise<void> {
+  private async verifyDriver(driverId: string, companyId: string): Promise<void> {
     const chauffeurRole = await Role.query()
-      .where('tenantId', tenantId)
+      .where('companyId', companyId)
       .where('name', 'Chauffeur')
       .firstOrFail()
 
     const driver = await User.query()
       .where('id', driverId)
-      .where('tenantId', tenantId)
+      .where('companyId', companyId)
       .whereHas('roleAssignments', (q) => {
         q.where('roleId', chauffeurRole.id)
       })
@@ -464,16 +464,16 @@ export default class TripsController {
     return filters
   }
 
-  private async getDrivers(tenantId: string, includeDriverId?: string): Promise<User[]> {
+  private async getDrivers(companyId: string, includeDriverId?: string): Promise<User[]> {
     const chauffeurRole = await Role.query()
-      .where('tenantId', tenantId)
+      .where('companyId', companyId)
       .where('name', 'Chauffeur')
       .first()
 
     if (!chauffeurRole) return []
 
     return User.query()
-      .where('tenantId', tenantId)
+      .where('companyId', companyId)
       .where((query) => {
         query.where('status', 'active')
         if (includeDriverId) {
