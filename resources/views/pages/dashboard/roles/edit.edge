@@ -9,11 +9,11 @@
     <div class="rounded-radius border border-outline bg-surface p-6">
       @if(role)
         @form({ route: 'roles.update', routeParams: { id: role.id }, method: 'PUT' })
-          @include('pages/dashboard/roles/_form_fields')
+          @include('pages/dashboard/roles/_form')
         @end
       @else
         @form({ route: 'roles.store', method: 'POST' })
-          @include('pages/dashboard/roles/_form_fields')
+          @include('pages/dashboard/roles/_form')
         @end
       @end
     </div>

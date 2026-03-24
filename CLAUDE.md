@@ -156,9 +156,9 @@ resources/
 **Partials par module** (`resources/views/pages/{module}/_*.edge`) :
 Les partials spécifiques à un module sont placés directement dans le dossier de pages du module, préfixés par `_`.
 Exemples :
-- `pages/dashboard/buses/_form_fields.edge`
-- `pages/dashboard/cities/_form_fields.edge`
-- `pages/dashboard/employees/_form_fields.edge`
+- `pages/dashboard/buses/_form.edge`
+- `pages/dashboard/cities/_form.edge`
+- `pages/dashboard/employees/_form.edge`
 - etc.
 
 ## Design & UI

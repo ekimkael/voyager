@@ -114,7 +114,7 @@ export default class TripsController {
 
     const drivers = await this.getDrivers(tenant!.id)
 
-    return view.render('pages/dashboard/trips/form', { routes, buses, drivers })
+    return view.render('pages/dashboard/trips/edit', { routes, buses, drivers })
   }
 
   async store({ request, response, session, tenant }: HttpContext) {
@@ -210,7 +210,7 @@ export default class TripsController {
 
     const drivers = await this.getDrivers(tenant!.id, trip.driverId)
 
-    return view.render('pages/dashboard/trips/form', { trip, routes, buses, drivers })
+    return view.render('pages/dashboard/trips/edit', { trip, routes, buses, drivers })
   }
 
   async update({ params, request, response, session, tenant }: HttpContext) {

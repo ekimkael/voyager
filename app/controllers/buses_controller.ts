@@ -14,7 +14,7 @@ export default class BusesController {
   }
 
   async create({ view }: HttpContext) {
-    return view.render('pages/dashboard/buses/form')
+    return view.render('pages/dashboard/buses/edit')
   }
 
   async store({ request, response, session, tenant }: HttpContext) {
@@ -46,7 +46,7 @@ export default class BusesController {
   async edit({ params, view, tenant }: HttpContext) {
     const bus = await Bus.query().where('id', params.id).where('tenantId', tenant!.id).firstOrFail()
 
-    return view.render('pages/dashboard/buses/form', { bus })
+    return view.render('pages/dashboard/buses/edit', { bus })
   }
 
   async update({ params, request, response, session, tenant }: HttpContext) {

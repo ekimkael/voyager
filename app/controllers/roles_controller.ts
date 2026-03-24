@@ -36,7 +36,7 @@ export default class RolesController {
   async create({ view, tenant }: HttpContext) {
     const roles = await Role.query().where('tenantId', tenant!.id).orderBy('name')
 
-    return view.render('pages/dashboard/roles/form', { roles })
+    return view.render('pages/dashboard/roles/edit', { roles })
   }
 
   async store({ request, response, session, tenant }: HttpContext) {
@@ -200,7 +200,7 @@ export default class RolesController {
       .whereNot('id', role.id)
       .orderBy('name')
 
-    return view.render('pages/dashboard/roles/form', { role, roles })
+    return view.render('pages/dashboard/roles/edit', { role, roles })
   }
 
   async update({ params, request, response, session, tenant }: HttpContext) {

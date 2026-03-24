@@ -16,7 +16,7 @@ export default class RoutesController {
 
   async create({ view }: HttpContext) {
     const cities = await City.query().orderBy('country').orderBy('name')
-    return view.render('pages/dashboard/routes/form', { cities })
+    return view.render('pages/dashboard/routes/edit', { cities })
   }
 
   async store({ request, response, session, tenant }: HttpContext) {
@@ -56,7 +56,7 @@ export default class RoutesController {
       .firstOrFail()
 
     const cities = await City.query().orderBy('country').orderBy('name')
-    return view.render('pages/dashboard/routes/form', { transportRoute, cities })
+    return view.render('pages/dashboard/routes/edit', { transportRoute, cities })
   }
 
   async update({ params, request, response, session, tenant }: HttpContext) {

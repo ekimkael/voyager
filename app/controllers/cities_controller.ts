@@ -10,7 +10,7 @@ export default class CitiesController {
   }
 
   async create({ view }: HttpContext) {
-    return view.render('pages/dashboard/cities/form')
+    return view.render('pages/dashboard/cities/edit')
   }
 
   async store({ request, response, session }: HttpContext) {
@@ -32,7 +32,7 @@ export default class CitiesController {
 
   async edit({ params, view }: HttpContext) {
     const city = await City.findOrFail(params.id)
-    return view.render('pages/dashboard/cities/form', { city })
+    return view.render('pages/dashboard/cities/edit', { city })
   }
 
   async update({ params, request, response, session }: HttpContext) {

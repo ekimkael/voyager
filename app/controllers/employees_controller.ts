@@ -67,7 +67,7 @@ export default class EmployeesController {
       .where('isSystem', true)
       .orderBy('name')
 
-    return view.render('pages/dashboard/employees/form', {
+    return view.render('pages/dashboard/employees/edit', {
       franchises,
       roles,
       isScopedToFranchise,
@@ -146,7 +146,7 @@ export default class EmployeesController {
       .where('isSystem', true)
       .orderBy('name')
 
-    return view.render('pages/dashboard/employees/form', {
+    return view.render('pages/dashboard/employees/edit', {
       employee,
       franchises,
       roles,

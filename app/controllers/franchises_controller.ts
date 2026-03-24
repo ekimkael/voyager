@@ -22,7 +22,7 @@ export default class FranchisesController {
 
   async create({ view }: HttpContext) {
     const cities = await City.query().orderBy('name')
-    return view.render('pages/dashboard/franchises/form', { cities })
+    return view.render('pages/dashboard/franchises/edit', { cities })
   }
 
   async store({ request, response, session, tenant }: HttpContext) {
@@ -56,7 +56,7 @@ export default class FranchisesController {
 
     const cities = await City.query().orderBy('name')
 
-    return view.render('pages/dashboard/franchises/form', { franchise, cities })
+    return view.render('pages/dashboard/franchises/edit', { franchise, cities })
   }
 
   async update({ params, request, response, session, tenant }: HttpContext) {
