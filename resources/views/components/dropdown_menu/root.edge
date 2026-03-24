@@ -1,0 +1,7 @@
+<div {{ $props.merge({
+  'x-data': '{ open: false }',
+  class: 'relative',
+  'data-slot': 'dropdown-menu',
+}).toAttrs() }}>
+  {{{ await $slots.main() }}}
+</div>
