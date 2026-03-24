@@ -9,6 +9,8 @@ import { createTripValidator, updateTripValidator } from '#validators/trip'
 
 export default class TripsController {
   async index({ view, company }: HttpContext) {
+    await this.closeExpiredTrips(company!.id)
+
     const trips = await Trip.query()
       .where('companyId', company!.id)
       .whereIn('status', ['scheduled', 'in_progress'])
@@ -181,6 +183,26 @@ export default class TripsController {
 
     session.flash('success', 'Voyage planifié avec succès')
     return response.redirect().toRoute('trips.index')
+  }
+
+  async show({ params, view, company }: HttpContext) {
+    await this.closeExpiredTrips(company!.id)
+
+    const trip = await Trip.query()
+      .where('id', params.id)
+      .where('companyId', company!.id)
+      .preload('route', (q) => {
+        q.preload('departureCity').preload('arrivalCity')
+      })
+      .preload('bus')
+      .preload('driver')
+      .preload('bookings', (q) => {
+        q.preload('passengers')
+        q.preload('customer')
+      })
+      .firstOrFail()
+
+    return view.render('pages/dashboard/trips/show', { trip })
   }
 
   async edit({ params, view, response, company }: HttpContext) {
@@ -357,6 +379,24 @@ export default class TripsController {
     await trip.delete()
     session.flash('success', 'Voyage supprimé avec succès')
     return response.redirect().toRoute('trips.index')
+  }
+
+  private async closeExpiredTrips(companyId: string): Promise<void> {
+    const now = DateTime.now()
+    const expired = await Trip.query()
+      .where('companyId', companyId)
+      .whereIn('status', ['scheduled', 'in_progress'])
+      .where('arrivalTime', '<', now.toSQL()!)
+
+    for (const trip of expired) {
+      const bus = await Bus.find(trip.busId)
+      if (bus && bus.status === 'on_trip') {
+        bus.status = 'available'
+        await bus.save()
+      }
+      trip.status = 'completed'
+      await trip.save()
+    }
   }
 
   private async checkBusOverlap(

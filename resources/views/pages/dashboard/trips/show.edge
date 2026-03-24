@@ -1,0 +1,193 @@
+@layout.dashboard()
+<div class="mx-auto max-w-7xl">
+  <div class="mb-6 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      @if(trip.status === 'completed' || trip.status === 'cancelled')
+      <a href="{{ route('trips.history') }}"
+        class="inline-flex items-center justify-center rounded-md border border-outline bg-surface p-2 text-on-surface shadow-xs hover:bg-surface-alt hover:text-on-surface-strong">
+        @svg('tabler:arrow-left', { class: 'size-4' })
+      </a>
+      @else
+      <a href="{{ route('trips.index') }}"
+        class="inline-flex items-center justify-center rounded-md border border-outline bg-surface p-2 text-on-surface shadow-xs hover:bg-surface-alt hover:text-on-surface-strong">
+        @svg('tabler:arrow-left', { class: 'size-4' })
+      </a>
+      @end
+      <div>
+        <h1 class="text-2xl font-bold text-on-surface-strong">
+          {{ trip.route.departureCity.name }} → {{ trip.route.arrivalCity.name }}
+        </h1>
+        <p class="mt-1 text-sm text-on-surface">
+          {{ trip.departureTime.toFormat('dd MMM yyyy à HH:mm', { locale: 'fr' }) }}
+        </p>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      @can('permission', 'trip:update')
+      @if(trip.status === 'scheduled' || trip.status === 'in_progress')
+      <a href="{{ route('trips.edit', { id: trip.id }) }}"
+        class="inline-flex items-center gap-2 rounded-md border border-outline bg-surface px-4 py-2 text-sm font-medium text-on-surface shadow-xs hover:bg-surface-alt hover:text-on-surface-strong">
+        @svg('tabler:pencil', { class: 'size-4' })
+        Modifier
+      </a>
+      @end
+      @end
+    </div>
+  </div>
+
+  @include('partials/flash_alerts')
+
+  {{-- Trip info cards --}}
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-4">
+
+    {{-- Route card --}}
+    <div class="rounded-lg border border-outline bg-surface p-5">
+      <h2 class="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-on-surface">
+        @svg('tabler:route', { class: 'size-4' })
+        Trajet
+      </h2>
+      <div class="space-y-1.5 text-sm">
+        <div class="font-medium text-on-surface-strong">
+          {{ trip.route.departureCity.name }} → {{ trip.route.arrivalCity.name }}
+        </div>
+        <div class="text-on-surface">
+          Départ : {{ trip.departureTime.toFormat('dd MMM yyyy HH:mm', { locale: 'fr' }) }}
+        </div>
+        <div class="text-on-surface">
+          Arrivée : {{ trip.arrivalTime.toFormat('dd MMM yyyy HH:mm', { locale: 'fr' }) }}
+        </div>
+        <div class="mt-2 flex items-center gap-2">
+          @if(trip.travelClass === 'vip')
+          @!badge({ variant: 'info', text: 'VIP' })
+          @else
+          @!badge({ variant: 'neutral', text: 'Standard' })
+          @end
+          @if(trip.status === 'scheduled')
+          @!badge({ variant: 'info', text: 'Planifié' })
+          @elseif(trip.status === 'in_progress')
+          @!badge({ variant: 'warning', text: 'En cours' })
+          @elseif(trip.status === 'completed')
+          @!badge({ variant: 'success', text: 'Terminé' })
+          @else
+          @!badge({ variant: 'danger', text: 'Annulé' })
+          @end
+        </div>
+      </div>
+    </div>
+
+    {{-- Bus card --}}
+    <div class="rounded-lg border border-outline bg-surface p-5">
+      <h2 class="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-on-surface">
+        @svg('tabler:bus', { class: 'size-4' })
+        Véhicule
+      </h2>
+      <div class="space-y-1.5 text-sm">
+        <div class="font-medium text-on-surface-strong">{{ trip.bus.licensePlate }}</div>
+        <div class="text-on-surface">{{ trip.bus.brand }} {{ trip.bus.model }}</div>
+        <div class="text-on-surface">{{ Intl.NumberFormat('fr-FR').format(trip.bus.capacity) }} places</div>
+        <div class="text-on-surface font-medium text-on-surface-strong">
+          {{ Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XAF' }).format(trip.price) }}
+          <span class="font-normal text-on-surface">/ passager</span>
+        </div>
+      </div>
+    </div>
+
+    {{-- Driver card --}}
+    <div class="rounded-lg border border-outline bg-surface p-5">
+      <h2 class="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-on-surface">
+        @svg('tabler:steering-wheel', { class: 'size-4' })
+        Chauffeur
+      </h2>
+      <div class="space-y-1.5 text-sm">
+        <div class="font-medium text-on-surface-strong">{{ trip.driver.fullName }}</div>
+        <div class="text-on-surface">{{ trip.driver.phone }}</div>
+        @if(trip.driver.email)
+        <div class="text-on-surface">{{ trip.driver.email }}</div>
+        @end
+      </div>
+    </div>
+  </div>
+
+  {{-- Passengers section --}}
+  @let(totalPassengers = trip.bookings.reduce((sum, b) => sum + b.passengers.length, 0))
+  <div class="mt-8">
+    <div class="mb-4 flex items-center justify-between">
+      <h2 class="text-base font-semibold text-on-surface-strong">
+        Passagers
+        <span class="ml-2 text-sm font-normal text-on-surface">
+          ({{ Intl.NumberFormat('fr-FR').format(totalPassengers) }} / {{
+          Intl.NumberFormat('fr-FR').format(trip.bus.capacity) }})
+        </span>
+      </h2>
+    </div>
+
+    @table.root()
+    @table.header()
+    @table.cell({ head: true })
+    Réservation
+    @end
+    @table.cell({ head: true })
+    Nom
+    @end
+    @table.cell({ head: true })
+    Siège
+    @end
+    @table.cell({ head: true })
+    Téléphone
+    @end
+    @table.cell({ head: true })
+    Document
+    @end
+    @table.cell({ head: true })
+    Code
+    @end
+    @table.cell({ head: true })
+    Statut
+    @end
+    @end
+
+    <tbody>
+      @each(booking in trip.bookings)
+      @each(passenger in booking.passengers)
+      @table.row()
+      @table.cell()
+      <a href="{{ route('dashboard.bookings.show', { id: booking.id }) }}"
+        class="block text-xs text-primary hover:underline">
+        #{{ booking.id.substring(0, 8).toUpperCase() }}
+      </a>
+      @end
+      @table.cell()
+      <span class="font-medium text-on-surface-strong">{{ passenger.firstName }} {{ passenger.lastName }}</span>
+      @end
+      @table.cell()
+      {{ passenger.seatNumber }}
+      @end
+      @table.cell()
+      {{ passenger.phone }}
+      @end
+      @table.cell()
+      <span class="text-xs uppercase">{{ passenger.idDocumentType }}</span>
+      <span class="ml-1 text-xs text-on-surface">{{ passenger.idDocumentNumber }}</span>
+      @end
+      @table.cell()
+      <span class="font-mono text-xs">{{ passenger.code }}</span>
+      @end
+      @table.cell()
+      @if(passenger.status === 'boarded')
+      @!badge({ variant: 'success', text: 'Embarqué' })
+      @else
+      @!badge({ variant: 'warning', text: 'En attente' })
+      @end
+      @end
+      @end
+      @end
+      @end
+
+      @if(totalPassengers === 0)
+      @!table.empty({ colspan: 7, message: 'Aucun passager enregistré pour ce voyage.' })
+      @end
+    </tbody>
+    @end
+  </div>
+</div>
+@end

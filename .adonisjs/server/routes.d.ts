@@ -53,6 +53,7 @@ export type ScannedRoutes = {
     'trips.create': { paramsTuple?: []; params?: {} }
     'trips.store': { paramsTuple?: []; params?: {} }
     'trips.history': { paramsTuple?: []; params?: {} }
+    'trips.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'trips.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'trips.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'trips.transition': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -130,6 +131,7 @@ export type ScannedRoutes = {
     'trips.index': { paramsTuple?: []; params?: {} }
     'trips.create': { paramsTuple?: []; params?: {} }
     'trips.history': { paramsTuple?: []; params?: {} }
+    'trips.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'trips.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'public.bookings.passengers': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'public.bookings.customer': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -185,6 +187,7 @@ export type ScannedRoutes = {
     'trips.index': { paramsTuple?: []; params?: {} }
     'trips.create': { paramsTuple?: []; params?: {} }
     'trips.history': { paramsTuple?: []; params?: {} }
+    'trips.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'trips.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'public.bookings.passengers': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'public.bookings.customer': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }

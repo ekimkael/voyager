@@ -101,6 +101,14 @@
                   :style="pos"
                   class="fixed z-50 min-w-[160px] rounded-lg border border-outline bg-surface p-1 shadow-md" role="menu">
 
+                  <a href="{{ route('trips.show', { id: item.id }) }}" @click="open = false"
+                    class="flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-sm cursor-pointer text-on-surface-strong hover:bg-surface-alt transition-colors" role="menuitem">
+                    @svg('tabler:eye', { class: 'size-4' })
+                    Voir les détails
+                  </a>
+
+                  <div class="my-1 border-t border-outline" role="separator"></div>
+
                   @can('permission', 'trip:update')
                     @if(item.status === 'scheduled')
                       <form action="{{ route('trips.transition', { id: item.id }) }}" method="POST" class="w-full">

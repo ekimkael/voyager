@@ -25,6 +25,11 @@ router
       .use(middleware.permission({ keys: ['trip:read'] }))
 
     router
+      .get('/:id', [controllers.Trips, 'show'])
+      .as('trips.show')
+      .use(middleware.permission({ keys: ['trip:read'] }))
+
+    router
       .get('/:id/edit', [controllers.Trips, 'edit'])
       .as('trips.edit')
       .use(middleware.permission({ keys: ['trip:update'] }))

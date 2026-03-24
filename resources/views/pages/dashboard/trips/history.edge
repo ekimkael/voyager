@@ -1,12 +1,11 @@
 @layout.dashboard()
 <div class="mx-auto max-w-7xl">
-  <div class="mb-6 flex items-center justify-between">
-    <h1 class="text-2xl font-bold text-on-surface-strong">Historique des voyages</h1>
+  <div class="mb-6 flex items-center gap-3">
     <a href="{{ route('trips.index') }}"
-      class="inline-flex items-center gap-2 rounded-md border border-outline bg-surface px-4 py-2 text-sm font-medium text-on-surface shadow-xs hover:bg-surface-alt hover:text-on-surface-strong">
+      class="inline-flex items-center justify-center rounded-md border border-outline bg-surface p-2 text-on-surface shadow-xs hover:bg-surface-alt hover:text-on-surface-strong">
       @svg('tabler:arrow-left', { class: 'size-4' })
-      Retour aux voyages
     </a>
+    <h1 class="text-2xl font-bold text-on-surface-strong">Historique des voyages</h1>
   </div>
 
   @include('pages/dashboard/trips/_filters')
@@ -34,6 +33,8 @@
       @end
       @table.cell({ head: true })
         Statut
+      @end
+      @table.cell({ head: true })
       @end
     @end
 
@@ -69,11 +70,18 @@
               @!badge({ variant: 'danger', text: 'Annulé' })
             @end
           @end
+          @table.cell()
+            <a href="{{ route('trips.show', { id: item.id }) }}"
+              class="inline-flex items-center gap-1.5 text-sm text-primary hover:underline">
+              @svg('tabler:eye', { class: 'size-4' })
+              Détails
+            </a>
+          @end
         @end
       @end
 
       @if(!trips.length)
-        @!table.empty({ colspan: 7, message: 'Aucun voyage dans l\'historique' })
+        @!table.empty({ colspan: 8, message: 'Aucun voyage dans l\'historique' })
       @end
     </tbody>
   @end

@@ -1,14 +1,13 @@
 @layout.dashboard()
   <div class="mx-auto max-w-4xl">
-    <div class="mb-6 flex items-center justify-between">
+    <div class="mb-6 flex items-center gap-3">
+      <a href="{{ route('dashboard.bookings.index') }}"
+        class="inline-flex items-center justify-center rounded-md border border-outline bg-surface p-2 text-on-surface shadow-xs hover:bg-surface-alt hover:text-on-surface-strong">
+        @svg('tabler:arrow-left', { class: 'size-4' })
+      </a>
       <h1 class="text-2xl font-bold text-on-surface-strong">
         Réservation #{{ booking.id.substring(0, 8).toUpperCase() }}
       </h1>
-      <a href="{{ route('dashboard.bookings.index') }}"
-        class="inline-flex items-center gap-2 rounded-md border border-outline bg-surface px-4 py-2 text-sm font-medium text-on-surface shadow-xs hover:bg-surface-alt hover:text-on-surface-strong">
-        @svg('tabler:arrow-left', { class: 'size-4' })
-        Retour
-      </a>
     </div>
 
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">

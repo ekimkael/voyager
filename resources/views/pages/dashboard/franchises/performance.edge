@@ -1,14 +1,13 @@
 @layout.dashboard()
   <div class="mx-auto max-w-6xl">
-    <div class="mb-6 flex items-center justify-between">
+    <div class="mb-6 flex items-center gap-3">
+      <a href="{{ route('franchises.index') }}"
+        class="inline-flex items-center justify-center rounded-radius border border-outline p-2 text-on-surface hover:bg-surface-alt transition-colors">
+        @svg('tabler:arrow-left', { class: 'size-4' })
+      </a>
       <h1 class="text-2xl font-bold text-on-surface-strong">
         Performances — {{ franchise.name }}
       </h1>
-      <a href="{{ route('franchises.index') }}"
-        class="inline-flex items-center gap-2 rounded-radius border border-outline px-4 py-2.5 text-sm font-medium text-on-surface hover:bg-surface-alt transition-colors">
-        @svg('tabler:arrow-left', { class: 'size-4' })
-        <span>Retour aux franchises</span>
-      </a>
     </div>
 
     <div class="rounded-radius border border-outline bg-surface px-6 py-16 text-center">
