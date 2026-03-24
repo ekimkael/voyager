@@ -103,13 +103,15 @@
               @end
               @dropdown_menu.content()
                 @dropdown_menu.item({ href: route('dashboard.bookings.show', { id: item.id }) })
-                  @svg('tabler:eye', { class: 'size-4' }) Voir
+                  @svg('tabler:eye', { class: 'size-4' })
+                  Voir
                 @end
 
                 @can('permission', 'booking:update')
                   @if(item.status === 'confirmed')
                     @dropdown_menu.item({ href: route('dashboard.bookings.edit', { id: item.id }) })
-                      @svg('tabler:pencil', { class: 'size-4' }) Modifier
+                      @svg('tabler:pencil', { class: 'size-4' })
+                      Modifier
                     @end
                   @end
                 @end
@@ -119,7 +121,8 @@
                     @dropdown_menu.separator()
                     @end
                     @dropdown_menu.item({ href: route('dashboard.bookings.destroy', { id: item.id }), method: 'DELETE', variant: 'destructive', onclick: "return confirm('Annuler cette réservation ?')" })
-                      @svg('tabler:ban', { class: 'size-4' }) Annuler
+                      @svg('tabler:ban', { class: 'size-4' })
+                      Annuler
                     @end
                   @end
                 @end

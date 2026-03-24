@@ -89,19 +89,22 @@
                   @can('permission', 'trip:update')
                     @if(item.status === 'scheduled')
                       @dropdown_menu.item({ href: route('trips.transition', { id: item.id }), method: 'PUT', hiddenInputs: { status: 'in_progress' }, onclick: "return confirm('Démarrer ce voyage ?')" })
-                        @svg('tabler:player-play', { class: 'size-4' }) Démarrer
+                        @svg('tabler:player-play', { class: 'size-4' })
+                        Démarrer
                       @end
                     @end
 
                     @if(item.status === 'in_progress')
                       @dropdown_menu.item({ href: route('trips.transition', { id: item.id }), method: 'PUT', hiddenInputs: { status: 'completed' }, onclick: "return confirm('Marquer ce voyage comme terminé ?')" })
-                        @svg('tabler:circle-check', { class: 'size-4' }) Compléter
+                        @svg('tabler:circle-check', { class: 'size-4' })
+                        Compléter
                       @end
                     @end
 
                     @if(item.status === 'scheduled' || item.status === 'in_progress')
                       @dropdown_menu.item({ href: route('trips.edit', { id: item.id }) })
-                        @svg('tabler:pencil', { class: 'size-4' }) Modifier
+                        @svg('tabler:pencil', { class: 'size-4' })
+                        Modifier
                       @end
                     @end
                   @end
@@ -114,7 +117,8 @@
                   @can('permission', 'trip:update')
                     @if(item.status === 'scheduled' || item.status === 'in_progress')
                       @dropdown_menu.item({ href: route('trips.transition', { id: item.id }), method: 'PUT', variant: 'destructive', hiddenInputs: { status: 'cancelled' }, onclick: "return confirm('Annuler ce voyage ?')" })
-                        @svg('tabler:x', { class: 'size-4' }) Annuler
+                        @svg('tabler:x', { class: 'size-4' })
+                        Annuler
                       @end
                     @end
                   @end
@@ -122,7 +126,8 @@
                   @can('permission', 'trip:delete')
                     @if(item.status === 'scheduled')
                       @dropdown_menu.item({ href: route('trips.destroy', { id: item.id }), method: 'DELETE', variant: 'destructive', onclick: "return confirm('Supprimer ce voyage ?')" })
-                        @svg('tabler:trash', { class: 'size-4' }) Supprimer
+                        @svg('tabler:trash', { class: 'size-4' })
+                        Supprimer
                       @end
                     @end
                   @end
