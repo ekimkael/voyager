@@ -1,0 +1,19 @@
+@let(action = $props.get('action') || '')
+@let(cols = String($props.get('cols') || '4'))
+@let(colsMap = { '3': 'lg:grid-cols-3', '4': 'lg:grid-cols-4', '6': 'lg:grid-cols-6' })
+@let(colsClass = colsMap[cols] || colsMap['4'])
+
+<form method="GET" {{ action ? `action="${action}"` : '' }} class="mb-6">
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 {{ colsClass }}">
+    {{{ await $slots.main() }}}
+  </div>
+  <div class="mt-4 flex items-center gap-3">
+    @button({ type: 'submit', variant: 'default', size: 'sm' })
+      @svg('tabler:filter', { class: 'size-4' })
+      Filtrer
+    @end
+    <a href="{{ action || request.url() }}" class="text-sm text-on-surface hover:text-on-surface-strong transition-colors">
+      Réinitialiser
+    </a>
+  </div>
+</form>

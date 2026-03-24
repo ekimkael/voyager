@@ -1,0 +1,9 @@
+@let(label = $props.get('label'))
+@let(fieldName = $props.get('name'))
+
+<div>
+  @if(label)
+    <label for="{{ fieldName }}" class="mb-1 block text-sm font-medium text-on-surface-strong">{{ label }}</label>
+  @end
+  {{{ await $slots.main() }}}
+</div>
