@@ -41,7 +41,7 @@ export default class PasswordResetController {
       expiresAt: DateTime.now().plus({ hours: 1 }),
     })
 
-    const resetUrl = `${env.get('APP_URL')}/password/reset?token=${token}`
+    const resetUrl = `${env.get('APP_URL')}/auth/password/reset?token=${token}`
 
     await mail.send(new PasswordResetMail(user, resetUrl))
 

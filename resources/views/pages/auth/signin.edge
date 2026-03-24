@@ -1,0 +1,46 @@
+@layout.auth({
+badgeText: 'Plateforme active',
+dotClass: 'bg-emerald-400',
+heroTitle: 'Gérez vos voyages, réservations et passagers en un seul endroit.',
+heroDescription: 'Rejoignez les compagnies de transport qui simplifient leurs opérations avec Voyager.',
+pageTitle: 'Connexion',
+pageDescription: 'Entrez vos identifiants pour accéder à votre espace',
+})
+@form({ route: 'session.store', method: 'POST' })
+<div class="flex flex-col gap-5">
+  <div>
+    @field.root({ name: 'email' })
+    @!field.label({ text: 'Email' })
+    @!input.control({ type: 'email', placeholder: 'vous@example.com' })
+    @!field.error()
+    @end
+  </div>
+
+  <div>
+    @field.root({ name: 'password' })
+    <div class="flex items-center justify-between">
+      @!field.label({ text: 'Mot de passe' })
+
+      <a href="{{ route('password.forgot') }}"
+        class="text-sm text-on-surface hover:text-on-surface-strong hover:underline transition-colors">
+        Mot de passe oublié ?
+      </a>
+    </div>
+
+    @!input.control({ type: 'password', placeholder: '••••••••' })
+    @!field.error()
+    @end
+  </div>
+
+  <div class="pt-1">
+    @!button({ text: 'Se connecter', type: 'submit', class: 'w-full' })
+  </div>
+</div>
+@end
+
+<p class="mt-6 text-center text-sm text-on-surface">
+  Pas encore de compte ?
+  <a href="{{ route('new_account.create') }}" class="font-medium text-on-surface-strong hover:underline">Créer
+    un compte</a>
+</p>
+@end

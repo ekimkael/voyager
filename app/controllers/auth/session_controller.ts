@@ -4,7 +4,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 
 export default class SessionController {
   async create({ view }: HttpContext) {
-    return view.render('pages/auth/login')
+    return view.render('pages/auth/signin')
   }
 
   async store({ request, auth, response }: HttpContext) {

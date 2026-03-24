@@ -1,0 +1,49 @@
+@layout.base()
+<div class="flex min-h-screen">
+  <div class="auth-panel-bg relative hidden flex-col justify-between overflow-hidden p-10 lg:flex lg:w-1/2 xl:w-[50%]">
+    <div class="pointer-events-none absolute inset-0 opacity-[0.04]"
+      style="background-image: url(&quot;data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E&quot;)">
+    </div>
+
+    <a href="/" class="relative z-10 text-xl font-bold tracking-tight text-white">Voyager</a>
+
+    <div class="relative z-10">
+      <div class="animate-float">
+        <div
+          class="mb-8 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm text-white/80 backdrop-blur-sm">
+          <span class="inline-block size-2 rounded-full {{ dotClass || 'bg-emerald-400' }}"></span>
+          {{ badgeText || 'Plateforme active' }}
+        </div>
+      </div>
+      <h2 class="text-3xl font-semibold leading-tight text-white xl:text-4xl">
+        {{ heroTitle || 'Gerez vos voyages, reservations et passagers en un seul endroit.' }}
+      </h2>
+      <p class="mt-4 max-w-md text-base leading-relaxed text-white/60">
+        {{ heroDescription || 'Rejoignez les compagnies de transport qui simplifient leurs operations avec Voyager.' }}
+      </p>
+    </div>
+
+    <p class="relative z-10 text-sm text-white/40">&copy; {{ new Date().getFullYear() }} Voyager</p>
+  </div>
+
+  <div class="flex flex-1 flex-col">
+
+    @include('partials/flash_alerts')
+
+    <div class="flex flex-1 items-center justify-center px-6 pb-12 sm:px-10">
+      <div class="w-full max-w-md animate-fade-rise">
+        @if(pageTitle)
+        <div class="mb-8">
+          <h1 class="text-3xl font-semibold tracking-tight text-on-surface-strong">{{ pageTitle }}</h1>
+          @if(pageDescription)
+          <p class="mt-2 text-base text-on-surface">{{ pageDescription }}</p>
+          @end
+        </div>
+        @end
+
+        {{{ await $slots.main() }}}
+      </div>
+    </div>
+  </div>
+</div>
+@end
