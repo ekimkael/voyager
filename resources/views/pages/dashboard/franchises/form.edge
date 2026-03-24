@@ -9,11 +9,11 @@
     <div class="rounded-radius border border-outline bg-surface p-6">
       @if(franchise)
         @form({ route: 'franchises.update', routeParams: { id: franchise.id }, method: 'PUT' })
-          @include('partials/franchises/form_fields')
+          @include('pages/dashboard/franchises/_form_fields')
         @end
       @else
         @form({ route: 'franchises.store', method: 'POST' })
-          @include('partials/franchises/form_fields')
+          @include('pages/dashboard/franchises/_form_fields')
         @end
       @end
     </div>
