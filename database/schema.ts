@@ -164,6 +164,21 @@ export class PassengerSchema extends BaseModel {
   declare status: any
 }
 
+export class PasswordResetTokenSchema extends BaseModel {
+  static $columns = ['createdAt', 'expiresAt', 'id', 'token', 'userId'] as const
+  $columns = PasswordResetTokenSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column.dateTime()
+  declare expiresAt: DateTime
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare token: string
+  @column()
+  declare userId: string
+}
+
 export class PaymentSchema extends BaseModel {
   static $columns = ['amount', 'bookingId', 'createdAt', 'externalReference', 'id', 'operator', 'paidAt', 'paymentMethod', 'status'] as const
   $columns = PaymentSchema.$columns

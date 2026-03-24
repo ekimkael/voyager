@@ -26,4 +26,5 @@ export const controllers = {
   Session: () => import('#controllers/session_controller'),
   Tickets: () => import('#controllers/tickets_controller'),
   Trips: () => import('#controllers/trips_controller'),
+  PasswordReset: () => import('#controllers/password_reset_controller'),
 }

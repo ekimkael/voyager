@@ -8,6 +8,10 @@ export type ScannedRoutes = {
     'new_account.store': { paramsTuple?: []; params?: {} }
     'session.create': { paramsTuple?: []; params?: {} }
     'session.store': { paramsTuple?: []; params?: {} }
+    'password.forgot': { paramsTuple?: []; params?: {} }
+    'password.sendResetLink': { paramsTuple?: []; params?: {} }
+    'password.reset': { paramsTuple?: []; params?: {} }
+    'password.update': { paramsTuple?: []; params?: {} }
     'session.destroy': { paramsTuple?: []; params?: {} }
     'dashboard.index': { paramsTuple?: []; params?: {} }
     'cities.index': { paramsTuple?: []; params?: {} }
@@ -102,6 +106,8 @@ export type ScannedRoutes = {
   GET: {
     'new_account.create': { paramsTuple?: []; params?: {} }
     'session.create': { paramsTuple?: []; params?: {} }
+    'password.forgot': { paramsTuple?: []; params?: {} }
+    'password.reset': { paramsTuple?: []; params?: {} }
     'dashboard.index': { paramsTuple?: []; params?: {} }
     'cities.index': { paramsTuple?: []; params?: {} }
     'cities.create': { paramsTuple?: []; params?: {} }
@@ -155,6 +161,8 @@ export type ScannedRoutes = {
   HEAD: {
     'new_account.create': { paramsTuple?: []; params?: {} }
     'session.create': { paramsTuple?: []; params?: {} }
+    'password.forgot': { paramsTuple?: []; params?: {} }
+    'password.reset': { paramsTuple?: []; params?: {} }
     'dashboard.index': { paramsTuple?: []; params?: {} }
     'cities.index': { paramsTuple?: []; params?: {} }
     'cities.create': { paramsTuple?: []; params?: {} }
@@ -208,6 +216,8 @@ export type ScannedRoutes = {
   POST: {
     'new_account.store': { paramsTuple?: []; params?: {} }
     'session.store': { paramsTuple?: []; params?: {} }
+    'password.sendResetLink': { paramsTuple?: []; params?: {} }
+    'password.update': { paramsTuple?: []; params?: {} }
     'session.destroy': { paramsTuple?: []; params?: {} }
     'cities.store': { paramsTuple?: []; params?: {} }
     'routes.store': { paramsTuple?: []; params?: {} }
