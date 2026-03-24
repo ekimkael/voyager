@@ -4,7 +4,11 @@ import Permission from '#models/permission'
 import RolePermission from '#models/role_permission'
 import UserRoleAssignment from '#models/user_role_assignment'
 import db from '@adonisjs/lucid/services/db'
-import { createRoleValidator, updateRoleValidator, syncPermissionsValidator } from '#validators/role'
+import {
+  createRoleValidator,
+  updateRoleValidator,
+  syncPermissionsValidator,
+} from '#validators/role'
 
 export default class RolesController {
   async index({ view, tenant }: HttpContext) {
@@ -26,15 +30,13 @@ export default class RolesController {
       }
     }
 
-    return view.render('pages/roles/index', { rootRoles, childMap })
+    return view.render('pages/dashboard/roles/index', { rootRoles, childMap })
   }
 
   async create({ view, tenant }: HttpContext) {
-    const roles = await Role.query()
-      .where('tenantId', tenant!.id)
-      .orderBy('name')
+    const roles = await Role.query().where('tenantId', tenant!.id).orderBy('name')
 
-    return view.render('pages/roles/form', { roles })
+    return view.render('pages/dashboard/roles/form', { roles })
   }
 
   async store({ request, response, session, tenant }: HttpContext) {
@@ -100,7 +102,10 @@ export default class RolesController {
         .firstOrFail()
 
       for (const rp of parentRole.rolePermissions) {
-        if (!directPermissionIds.has(rp.permissionId) && !inheritedPermissions.has(rp.permissionId)) {
+        if (
+          !directPermissionIds.has(rp.permissionId) &&
+          !inheritedPermissions.has(rp.permissionId)
+        ) {
           inheritedPermissions.set(rp.permissionId, parentRole.name)
         }
       }
@@ -161,12 +166,17 @@ export default class RolesController {
         actions: Object.fromEntries(
           crudActions.map((action) => [
             action,
-            actions.get(action) || { permissionId: null, granted: false, inherited: false, from: null },
+            actions.get(action) || {
+              permissionId: null,
+              granted: false,
+              inherited: false,
+              from: null,
+            },
           ])
         ),
       }))
 
-    return view.render('pages/roles/show', {
+    return view.render('pages/dashboard/roles/show', {
       role,
       crudGrid,
       crudActions,
@@ -190,7 +200,7 @@ export default class RolesController {
       .whereNot('id', role.id)
       .orderBy('name')
 
-    return view.render('pages/roles/form', { role, roles })
+    return view.render('pages/dashboard/roles/form', { role, roles })
   }
 
   async update({ params, request, response, session, tenant }: HttpContext) {
@@ -274,9 +284,7 @@ export default class RolesController {
       return response.redirect().toRoute('roles.index')
     }
 
-    const childCount = await Role.query()
-      .where('parentRoleId', role.id)
-      .count('* as total')
+    const childCount = await Role.query().where('parentRoleId', role.id).count('* as total')
 
     if (Number(childCount[0].$extras.total) > 0) {
       session.flash('error', 'Impossible de supprimer un rôle qui a des rôles enfants.')

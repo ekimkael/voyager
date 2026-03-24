@@ -3,7 +3,7 @@ import { updateProfileValidator } from '#validators/profile'
 
 export default class ProfileController {
   async show({ view, auth }: HttpContext) {
-    return view.render('pages/profile/index', {
+    return view.render('pages/dashboard/profile/index', {
       user: auth.user!,
     })
   }

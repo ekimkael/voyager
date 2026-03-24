@@ -21,7 +21,9 @@ export default class EmployeesController {
       .orderBy('firstName')
       .orderBy('lastName')
 
-    const isScopedToFranchise = !!(auth.user!.franchiseId && !(await this.isAdminOrDispatcher(auth.user!.id, tenant!.id)))
+    const isScopedToFranchise = !!(
+      auth.user!.franchiseId && !(await this.isAdminOrDispatcher(auth.user!.id, tenant!.id))
+    )
 
     if (isScopedToFranchise) {
       query.where('franchiseId', auth.user!.franchiseId!)
@@ -41,7 +43,7 @@ export default class EmployeesController {
       .preload('city')
       .orderBy('name')
 
-    return view.render('pages/employees/index', {
+    return view.render('pages/dashboard/employees/index', {
       employees,
       franchises,
       filterFranchiseId,
@@ -50,7 +52,9 @@ export default class EmployeesController {
   }
 
   async create({ view, tenant, auth }: HttpContext) {
-    const isScopedToFranchise = !!(auth.user!.franchiseId && !(await this.isAdminOrDispatcher(auth.user!.id, tenant!.id)))
+    const isScopedToFranchise = !!(
+      auth.user!.franchiseId && !(await this.isAdminOrDispatcher(auth.user!.id, tenant!.id))
+    )
 
     const franchises = await Franchise.query()
       .where('tenantId', tenant!.id)
@@ -63,7 +67,7 @@ export default class EmployeesController {
       .where('isSystem', true)
       .orderBy('name')
 
-    return view.render('pages/employees/form', {
+    return view.render('pages/dashboard/employees/form', {
       franchises,
       roles,
       isScopedToFranchise,
@@ -75,7 +79,9 @@ export default class EmployeesController {
     const payload = await request.validateUsing(createEmployeeValidator)
 
     // Server-side enforcement: scoped agents can only create employees in their own franchise
-    const isScopedToFranchise = !!(auth.user!.franchiseId && !(await this.isAdminOrDispatcher(auth.user!.id, tenant!.id)))
+    const isScopedToFranchise = !!(
+      auth.user!.franchiseId && !(await this.isAdminOrDispatcher(auth.user!.id, tenant!.id))
+    )
     if (isScopedToFranchise) {
       payload.franchiseId = auth.user!.franchiseId!
     }
@@ -125,7 +131,9 @@ export default class EmployeesController {
       })
       .firstOrFail()
 
-    const isScopedToFranchise = !!(auth.user!.franchiseId && !(await this.isAdminOrDispatcher(auth.user!.id, tenant!.id)))
+    const isScopedToFranchise = !!(
+      auth.user!.franchiseId && !(await this.isAdminOrDispatcher(auth.user!.id, tenant!.id))
+    )
 
     const franchises = await Franchise.query()
       .where('tenantId', tenant!.id)
@@ -138,7 +146,7 @@ export default class EmployeesController {
       .where('isSystem', true)
       .orderBy('name')
 
-    return view.render('pages/employees/form', {
+    return view.render('pages/dashboard/employees/form', {
       employee,
       franchises,
       roles,
@@ -156,7 +164,9 @@ export default class EmployeesController {
     const payload = await request.validateUsing(updateEmployeeValidator)
 
     // Server-side enforcement: scoped agents can only assign employees to their own franchise
-    const isScopedToFranchise = !!(auth.user!.franchiseId && !(await this.isAdminOrDispatcher(auth.user!.id, tenant!.id)))
+    const isScopedToFranchise = !!(
+      auth.user!.franchiseId && !(await this.isAdminOrDispatcher(auth.user!.id, tenant!.id))
+    )
     if (isScopedToFranchise) {
       payload.franchiseId = auth.user!.franchiseId!
     }
@@ -255,7 +265,7 @@ export default class EmployeesController {
       .if(assignedRoleIds.length > 0, (q) => q.whereNotIn('id', assignedRoleIds))
       .orderBy('name')
 
-    return view.render('pages/employees/roles', {
+    return view.render('pages/dashboard/employees/roles', {
       employee,
       assignments,
       availableRoles,

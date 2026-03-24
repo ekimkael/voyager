@@ -4,7 +4,7 @@ import { updatePasswordValidator } from '#validators/profile'
 
 export default class SecurityController {
   async show({ view, auth }: HttpContext) {
-    return view.render('pages/profile/security', {
+    return view.render('pages/dashboard/profile/security', {
       user: auth.user!,
     })
   }

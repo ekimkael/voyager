@@ -94,7 +94,10 @@
             @end
           </td>
           <td class="px-6 py-4 text-on-surface">{{ item.passengers.length }}</td>
-          <td class="px-6 py-4 text-on-surface">{{ item.totalAmount }} FCFA</td>
+          <td class="px-6 py-4 text-on-surface">
+            {{ Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XAF'
+            }).format(item.totalAmount) }}
+          </td>
           <td class="px-6 py-4">
             @if(item.status === 'pending')
             <span
