@@ -20,15 +20,16 @@ Add a `README.md` and `CHANGELOG.md` to the project root. Content in English. Th
    - Fleet management (buses, routes, cities, franchises, employees)
    - Route and trip planning
    - User profiles with email change confirmation flow
+   - Real-time updates via SSE (AdonisJS Transmit)
    - Email notifications via SMTP
    - Dashboard with admin UI
 4. **Tech Stack** — Table: technology | role (AdonisJS v7, Lucid ORM, Edge.js, VineJS, Alpine.js, Tailwind CSS v4, Vite, PostgreSQL, Japa)
 5. **Prerequisites** — Node >= 24, PostgreSQL, npm
-6. **Getting Started** — Steps: clone, `npm install`, copy `.env.example` to `.env`, configure DB, run migrations (`node ace migration:run`), seed (`node ace db:seed`), start dev server (`npm run dev`)
+6. **Getting Started** — Steps: clone, `npm install`, copy `.env.example` to `.env`, generate app key (`node ace generate:key`), configure DB and SMTP credentials, run migrations (`node ace migration:run`), seed (`node ace db:seed`), start dev server (`npm run dev`)
 7. **Scripts** — Table of npm scripts: dev, build, start, test, lint, format, typecheck
 8. **Project Structure** — Simplified tree of key directories (app/, config/, database/, resources/, start/, tests/)
 9. **Contributing** — Branch from `develop`, use conventional commits, run `npm run lint && npm run format` before PRs
-10. **License** — "Proprietary — All rights reserved."
+10. **License** — "This project is proprietary and unlicensed (UNLICENSED)."
 
 ### Style notes
 
@@ -48,7 +49,7 @@ Follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) with [Semantic V
 
 All entries under `### Added`, grouped by feature area:
 
-- **Core Platform**: AdonisJS v7 application setup, multi-tenant architecture, session-based authentication, PostgreSQL with UUID primary keys
+- **Core Platform**: AdonisJS v7 application setup, multi-tenant architecture, session-based authentication, PostgreSQL with UUID primary keys, real-time SSE via AdonisJS Transmit
 - **RBAC**: Four system roles (Admin, Dispatcher, Driver, Reader), 70+ granular permissions, Bouncer-based authorization, permission middleware
 - **Fleet Management**: CRUD for buses, routes, cities, employees, franchises, roles
 - **Booking & Ticketing**: Reservation system, PDF ticket generation with QR codes, seat allocation
@@ -60,8 +61,7 @@ All entries under `### Added`, grouped by feature area:
 
 ## Implementation
 
-This is a documentation-only task. Two files to create at the project root:
-- `README.md`
-- `CHANGELOG.md`
-
-No code changes required.
+This is a documentation-only task. Files to create/update:
+- Create `README.md` at project root
+- Create `CHANGELOG.md` at project root
+- Update `package.json` version from `0.0.0` to `1.0.0` to match the CHANGELOG anchor
