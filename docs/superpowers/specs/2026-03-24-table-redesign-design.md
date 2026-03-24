@@ -58,13 +58,30 @@ Container du menu déroulant avec Alpine.js.
 
 ### `dropdown-menu/trigger.edge`
 
-Bouton déclencheur du menu. Utilise le composant `button` existant avec variant `ghost` et size `icon-xs`.
+Bouton déclencheur du menu. Utilise le composant `@button` existant avec variant `ghost` et size `icon-xs`.
+
+**Markup de sortie :**
+```edge
+@button({ variant: 'ghost', size: 'icon-xs', '@click': 'open = !open', type: 'button' })
+  @svg('tabler:dots')
+@end
+```
+
+### `dropdown-menu/content.edge`
+
+Panneau flottant du menu. Contient les items et séparateurs.
+
+**Props :**
+- `align` : `left` | `right` (défaut: `right`) — passé explicitement, ou lu depuis Alpine `x-data` du root
 
 **Markup de sortie :**
 ```html
-<button @click="open = !open" variant="ghost" size="icon-xs">
-  <svg>tabler:dots</svg>
-</button>
+<div x-show="open"
+     x-transition
+     @click.outside="open = false"
+     class="absolute {alignRight ? 'right-0' : 'left-0'} z-50 mt-1 min-w-[160px] rounded-lg border border-outline bg-surface p-1 shadow-md">
+  {slot}
+</div>
 ```
 
 ### `dropdown-menu/item.edge`
@@ -76,23 +93,28 @@ Bouton déclencheur du menu. Utilise le composant `button` existant avec variant
 - `variant` : `default` | `destructive` (défaut: `default`)
 - `method` : Pour les actions non-GET, wrappé dans un micro-formulaire avec CSRF + method spoofing
 
+Le slot principal contient l'icône + texte. Pour les formulaires nécessitant des champs hidden supplémentaires (ex: `<input type="hidden" name="status" value="in_progress">`), un slot nommé `@slot('hiddenFields')` est disponible à l'intérieur du `<form>`.
+
 **Markup de sortie (lien) :**
 ```html
-<a href="{href}" class="flex items-center gap-2 px-3 py-1.5 text-sm text-on-surface-strong hover:bg-surface-alt rounded-md">
+<a href="{href}" class="flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-sm text-on-surface-strong hover:bg-surface-alt">
   {slot}
 </a>
 ```
 
-**Markup de sortie (destructive avec method) :**
+**Markup de sortie (form avec method) :**
 ```html
 <form action="{href}" method="POST">
-  {csrfField}
+  {{ csrfField() }}
   {methodSpoofField}
-  <button type="submit" class="... text-danger ...">
+  {{{ await $slots.hiddenFields?.() }}}
+  <button type="submit" class="flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-sm {variantClasses} hover:bg-surface-alt">
     {slot}
   </button>
 </form>
 ```
+
+Variant classes : `default` → `text-on-surface-strong`, `destructive` → `text-danger`.
 
 ### `dropdown-menu/separator.edge`
 
@@ -200,7 +222,9 @@ Remplace le composant existant. Style complet inspiré shadcn.
 </div>
 ```
 
-Chaque bouton nav : `button` variant `outline` size `icon-xs`, icônes `tabler:chevrons-left`, `tabler:chevron-left`, `tabler:chevron-right`, `tabler:chevrons-right`. Boutons désactivés quand sur la première/dernière page.
+Chaque bouton nav : `@button` composant existant, variant `outline` size `icon-xs`, icônes `tabler:chevrons-left`, `tabler:chevron-left`, `tabler:chevron-right`, `tabler:chevrons-right`. Boutons désactivés quand sur la première/dernière page.
+
+**Invocation :** `@!pagination({ paginator })` (syntaxe self-closing, identique à l'existant).
 
 ### `filter/bar.edge`
 
@@ -208,18 +232,19 @@ Barre de filtres en formulaire GET.
 
 **Props :**
 - `action` : URL du formulaire (défaut: URL courante)
-- `cols` : nombre de colonnes de la grille (défaut: `4`)
+- `cols` : nombre de colonnes de la grille sur desktop (défaut: `4`). Valeurs supportées : `3`, `4`, `6`. Mappé vers des classes Tailwind statiques pour compatibilité JIT : `3` → `lg:grid-cols-3`, `4` → `lg:grid-cols-4`, `6` → `lg:grid-cols-6`.
 
 **Markup de sortie :**
-```html
+```edge
+@let(colsMap = { '3': 'lg:grid-cols-3', '4': 'lg:grid-cols-4', '6': 'lg:grid-cols-6' })
 <form method="GET" action="{action}" class="mb-6">
-  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-{cols}">
-    {slot}
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 {{ colsMap[cols] || colsMap['4'] }}">
+    {{{ await $slots.main() }}}
   </div>
   <div class="mt-4 flex items-center gap-3">
-    <button type="submit" variant="default" size="sm">
-      <svg>tabler:filter</svg> Filtrer
-    </button>
+    @button({ type: 'submit', variant: 'default', size: 'sm' })
+      @svg('tabler:filter') Filtrer
+    @end
     <a href="{action}" class="text-sm text-on-surface hover:text-on-surface-strong">Réinitialiser</a>
   </div>
 </form>
@@ -264,11 +289,11 @@ Note : Le slot utilise directement les composants `input/control` ou `select/con
 | 6 | Statut | `@badge` : confirmed→success, pending→warning, cancelled→danger | |
 | 7 | | `@dropdown-menu` | Pas de header |
 
-**Actions dropdown :**
-- Voir (`@svg('tabler:eye')`) → lien vers `route('bookings.show', { id })`
-- Modifier (`@svg('tabler:pencil')`) → lien vers `route('bookings.edit', { id })` — conditionnel : `booking.status === 'confirmed'`
+**Actions dropdown :** (toutes wrappées dans les `@can` existants)
+- Voir (`@svg('tabler:eye')`) → lien vers `route('dashboard.bookings.show', { id: booking.id })`
+- Modifier (`@svg('tabler:pencil')`) → lien vers `route('dashboard.bookings.edit', { id: booking.id })` — conditionnel : `booking.status === 'confirmed'`, wrappé dans `@can('permission', 'booking:update')`
 - `@dropdown-menu.separator`
-- Annuler (`@svg('tabler:ban')`, variant destructive) → form DELETE vers `route('bookings.destroy', { id })` — conditionnel : `booking.status !== 'cancelled'`
+- Annuler (`@svg('tabler:ban')`, variant destructive) → form DELETE vers `route('dashboard.bookings.destroy', { id: booking.id })` — conditionnel : `booking.status !== 'cancelled'`, wrappé dans `@can('permission', 'booking:update')`
 
 **État vide :** `@table.empty` colspan=7, message="Aucune réservation trouvée"
 
@@ -291,13 +316,13 @@ Note : Le slot utilise directement les composants `input/control` ou `select/con
 | 7 | Statut | `@badge` : scheduled→info, in_progress→warning |
 | 8 | | `@dropdown-menu` |
 
-**Actions dropdown (conditionnelles selon statut) :**
-- Démarrer (`@svg('tabler:player-play')`) → form PUT transition, condition: `scheduled`
-- Compléter (`@svg('tabler:check')`) → form PUT transition, condition: `in_progress`
-- Modifier (`@svg('tabler:pencil')`) → lien edit, condition: `scheduled` ou `in_progress`
+**Actions dropdown (conditionnelles selon statut, wrappées dans `@can`) :**
+- Démarrer (`@svg('tabler:player-play')`) → form PUT vers `route('trips.transition', { id: trip.id })` avec hidden `name="status" value="in_progress"`, condition: `scheduled`, wrappé dans `@can('permission', 'trip:update')`
+- Compléter (`@svg('tabler:check')`) → form PUT vers `route('trips.transition', { id: trip.id })` avec hidden `name="status" value="completed"`, condition: `in_progress`, wrappé dans `@can('permission', 'trip:update')`
+- Modifier (`@svg('tabler:pencil')`) → lien vers `route('trips.edit', { id: trip.id })`, condition: `scheduled` ou `in_progress`, wrappé dans `@can('permission', 'trip:update')`
 - `@dropdown-menu.separator`
-- Annuler (`@svg('tabler:x')`, destructive) → form PUT transition, condition: `scheduled` ou `in_progress`
-- Supprimer (`@svg('tabler:trash')`, destructive) → form DELETE, condition: `scheduled`
+- Annuler (`@svg('tabler:x')`, destructive) → form PUT vers `route('trips.transition', { id: trip.id })` avec hidden `name="status" value="cancelled"`, condition: `scheduled` ou `in_progress`, wrappé dans `@can('permission', 'trip:update')`
+- Supprimer (`@svg('tabler:trash')`, destructive) → form DELETE vers `route('trips.destroy', { id: trip.id })`, condition: `scheduled`, wrappé dans `@can('permission', 'trip:delete')`
 
 **État vide :** `@table.empty` colspan=8, message="Aucun voyage actif"
 
@@ -305,7 +330,7 @@ Note : Le slot utilise directement les composants `input/control` ou `select/con
 
 ### `/dashboard/trips/history`
 
-**Toolbar :** `@filter.bar` avec `cols="3"`
+**Toolbar :** `@filter.bar` avec `cols="6"` (9 champs, 6 colonnes sur desktop comme l'existant)
 - Statut : select (Tous, Terminé, Annulé)
 - Route : select (routes avec code + villes)
 - Chauffeur : select (noms complets)
