@@ -134,6 +134,32 @@ resources/
 - Permissions dans les vues : `@can('permission', 'key')`
 - URLs : `route('route.name', { params })`
 
+### Pièges Edge.js (scope et parsing)
+- **Jamais de texte inline après un tag Edge.js** : `@component()Texte@end` provoque "Unexpected token". Toujours mettre le contenu sur des lignes séparées :
+  ```edge
+  {{-- MAUVAIS --}}
+  @table.cell({ head: true })Route@end
+
+  {{-- BON --}}
+  @table.cell({ head: true })
+    Route
+  @end
+  ```
+- **Jamais de texte après `@svg()` sur la même ligne** : `@svg('tabler:eye') Voir` provoque une erreur. Séparer sur deux lignes.
+- **Composants sans slot = syntaxe self-closing `@!`** : Si un composant n'utilise pas `$slots.main()` (ex: badge avec prop `text`, separator, empty), utiliser `@!component()` et non `@component()...@end`. Un `@end` superflu peut casser le scope parent.
+  ```edge
+  {{-- MAUVAIS --}}
+  @!badge({ variant: 'success', text: 'OK' })
+  @dropdown_menu.separator()
+  @end
+
+  {{-- BON --}}
+  @!badge({ variant: 'success', text: 'OK' })
+  @!dropdown_menu.separator()
+  ```
+- **Le composant `button/index.edge` rend un `<button>`, pas un `<a>`** : Pour des liens stylés comme des boutons, utiliser une balise `<a>` avec les classes Tailwind du bouton. Ne pas passer `href` à `@button()`.
+- **Perte de scope dans les composants imbriqués** : Les variables `@each` (ex: `item`) sont perdues dans les slots de composants profondément imbriqués (4+ niveaux). Dans les boucles `@each`, préférer du HTML inline pour les structures complexes (dropdown menus avec conditions) plutôt que des composants imbriqués.
+
 ### Organisation des vues
 
 **Composants globaux** (`resources/views/components/`) :
@@ -148,6 +174,10 @@ resources/
 - `alert/` — root.edge, title.edge, description.edge
 - `button/` — index.edge (variants: default, destructive, outline, secondary, ghost, link; sizes: default, xs, sm, lg, icon, icon-xs, icon-sm, icon-lg), group.edge
 - `sidebar/` — header.edge, content.edge, footer.edge, group.edge, group_label.edge, menu.edge, menu_item.edge, menu_button.edge, separator.edge, trigger.edge
+- `badge/` — index.edge (variants: success, warning, danger, info, neutral; icône + texte)
+- `dropdown_menu/` — root.edge, trigger.edge, content.edge, item.edge (props: href, method, variant, hiddenInputs), separator.edge
+- `table/` — root.edge, header.edge, row.edge, cell.edge (prop: head), empty.edge (props: colspan, message)
+- `filter/` — bar.edge (props: action, cols), field.edge (props: label, name)
 - `avatar.edge`, `link.edge`, `pagination.edge`
 
 **Partials globaux** (`resources/views/partials/`) :
@@ -181,3 +211,6 @@ Exemples :
 - Ne pas créer de routes sans nommage (.as())
 - Ne pas hardcoder les permissions, utiliser `config/rbac.ts`
 - Ne pas utiliser `@set()` dans Edge.js, utiliser `@let()`
+- Ne pas imbriquer des composants Edge.js dans des boucles `@each` au-delà de 3 niveaux (utiliser du HTML inline)
+- Ne pas mettre du texte sur la même ligne qu'un tag Edge.js (`@svg()`, `@component()...@end`)
+- Ne pas utiliser `@component()...@end` pour les composants sans slot (utiliser `@!component()`)
