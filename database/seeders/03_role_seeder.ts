@@ -1,5 +1,5 @@
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
-import Tenant from '#models/tenant'
+import Company from '#models/company'
 import Role from '#models/role'
 import Permission from '#models/permission'
 import RolePermission from '#models/role_permission'
@@ -7,14 +7,14 @@ import { systemRoles } from '#config/rbac'
 
 export default class extends BaseSeeder {
   async run() {
-    const tenants = await Tenant.all()
+    const companies = await Company.all()
     const allPermissions = await Permission.all()
     const permissionMap = new Map(allPermissions.map((p) => [`${p.resource}:${p.action}`, p]))
 
-    for (const tenant of tenants) {
+    for (const company of companies) {
       for (const roleDef of systemRoles) {
         const role = await Role.updateOrCreate(
-          { tenantId: tenant.id, name: roleDef.name },
+          { companyId: company.id, name: roleDef.name },
           { scope: 'global', isSystem: true }
         )
 

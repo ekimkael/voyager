@@ -1,7 +1,7 @@
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
 import { DateTime } from 'luxon'
 import { randomUUID } from 'node:crypto'
-import Tenant from '#models/tenant'
+import Company from '#models/company'
 import Trip from '#models/trip'
 import Customer from '#models/customer'
 import User from '#models/user'
@@ -66,24 +66,24 @@ const bookingTemplates: BookingTemplate[] = [
 
 export default class extends BaseSeeder {
   async run() {
-    const tenants = await Tenant.all()
+    const companies = await Company.all()
     let globalPaxCounter = 0
 
-    for (const tenant of tenants) {
+    for (const company of companies) {
       const trips = await Trip.query()
-        .where('tenantId', tenant.id)
+        .where('companyId', company.id)
         .whereNot('status', 'cancelled')
 
-      const customers = await Customer.query().where('tenantId', tenant.id)
-      const franchises = await Franchise.query().where('tenantId', tenant.id)
+      const customers = await Customer.query().where('companyId', company.id)
+      const franchises = await Franchise.query().where('companyId', company.id)
 
       const dispatcherRole = await Role.query()
-        .where('tenantId', tenant.id)
+        .where('companyId', company.id)
         .where('name', 'Dispatcher')
         .firstOrFail()
 
       const agents = await User.query()
-        .where('tenantId', tenant.id)
+        .where('companyId', company.id)
         .whereHas('roleAssignments', (q) => q.where('roleId', dispatcherRole.id))
 
       if (trips.length === 0 || customers.length === 0 || agents.length === 0) continue
@@ -102,7 +102,7 @@ export default class extends BaseSeeder {
         const totalAmount = trip.price * template.passengerCount
 
         const booking = await Booking.create({
-          tenantId: tenant.id,
+          companyId: company.id,
           tripId: trip.id,
           customerId: customer.id,
           agentId: agent.id,

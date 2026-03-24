@@ -5,7 +5,7 @@ import hash from '@adonisjs/core/services/hash'
 import mail from '@adonisjs/mail/services/main'
 import { DateTime } from 'luxon'
 import User from '#models/user'
-import PasswordResetToken from '#models/password_reset_token'
+import Token from '#models/token'
 import PasswordResetMail from '#mails/password_reset_mail'
 import { forgotPasswordValidator, resetPasswordValidator } from '#validators/password_reset'
 
@@ -20,19 +20,23 @@ export default class PasswordResetController {
     const user = await User.findBy('email', email)
 
     // Always show success message to prevent email enumeration
-    session.flash('success', 'Si un compte existe avec cet email, vous recevrez un lien de réinitialisation.')
+    session.flash(
+      'success',
+      'Si un compte existe avec cet email, vous recevrez un lien de réinitialisation.'
+    )
 
     if (!user) {
       return response.redirect().back()
     }
 
     // Delete any existing tokens for this user
-    await PasswordResetToken.query().where('userId', user.id).delete()
+    await Token.query().where('userId', user.id).where('type', 'password_reset').delete()
 
     const token = randomBytes(32).toString('hex')
 
-    await PasswordResetToken.create({
+    await Token.create({
       userId: user.id,
+      type: 'password_reset',
       token,
       expiresAt: DateTime.now().plus({ hours: 1 }),
     })
@@ -45,45 +49,51 @@ export default class PasswordResetController {
   }
 
   async reset({ request, view }: HttpContext) {
-    const token = request.input('token')
+    const tokenValue = request.input('token')
 
-    if (!token) {
+    if (!tokenValue) {
       return view.render('pages/auth/reset_password', {
         status: 'error',
         message: 'Ce lien est invalide ou a expiré.',
       })
     }
 
-    const resetToken = await PasswordResetToken.query().where('token', token).first()
+    const tokenRecord = await Token.query()
+      .where('token', tokenValue)
+      .where('type', 'password_reset')
+      .first()
 
-    if (!resetToken || resetToken.expiresAt < DateTime.now()) {
+    if (!tokenRecord || tokenRecord.isExpired || tokenRecord.isUsed) {
       return view.render('pages/auth/reset_password', {
         status: 'error',
         message: 'Ce lien est invalide ou a expiré.',
       })
     }
 
-    return view.render('pages/auth/reset_password', { token })
+    return view.render('pages/auth/reset_password', { token: tokenValue })
   }
 
   async update({ request, response, session }: HttpContext) {
     const { token, password } = await request.validateUsing(resetPasswordValidator)
 
-    const resetToken = await PasswordResetToken.query()
+    const tokenRecord = await Token.query()
       .where('token', token)
+      .where('type', 'password_reset')
       .preload('user')
       .first()
 
-    if (!resetToken || resetToken.expiresAt < DateTime.now()) {
+    if (!tokenRecord || tokenRecord.isExpired || tokenRecord.isUsed) {
       session.flash('error', 'Ce lien est invalide ou a expiré.')
       return response.redirect().toRoute('password.forgot')
     }
 
-    const user = resetToken.user
+    const user = tokenRecord.user
     user.password = await hash.make(password)
     await user.save()
 
-    await PasswordResetToken.query().where('userId', user.id).delete()
+    // Mark token as used and clean up other tokens
+    tokenRecord.usedAt = DateTime.now()
+    await tokenRecord.save()
 
     session.flash('success', 'Votre mot de passe a été réinitialisé. Vous pouvez vous connecter.')
     return response.redirect().toRoute('session.create')

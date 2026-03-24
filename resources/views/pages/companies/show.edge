@@ -1,20 +1,20 @@
 @layout.public()
 <div class="mx-auto max-w-4xl space-y-6">
 
-  {{-- Tenant header --}}
+  {{-- Company header --}}
   <div class="animate-fade-rise rounded-2xl border border-outline/60 bg-surface/90 p-7 shadow-sm backdrop-blur-sm sm:p-8">
     <p
       class="mb-3 inline-flex items-center gap-2 rounded-full border border-outline/60 bg-surface-alt/60 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary">
       Compagnie
     </p>
-    <h1 class="text-3xl font-semibold text-on-surface-strong">{{ tenant.name }}</h1>
+    <h1 class="text-3xl font-semibold text-on-surface-strong">{{ company.name }}</h1>
     <div class="mt-4 flex flex-wrap items-center gap-2 text-sm text-on-surface">
-      <span class="rounded-full bg-surface-alt px-3 py-1 text-xs font-medium">{{ tenant.slug }}</span>
-      <span class="rounded-full bg-surface-alt px-3 py-1 text-xs font-medium capitalize">Plan : {{ tenant.plan }}</span>
+      <span class="rounded-full bg-surface-alt px-3 py-1 text-xs font-medium">{{ company.slug }}</span>
+      <span class="rounded-full bg-surface-alt px-3 py-1 text-xs font-medium capitalize">Plan : {{ company.plan }}</span>
     </div>
 
     <div class="mt-6">
-      <a href="{{ route('public.trips.index', { tenantSlug: tenant.slug }) }}"
+      <a href="{{ route('public.trips.index', { companySlug: company.slug }) }}"
         class="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-on-primary transition-all duration-200 hover:-translate-y-0.5 hover:bg-secondary hover:shadow-md">
         Voir les voyages disponibles
         <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"

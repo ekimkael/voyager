@@ -1,7 +1,7 @@
 import { test } from '@japa/runner'
 import testUtils from '@adonisjs/core/services/test_utils'
 import db from '@adonisjs/lucid/services/db'
-import TenantService from '#services/tenant_service'
+import CompanyService from '#services/company_service'
 import PermissionResolver from '#services/permission_resolver'
 import Role from '#models/role'
 import Permission from '#models/permission'
@@ -10,13 +10,13 @@ import UserRoleAssignment from '#models/user_role_assignment'
 
 test.group('PermissionResolver', (group) => {
   group.setup(async () => {
-    const { default: PermissionsSeeder } = await import('#database/seeders/permissions_seeder')
+    const { default: PermissionsSeeder } = await import('#database/seeders/00_permissions_seeder')
     await new PermissionsSeeder(db.connection()).run()
   })
   group.each.setup(() => testUtils.db().withGlobalTransaction())
 
   test('admin user has all permissions', async ({ assert }) => {
-    const { user } = await TenantService.createWithAdmin({
+    const { user } = await CompanyService.createWithAdmin({
       companyName: 'Test Co',
       firstName: 'A',
       lastName: 'B',
@@ -31,7 +31,7 @@ test.group('PermissionResolver', (group) => {
   })
 
   test('lecteur can only read', async ({ assert }) => {
-    const { user, tenant } = await TenantService.createWithAdmin({
+    const { user, company } = await CompanyService.createWithAdmin({
       companyName: 'Test Co',
       firstName: 'A',
       lastName: 'B',
@@ -42,7 +42,7 @@ test.group('PermissionResolver', (group) => {
     const UserModule = await import('#models/user')
     const User = UserModule.default
     const lecteur = await User.create({
-      tenantId: tenant.id,
+      companyId: company.id,
       firstName: 'C',
       lastName: 'D',
       email: 'c@test.co',
@@ -50,7 +50,7 @@ test.group('PermissionResolver', (group) => {
     })
 
     const lecteurRole = await Role.query()
-      .where('tenant_id', tenant.id)
+      .where('company_id', company.id)
       .where('name', 'Lecteur')
       .firstOrFail()
 
@@ -68,7 +68,7 @@ test.group('PermissionResolver', (group) => {
   })
 
   test('inherited permissions from parent role', async ({ assert }) => {
-    const { user, tenant } = await TenantService.createWithAdmin({
+    const { user, company } = await CompanyService.createWithAdmin({
       companyName: 'Test Co',
       firstName: 'A',
       lastName: 'B',
@@ -77,12 +77,12 @@ test.group('PermissionResolver', (group) => {
     })
 
     const lecteurRole = await Role.query()
-      .where('tenant_id', tenant.id)
+      .where('company_id', company.id)
       .where('name', 'Lecteur')
       .firstOrFail()
 
     const seniorLecteur = await Role.create({
-      tenantId: tenant.id,
+      companyId: company.id,
       name: 'Senior Lecteur',
       parentRoleId: lecteurRole.id,
     })
@@ -100,7 +100,7 @@ test.group('PermissionResolver', (group) => {
     const UserModule = await import('#models/user')
     const User = UserModule.default
     const testUser = await User.create({
-      tenantId: tenant.id,
+      companyId: company.id,
       firstName: 'E',
       lastName: 'F',
       email: 'e@test.co',
@@ -121,7 +121,7 @@ test.group('PermissionResolver', (group) => {
   })
 
   test('user with no roles has no permissions', async ({ assert }) => {
-    const { tenant } = await TenantService.createWithAdmin({
+    const { company } = await CompanyService.createWithAdmin({
       companyName: 'Test Co',
       firstName: 'A',
       lastName: 'B',
@@ -132,7 +132,7 @@ test.group('PermissionResolver', (group) => {
     const UserModule = await import('#models/user')
     const User = UserModule.default
     const noRoleUser = await User.create({
-      tenantId: tenant.id,
+      companyId: company.id,
       firstName: 'G',
       lastName: 'H',
       email: 'g@test.co',

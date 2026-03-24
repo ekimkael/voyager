@@ -5,7 +5,7 @@ import User from '#models/user'
 import Role from '#models/role'
 import Franchise from '#models/franchise'
 
-export default class Tenant extends BaseModel {
+export default class Company extends BaseModel {
   @column({ isPrimary: true })
   declare id: string
 

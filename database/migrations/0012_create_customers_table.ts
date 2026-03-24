@@ -6,20 +6,32 @@ export default class extends BaseSchema {
   async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.uuid('id').primary().defaultTo(this.raw('gen_random_uuid()'))
-      table.uuid('tenant_id').notNullable().references('id').inTable('tenants').onDelete('CASCADE')
+      table
+        .uuid('company_id')
+        .notNullable()
+        .references('id')
+        .inTable('companies')
+        .onDelete('CASCADE')
       table.string('first_name', 80).notNullable()
       table.string('last_name', 80).notNullable()
       table.string('phone', 20).notNullable()
       table.string('email', 150).nullable()
+      table
+        .enum('sex', ['male', 'female'], {
+          useNative: true,
+          enumName: 'sex',
+        })
+        .nullable()
       table.timestamp('created_at').notNullable()
       table.timestamp('updated_at').notNullable()
 
-      table.unique(['tenant_id', 'phone'])
-      table.index(['tenant_id'])
+      table.unique(['company_id', 'phone'])
+      table.index(['company_id'])
     })
   }
 
   async down() {
     this.schema.dropTable(this.tableName)
+    this.schema.raw('DROP TYPE IF EXISTS "sex"')
   }
 }

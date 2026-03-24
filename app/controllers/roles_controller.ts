@@ -11,9 +11,9 @@ import {
 } from '#validators/role'
 
 export default class RolesController {
-  async index({ view, tenant }: HttpContext) {
+  async index({ view, company }: HttpContext) {
     const roles = await Role.query()
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .preload('parent')
       .preload('children')
       .withCount('rolePermissions', (q) => q.as('permissionsCount'))
@@ -33,19 +33,19 @@ export default class RolesController {
     return view.render('pages/dashboard/roles/index', { rootRoles, childMap })
   }
 
-  async create({ view, tenant }: HttpContext) {
-    const roles = await Role.query().where('tenantId', tenant!.id).orderBy('name')
+  async create({ view, company }: HttpContext) {
+    const roles = await Role.query().where('companyId', company!.id).orderBy('name')
 
     return view.render('pages/dashboard/roles/edit', { roles })
   }
 
-  async store({ request, response, session, tenant }: HttpContext) {
+  async store({ request, response, session, company }: HttpContext) {
     const payload = await request.validateUsing(createRoleValidator)
 
     if (payload.parentRoleId) {
       const parentExists = await Role.query()
         .where('id', payload.parentRoleId)
-        .where('tenantId', tenant!.id)
+        .where('companyId', company!.id)
         .first()
 
       if (!parentExists) {
@@ -56,7 +56,7 @@ export default class RolesController {
 
     try {
       await Role.create({
-        tenantId: tenant!.id,
+        companyId: company!.id,
         name: payload.name,
         parentRoleId: payload.parentRoleId || null,
         scope: 'global',
@@ -74,10 +74,10 @@ export default class RolesController {
     return response.redirect().toRoute('roles.index')
   }
 
-  async show({ params, view, tenant }: HttpContext) {
+  async show({ params, view, company }: HttpContext) {
     const role = await Role.query()
       .where('id', params.id)
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .preload('parent')
       .preload('rolePermissions', (q) => q.preload('permission'))
       .preload('userRoleAssignments', (q) => {
@@ -184,10 +184,10 @@ export default class RolesController {
     })
   }
 
-  async edit({ params, view, response, session, tenant }: HttpContext) {
+  async edit({ params, view, response, session, company }: HttpContext) {
     const role = await Role.query()
       .where('id', params.id)
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .firstOrFail()
 
     if (role.isSystem) {
@@ -196,17 +196,17 @@ export default class RolesController {
     }
 
     const roles = await Role.query()
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .whereNot('id', role.id)
       .orderBy('name')
 
     return view.render('pages/dashboard/roles/edit', { role, roles })
   }
 
-  async update({ params, request, response, session, tenant }: HttpContext) {
+  async update({ params, request, response, session, company }: HttpContext) {
     const role = await Role.query()
       .where('id', params.id)
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .firstOrFail()
 
     if (role.isSystem) {
@@ -224,7 +224,7 @@ export default class RolesController {
 
       const parentExists = await Role.query()
         .where('id', payload.parentRoleId)
-        .where('tenantId', tenant!.id)
+        .where('companyId', company!.id)
         .first()
 
       if (!parentExists) {
@@ -264,10 +264,10 @@ export default class RolesController {
     return response.redirect().toRoute('roles.show', { id: role.id })
   }
 
-  async destroy({ params, response, session, tenant }: HttpContext) {
+  async destroy({ params, response, session, company }: HttpContext) {
     const role = await Role.query()
       .where('id', params.id)
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .firstOrFail()
 
     if (role.isSystem) {
@@ -301,10 +301,10 @@ export default class RolesController {
     return response.redirect().toRoute('roles.index')
   }
 
-  async syncPermissions({ params, request, response, session, tenant }: HttpContext) {
+  async syncPermissions({ params, request, response, session, company }: HttpContext) {
     const role = await Role.query()
       .where('id', params.id)
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .firstOrFail()
 
     if (role.isSystem) {

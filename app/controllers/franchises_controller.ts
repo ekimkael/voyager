@@ -5,11 +5,11 @@ import User from '#models/user'
 import { createFranchiseValidator, updateFranchiseValidator } from '#validators/franchise'
 
 export default class FranchisesController {
-  async index({ view, tenant, request }: HttpContext) {
+  async index({ view, company, request }: HttpContext) {
     const page = request.input('page', 1)
 
     const franchises = await Franchise.query()
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .where('active', true)
       .preload('city')
       .orderBy('name')
@@ -25,12 +25,12 @@ export default class FranchisesController {
     return view.render('pages/dashboard/franchises/edit', { cities })
   }
 
-  async store({ request, response, session, tenant }: HttpContext) {
+  async store({ request, response, session, company }: HttpContext) {
     const payload = await request.validateUsing(createFranchiseValidator)
 
     try {
       await Franchise.create({
-        tenantId: tenant!.id,
+        companyId: company!.id,
         name: payload.name,
         cityId: payload.cityId,
         address: payload.address,
@@ -48,10 +48,10 @@ export default class FranchisesController {
     return response.redirect().toRoute('franchises.index')
   }
 
-  async edit({ params, view, tenant }: HttpContext) {
+  async edit({ params, view, company }: HttpContext) {
     const franchise = await Franchise.query()
       .where('id', params.id)
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .firstOrFail()
 
     const cities = await City.query().orderBy('name')
@@ -59,10 +59,10 @@ export default class FranchisesController {
     return view.render('pages/dashboard/franchises/edit', { franchise, cities })
   }
 
-  async update({ params, request, response, session, tenant }: HttpContext) {
+  async update({ params, request, response, session, company }: HttpContext) {
     const franchise = await Franchise.query()
       .where('id', params.id)
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .firstOrFail()
 
     const payload = await request.validateUsing(updateFranchiseValidator)
@@ -87,10 +87,10 @@ export default class FranchisesController {
     return response.redirect().toRoute('franchises.index')
   }
 
-  async destroy({ params, response, session, tenant }: HttpContext) {
+  async destroy({ params, response, session, company }: HttpContext) {
     const franchise = await Franchise.query()
       .where('id', params.id)
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .firstOrFail()
 
     const activeUsers = await User.query()
@@ -113,10 +113,10 @@ export default class FranchisesController {
     return response.redirect().toRoute('franchises.index')
   }
 
-  async performance({ params, view, tenant }: HttpContext) {
+  async performance({ params, view, company }: HttpContext) {
     const franchise = await Franchise.query()
       .where('id', params.id)
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .preload('city')
       .firstOrFail()
 

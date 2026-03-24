@@ -1,5 +1,5 @@
 import db from '@adonisjs/lucid/services/db'
-import Tenant from '#models/tenant'
+import Company from '#models/company'
 import User from '#models/user'
 import Role from '#models/role'
 import RolePermission from '#models/role_permission'
@@ -8,7 +8,7 @@ import UserRoleAssignment from '#models/user_role_assignment'
 import { systemRoles } from '#config/rbac'
 import string from '@adonisjs/core/helpers/string'
 
-interface CreateTenantInput {
+interface CreateCompanyInput {
   companyName: string
   firstName: string
   lastName: string
@@ -16,16 +16,16 @@ interface CreateTenantInput {
   password: string
 }
 
-export default class TenantService {
-  static async createWithAdmin(input: CreateTenantInput) {
+export default class CompanyService {
+  static async createWithAdmin(input: CreateCompanyInput) {
     return db.transaction(async (trx) => {
       const slug = await this.#generateUniqueSlug(input.companyName, trx)
 
-      const tenant = await Tenant.create({ name: input.companyName, slug }, { client: trx })
+      const company = await Company.create({ name: input.companyName, slug }, { client: trx })
 
       const user = await User.create(
         {
-          tenantId: tenant.id,
+          companyId: company.id,
           firstName: input.firstName,
           lastName: input.lastName,
           email: input.email,
@@ -34,7 +34,7 @@ export default class TenantService {
         { client: trx }
       )
 
-      const adminRole = await this.#seedSystemRoles(tenant.id, trx)
+      const adminRole = await this.#seedSystemRoles(company.id, trx)
 
       await UserRoleAssignment.create(
         {
@@ -45,11 +45,11 @@ export default class TenantService {
         { client: trx }
       )
 
-      return { tenant, user }
+      return { company, user }
     })
   }
 
-  static async #seedSystemRoles(tenantId: string, trx: any) {
+  static async #seedSystemRoles(companyId: string, trx: any) {
     const allPermissions = await Permission.query({ client: trx })
     const permissionMap = new Map(allPermissions.map((p) => [`${p.resource}:${p.action}`, p]))
 
@@ -58,7 +58,7 @@ export default class TenantService {
     for (const roleDef of systemRoles) {
       const role = await Role.create(
         {
-          tenantId,
+          companyId,
           name: roleDef.name,
           isSystem: true,
         },
@@ -93,7 +93,7 @@ export default class TenantService {
     let slug = baseSlug
     let suffix = 1
 
-    while (await Tenant.query({ client: trx }).where('slug', slug).first()) {
+    while (await Company.query({ client: trx }).where('slug', slug).first()) {
       slug = `${baseSlug}-${suffix}`
       suffix++
     }

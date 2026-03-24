@@ -21,7 +21,7 @@ export default class TicketsController {
         query.where('id', bookingId).where('status', 'confirmed')
       })
       .preload('booking', (query) => {
-        query.preload('tenant')
+        query.preload('company')
         query.preload('trip', (tripQuery) => {
           tripQuery.preload('route', (routeQuery) => {
             routeQuery.preload('departureCity').preload('arrivalCity')
@@ -35,7 +35,7 @@ export default class TicketsController {
     const route = trip.route
 
     const pdfBuffer = await this.ticketGenerator.generate({
-      tenant: passenger.booking.tenant,
+      company: passenger.booking.company,
       passenger,
       tripInfo: {
         departureCity: route.departureCity.name,

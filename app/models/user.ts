@@ -4,7 +4,7 @@ import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import hash from '@adonisjs/core/services/hash'
 import { compose } from '@adonisjs/core/helpers'
 import { withAuthFinder } from '@adonisjs/auth/mixins/lucid'
-import Tenant from '#models/tenant'
+import Company from '#models/company'
 import UserRoleAssignment from '#models/user_role_assignment'
 import Trip from '#models/trip'
 import Franchise from '#models/franchise'
@@ -19,7 +19,7 @@ export default class User extends compose(BaseModel, AuthFinder) {
   declare id: string
 
   @column()
-  declare tenantId: string
+  declare companyId: string
 
   @column()
   declare firstName: string
@@ -54,8 +54,8 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
 
-  @belongsTo(() => Tenant)
-  declare tenant: BelongsTo<typeof Tenant>
+  @belongsTo(() => Company)
+  declare company: BelongsTo<typeof Company>
 
   @hasMany(() => UserRoleAssignment)
   declare roleAssignments: HasMany<typeof UserRoleAssignment>

@@ -6,7 +6,12 @@ export default class extends BaseSchema {
   async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.uuid('id').primary().defaultTo(this.raw('gen_random_uuid()'))
-      table.uuid('tenant_id').notNullable().references('id').inTable('tenants').onDelete('CASCADE')
+      table
+        .uuid('company_id')
+        .notNullable()
+        .references('id')
+        .inTable('companies')
+        .onDelete('CASCADE')
       table.string('license_plate', 20).notNullable().unique()
       table.string('brand', 80).notNullable()
       table.string('model', 80).notNullable()
@@ -24,7 +29,7 @@ export default class extends BaseSchema {
       table.timestamp('created_at').notNullable()
       table.timestamp('updated_at').notNullable()
 
-      table.index(['tenant_id'])
+      table.index(['company_id'])
       table.index(['status'])
       table.index(['next_maintenance_date'])
       table.check('capacity > 0', [], 'chk_buses_positive_capacity')

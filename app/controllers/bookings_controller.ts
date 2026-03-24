@@ -26,7 +26,7 @@ export default class BookingsController {
       return response.redirect().toRoute('public.globalTrips.index')
     }
 
-    const booking = await Booking.query().where('id', params.id).preload('tenant').firstOrFail()
+    const booking = await Booking.query().where('id', params.id).preload('company').firstOrFail()
 
     if (booking.status === 'pending' && booking.isExpired) {
       session.flash('error', 'Réservation expirée')
@@ -68,7 +68,7 @@ export default class BookingsController {
     const trip = await Trip.query()
       .where('id', tripId)
       .where('status', 'scheduled')
-      .preload('tenant')
+      .preload('company')
       .firstOrFail()
 
     if (trip.departureTime <= DateTime.now()) {
@@ -95,7 +95,7 @@ export default class BookingsController {
         // Different trip, no passengers → reuse booking
         if (Number(existingBooking.$extras.passengersCount) === 0) {
           existingBooking.tripId = trip.id
-          existingBooking.tenantId = trip.tenantId
+          existingBooking.companyId = trip.companyId
           await existingBooking.save()
           return response.redirect().toRoute('public.bookings.passengers', { id: existingBooking.id })
         }
@@ -109,7 +109,7 @@ export default class BookingsController {
 
     // Create new booking
     const booking = await Booking.create({
-      tenantId: trip.tenantId,
+      companyId: trip.companyId,
       tripId: trip.id,
       status: 'pending',
     })
@@ -186,8 +186,8 @@ export default class BookingsController {
     const payload = await ctx.request.validateUsing(storeCustomerValidator)
 
     const customer = await Customer.firstOrCreate(
-      { tenantId: booking.tenantId, phone: payload.phone },
-      { ...payload, tenantId: booking.tenantId }
+      { companyId: booking.companyId, phone: payload.phone },
+      { ...payload, companyId: booking.companyId }
     )
 
     await booking.load('passengers')
@@ -278,7 +278,7 @@ export default class BookingsController {
     const booking = await Booking.query()
       .where('id', params.id)
       .preload('passengers')
-      .preload('tenant')
+      .preload('company')
       .preload('trip', (q) => {
         q.preload('route', (rq) => {
           rq.preload('departureCity').preload('arrivalCity')
@@ -300,7 +300,7 @@ export default class BookingsController {
   }
 
   async failed({ params, view }: HttpContext) {
-    const booking = await Booking.query().where('id', params.id).preload('tenant').firstOrFail()
+    const booking = await Booking.query().where('id', params.id).preload('company').firstOrFail()
 
     return view.render('pages/bookings/failed', {
       booking,
@@ -322,7 +322,7 @@ export default class BookingsController {
         })
       })
       .preload('booking', (q) => {
-        q.preload('tenant')
+        q.preload('company')
         q.preload('trip', (tq) => {
           tq.preload('route', (rq) => {
             rq.preload('departureCity').preload('arrivalCity')

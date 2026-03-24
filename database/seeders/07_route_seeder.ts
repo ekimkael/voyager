@@ -1,5 +1,5 @@
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
-import Tenant from '#models/tenant'
+import Company from '#models/company'
 import City from '#models/city'
 import Route from '#models/route'
 
@@ -21,18 +21,18 @@ const routes: RouteDef[] = [
 
 export default class extends BaseSeeder {
   async run() {
-    const tenants = await Tenant.all()
+    const companies = await Company.all()
     const cities = await City.all()
     const cityMap = new Map(cities.map((c) => [c.name, c]))
 
-    for (const tenant of tenants) {
+    for (const company of companies) {
       for (const routeDef of routes) {
         const departureCity = cityMap.get(routeDef.from)
         const arrivalCity = cityMap.get(routeDef.to)
         if (!departureCity || !arrivalCity) continue
 
         await Route.updateOrCreate(
-          { tenantId: tenant.id, code: routeDef.code },
+          { companyId: company.id, code: routeDef.code },
           {
             departureCityId: departureCity.id,
             arrivalCityId: arrivalCity.id,

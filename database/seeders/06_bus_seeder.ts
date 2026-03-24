@@ -1,5 +1,5 @@
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
-import Tenant from '#models/tenant'
+import Company from '#models/company'
 import Bus from '#models/bus'
 
 interface BusDef {
@@ -13,7 +13,7 @@ interface BusDef {
   nextMaintenanceDate: string | null
 }
 
-const busesPerTenant: Record<string, BusDef[]> = {
+const busesPerCompany: Record<string, BusDef[]> = {
   'general-express-voyages': [
     { licensePlate: 'LT-4521-AB', brand: 'Toyota', model: 'Coaster', capacity: 30, year: 2022, status: 'available', active: true, nextMaintenanceDate: '2026-05-15' },
     { licensePlate: 'LT-7834-CD', brand: 'Yutong', model: 'ZK6122H9', capacity: 55, year: 2021, status: 'available', active: true, nextMaintenanceDate: '2026-06-01' },
@@ -34,16 +34,16 @@ const busesPerTenant: Record<string, BusDef[]> = {
 
 export default class extends BaseSeeder {
   async run() {
-    const tenants = await Tenant.all()
+    const companies = await Company.all()
 
-    for (const tenant of tenants) {
-      const busDefs = busesPerTenant[tenant.slug]
+    for (const company of companies) {
+      const busDefs = busesPerCompany[company.slug]
       if (!busDefs) continue
 
       for (const busDef of busDefs) {
         await Bus.updateOrCreate(
           { licensePlate: busDef.licensePlate },
-          { tenantId: tenant.id, ...busDef }
+          { companyId: company.id, ...busDef }
         )
       }
     }

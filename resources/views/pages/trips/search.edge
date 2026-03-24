@@ -17,7 +17,7 @@
   {{-- Search form --}}
   <div class="mb-8 animate-fade-rise delay-100 rounded-2xl border border-outline/60 bg-surface/90 p-6 shadow-sm backdrop-blur-sm">
     <form method="GET"
-      action="{{ tenantSlug ? route('public.trips.index', { tenantSlug }) : route('public.globalTrips.index') }}"
+      action="{{ companySlug ? route('public.trips.index', { companySlug }) : route('public.globalTrips.index') }}"
       class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       <div>
         <label for="from" class="mb-1.5 block text-sm font-medium text-on-surface-strong">Départ</label>
@@ -96,8 +96,8 @@
               {{ item.trip.departureTime.toFormat('dd MMM yyyy à HH:mm', { locale: 'fr' }) }}
             </span>
             <span>
-              <a href="{{ route('public.tenants.show', { tenantSlug: item.trip.tenant.slug }) }}"
-                class="font-medium text-on-surface-strong hover:underline">{{ item.trip.tenant.name }}</a>
+              <a href="{{ route('public.companies.show', { companySlug: item.trip.company.slug }) }}"
+                class="font-medium text-on-surface-strong hover:underline">{{ item.trip.company.name }}</a>
             </span>
           </div>
           <div class="flex flex-wrap items-center gap-2.5 text-sm">

@@ -1,5 +1,5 @@
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
-import Tenant from '#models/tenant'
+import Company from '#models/company'
 import Customer from '#models/customer'
 
 const customerData = [
@@ -22,15 +22,15 @@ const customerData = [
 
 export default class extends BaseSeeder {
   async run() {
-    const tenants = await Tenant.all()
+    const companies = await Company.all()
     let phoneCounter = 0
 
-    for (const tenant of tenants) {
+    for (const company of companies) {
       for (const data of customerData) {
         phoneCounter++
         const phone = `+237 6${String(Math.floor(phoneCounter / 100) % 100).padStart(2, '0')} ${String(phoneCounter % 1000).padStart(3, '0')} ${String(phoneCounter * 7 % 1000).padStart(3, '0')}`
         await Customer.updateOrCreate(
-          { tenantId: tenant.id, phone },
+          { companyId: company.id, phone },
           {
             firstName: data.firstName,
             lastName: data.lastName,

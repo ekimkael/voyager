@@ -1,5 +1,5 @@
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
-import Tenant from '#models/tenant'
+import Company from '#models/company'
 import City from '#models/city'
 import Franchise from '#models/franchise'
 import User from '#models/user'
@@ -12,7 +12,7 @@ interface FranchiseDef {
   phone: string
 }
 
-const franchisesPerTenant: Record<string, FranchiseDef[]> = {
+const franchisesPerCompany: Record<string, FranchiseDef[]> = {
   'general-express-voyages': [
     { name: 'Agence Akwa', cityName: 'Douala', address: "Rue de l'Hôpital, Akwa, Douala", phone: '+237 699 100 200' },
     { name: 'Agence Bastos', cityName: 'Yaoundé', address: 'Carrefour Bastos, Yaoundé', phone: '+237 699 100 201' },
@@ -28,17 +28,17 @@ const franchisesPerTenant: Record<string, FranchiseDef[]> = {
 
 export default class extends BaseSeeder {
   async run() {
-    const tenants = await Tenant.all()
+    const companies = await Company.all()
 
-    for (const tenant of tenants) {
-      const defs = franchisesPerTenant[tenant.slug]
+    for (const company of companies) {
+      const defs = franchisesPerCompany[company.slug]
       if (!defs) continue
 
       const franchises: Franchise[] = []
       for (const def of defs) {
         const city = await City.query().where('name', def.cityName).firstOrFail()
         const franchise = await Franchise.updateOrCreate(
-          { tenantId: tenant.id, name: def.name },
+          { companyId: company.id, name: def.name },
           { cityId: city.id, address: def.address, phone: def.phone, active: true }
         )
         franchises.push(franchise)
@@ -46,13 +46,13 @@ export default class extends BaseSeeder {
 
       // Assign last 2 dispatcher-role users (agents) to franchises
       const dispatcherRole = await Role.query()
-        .where('tenantId', tenant.id)
+        .where('companyId', company.id)
         .where('name', 'Dispatcher')
         .firstOrFail()
 
       const agents = await User.query()
         .whereHas('roleAssignments', (q) => q.where('roleId', dispatcherRole.id))
-        .where('tenantId', tenant.id)
+        .where('companyId', company.id)
         .orderBy('createdAt', 'desc')
         .limit(2)
 
