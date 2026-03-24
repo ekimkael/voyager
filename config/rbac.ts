@@ -49,6 +49,15 @@ export const permissions = [
   { resource: 'trip', action: 'update', description: 'Update a trip' },
   { resource: 'trip', action: 'delete', description: 'Delete a trip', isSensitive: true },
 
+  // Booking permissions
+  { resource: 'booking', action: 'create', description: 'Create bookings' },
+  { resource: 'booking', action: 'read', description: 'View bookings' },
+  { resource: 'booking', action: 'update', description: 'Modify booking passenger info' },
+  { resource: 'booking', action: 'delete', description: 'Cancel bookings', isSensitive: true },
+
+  // Boarding permissions
+  { resource: 'boarding', action: 'validate', description: 'Validate passenger boarding' },
+
   // Users & Roles (tenant admin)
   { resource: 'user', action: 'create', description: 'Invite a user' },
   { resource: 'user', action: 'read', description: 'View users' },
@@ -92,6 +101,9 @@ export const systemRoles = [
       'trip:read',
       'trip:update',
       'trip:delete',
+      'booking:create',
+      'booking:read',
+      'booking:update',
     ],
   },
   {
@@ -106,6 +118,7 @@ export const systemRoles = [
       'driver:update',
       'vehicle:read',
       'trip:read',
+      'boarding:validate',
     ],
   },
   {

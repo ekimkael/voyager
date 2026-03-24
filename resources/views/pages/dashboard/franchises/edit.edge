@@ -1,0 +1,21 @@
+@layout.dashboard()
+  <div class="mx-auto max-w-lg">
+    <div class="mb-6">
+      <h1 class="text-2xl font-bold text-on-surface-strong">
+        {{ franchise ? 'Modifier la franchise' : 'Nouvelle franchise' }}
+      </h1>
+    </div>
+
+    <div class="rounded-radius border border-outline bg-surface p-6">
+      @if(franchise)
+        @form({ route: 'franchises.update', routeParams: { id: franchise.id }, method: 'PUT' })
+          @include('pages/dashboard/franchises/_form')
+        @end
+      @else
+        @form({ route: 'franchises.store', method: 'POST' })
+          @include('pages/dashboard/franchises/_form')
+        @end
+      @end
+    </div>
+  </div>
+@end

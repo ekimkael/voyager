@@ -1,0 +1,101 @@
+@layout.public()
+<div class="mx-auto max-w-lg">
+  <div class="mb-6 animate-fade-rise">
+    <h1 class="text-2xl font-semibold text-on-surface-strong">Vérifier une réservation</h1>
+    <p class="mt-2 text-sm text-on-surface">Retrouvez votre ticket en saisissant vos informations ci-dessous.</p>
+  </div>
+
+  {{-- Verify form --}}
+  <div class="animate-fade-rise delay-100 rounded-2xl border border-outline/60 bg-surface/90 p-6 shadow-sm backdrop-blur-sm">
+    <form method="POST" action="{{ route('public.bookings.verifySubmit') }}">
+      {{ csrfField() }}
+
+      <div class="flex flex-col gap-4">
+        <div>
+          <label for="phone" class="mb-1.5 block text-sm font-medium text-on-surface-strong">
+            Téléphone <span class="text-red-500">*</span>
+          </label>
+          <input type="tel" id="phone" name="phone" value="{{ flashMessages.get('phone') ?? '' }}"
+            placeholder="Ex: +237 6XX XXX XXX" required
+            class="h-10 w-full rounded-full border border-outline bg-surface px-4 text-sm text-on-surface focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
+          @if(flashMessages.has('errors.phone'))
+          <p class="mt-1 text-xs text-red-500">{{ flashMessages.get('errors.phone') }}</p>
+          @end
+        </div>
+
+        <div>
+          <label for="code" class="mb-1.5 block text-sm font-medium text-on-surface-strong">
+            Code du ticket <span class="text-red-500">*</span>
+          </label>
+          <input type="text" id="code" name="code" value="{{ flashMessages.get('code') ?? '' }}"
+            placeholder="Ex: ABC123" required
+            class="h-10 w-full rounded-full border border-outline bg-surface px-4 font-mono text-sm text-on-surface focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
+          @if(flashMessages.has('errors.code'))
+          <p class="mt-1 text-xs text-red-500">{{ flashMessages.get('errors.code') }}</p>
+          @end
+        </div>
+
+        <div class="pt-1">
+          <button type="submit"
+            class="w-full rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-on-primary transition-all duration-200 hover:-translate-y-0.5 hover:bg-secondary hover:shadow-md">
+            Vérifier
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  {{-- Passenger details (shown after successful verification) --}}
+  @if(passenger)
+  <div class="mt-6 animate-fade-rise rounded-2xl border border-emerald-200 bg-emerald-50/80 p-6 backdrop-blur-sm">
+    <div class="mb-4 flex items-center gap-2">
+      <div class="text-emerald-500">
+        <svg xmlns="http://www.w3.org/2000/svg" class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <path d="m9 12 2 2 4-4" />
+        </svg>
+      </div>
+      <h2 class="text-base font-semibold text-emerald-800">Réservation valide</h2>
+    </div>
+
+    <div class="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-wider text-emerald-700">Passager</p>
+        <p class="mt-1 font-medium text-emerald-900">{{ passenger.firstName }} {{ passenger.lastName }}</p>
+      </div>
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-wider text-emerald-700">Siège</p>
+        <p class="mt-1 font-medium text-emerald-900">{{ passenger.seatNumber }}</p>
+      </div>
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-wider text-emerald-700">Route</p>
+        <p class="mt-1 font-medium text-emerald-900">
+          {{ passenger.booking.trip.route.departureCity.name }} → {{ passenger.booking.trip.route.arrivalCity.name }}
+        </p>
+      </div>
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-wider text-emerald-700">Départ</p>
+        <p class="mt-1 font-medium text-emerald-900">
+          {{ passenger.booking.trip.departureTime.toFormat('dd/MM/yyyy HH:mm') }}
+        </p>
+      </div>
+    </div>
+
+    <div class="mt-5">
+      <a href="{{ route('public.tickets.download', { bookingId: passenger.booking.id, passengerId: passenger.id }) }}"
+        class="inline-flex items-center gap-2 rounded-full border border-emerald-300 bg-white px-5 py-2 text-sm font-medium text-emerald-800 transition-all duration-200 hover:-translate-y-0.5 hover:bg-emerald-100 hover:shadow-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="7 10 12 15 17 10" />
+          <line x1="12" y1="15" x2="12" y2="3" />
+        </svg>
+        Télécharger le ticket
+      </a>
+    </div>
+  </div>
+  @end
+
+</div>
+@end

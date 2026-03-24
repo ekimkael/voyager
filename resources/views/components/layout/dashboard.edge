@@ -1,5 +1,5 @@
 @layout.base()
-<div x-data="{ sidebarCollapsed: false, mobileSidebarOpen: false }" class="flex min-h-screen">
+<div x-data="{ sidebarCollapsed: false, mobileSidebarOpen: false }" class="flex h-screen">
 
   {{-- Mobile backdrop --}}
   <div x-show="mobileSidebarOpen" x-transition.opacity x-on:click="mobileSidebarOpen = false" x-cloak
@@ -86,10 +86,19 @@
         icon: 'tabler:map-2',
         label: 'Voyages',
         })
+        @end
+        @can('permission', 'booking:read')
         @!sidebar.item({
-        href: route('trips.history'),
-        icon: 'tabler:history',
-        label: 'Historique',
+        href: route('dashboard.bookings.index'),
+        icon: 'tabler:ticket',
+        label: 'Réservations',
+        })
+        @end
+        @can('permission', 'boarding:validate')
+        @!sidebar.item({
+        href: route('dashboard.boarding.index'),
+        icon: 'tabler:qrcode',
+        label: 'Embarquement',
         })
         @end
       </ul>
@@ -105,11 +114,13 @@
           icon: 'tabler:users',
           label: 'Employés',
           })
+          @can('permission', 'role:read')
           @!sidebar.item({
-          href: '#',
+          href: route('roles.index'),
           icon: 'tabler:shield',
           label: 'Rôles',
           })
+          @end
           @!sidebar.item({
           href: '#',
           icon: 'tabler:settings',
@@ -129,17 +140,17 @@
         role="menu" x-on:click.outside="menuIsOpen = false" x-on:keydown.down.prevent="$focus.wrap().next()"
         x-on:keydown.up.prevent="$focus.wrap().previous()" x-transition x-trap="menuIsOpen">
         <div class="flex flex-col py-1.5">
-          <a href="#" role="menuitem"
+          <a href="{{ route('profile.show') }}" role="menuitem"
             class="flex items-center gap-2 px-2 py-1.5 text-sm font-medium text-on-surface underline-offset-2 hover:bg-primary/5 hover:text-on-surface-strong focus-visible:underline focus:outline-hidden dark:text-on-surface-dark dark:hover:bg-primary-dark/5 dark:hover:text-on-surface-dark-strong">
             @svg('tabler:user', { class: 'size-5 shrink-0' })
             <span>Profil</span>
           </a>
         </div>
         <div class="flex flex-col py-1.5">
-          <a href="#" role="menuitem"
+          <a href="{{ route('security.show') }}" role="menuitem"
             class="flex items-center gap-2 px-2 py-1.5 text-sm font-medium text-on-surface underline-offset-2 hover:bg-primary/5 hover:text-on-surface-strong focus-visible:underline focus:outline-hidden dark:text-on-surface-dark dark:hover:bg-primary-dark/5 dark:hover:text-on-surface-dark-strong">
             @svg('tabler:settings', { class: 'size-5 shrink-0' })
-            <span>Paramètres</span>
+            <span>Sécurité</span>
           </a>
         </div>
         <div class="flex flex-col py-1.5">
@@ -177,7 +188,7 @@
   </aside>
 
   {{-- Main content area --}}
-  <div class="flex flex-1 flex-col" :class="sidebarCollapsed ? 'lg:ml-0' : 'lg:ml-0'">
+  <div class="flex flex-1 flex-col overflow-hidden" :class="sidebarCollapsed ? 'lg:ml-0' : 'lg:ml-0'">
 
     {{-- Mobile header --}}
     <header class="flex h-14 items-center border-b border-outline bg-surface px-4 lg:hidden">
@@ -188,7 +199,7 @@
     </header>
 
     {{-- Page content --}}
-    <main class="flex-1 bg-surface-alt p-6">
+    <main class="flex-1 overflow-y-auto bg-surface-alt p-6">
       @include('partials/flash_alerts')
       {{{ await $slots.main() }}}
     </main>

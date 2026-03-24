@@ -7,6 +7,31 @@
 import { BaseModel, column } from '@adonisjs/lucid/orm'
 import { DateTime } from 'luxon'
 
+export class BookingSchema extends BaseModel {
+  static $columns = ['agentId', 'createdAt', 'customerId', 'franchiseId', 'id', 'status', 'tenantId', 'totalAmount', 'tripId', 'updatedAt'] as const
+  $columns = BookingSchema.$columns
+  @column()
+  declare agentId: string | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare customerId: string | null
+  @column()
+  declare franchiseId: string | null
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare status: any
+  @column()
+  declare tenantId: string
+  @column()
+  declare totalAmount: string
+  @column()
+  declare tripId: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+}
+
 export class BusSchema extends BaseModel {
   static $columns = ['active', 'brand', 'capacity', 'createdAt', 'id', 'licensePlate', 'model', 'nextMaintenanceDate', 'status', 'tenantId', 'updatedAt', 'year'] as const
   $columns = BusSchema.$columns
@@ -49,6 +74,117 @@ export class CitySchema extends BaseModel {
   declare name: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
+}
+
+export class CustomerSchema extends BaseModel {
+  static $columns = ['createdAt', 'email', 'firstName', 'id', 'lastName', 'phone', 'tenantId', 'updatedAt'] as const
+  $columns = CustomerSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare email: string | null
+  @column()
+  declare firstName: string
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare lastName: string
+  @column()
+  declare phone: string
+  @column()
+  declare tenantId: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+}
+
+export class EmailChangeRequestSchema extends BaseModel {
+  static $columns = ['createdAt', 'expiresAt', 'id', 'newEmail', 'token', 'userId'] as const
+  $columns = EmailChangeRequestSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column.dateTime()
+  declare expiresAt: DateTime
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare newEmail: string
+  @column()
+  declare token: string
+  @column()
+  declare userId: string
+}
+
+export class FranchiseSchema extends BaseModel {
+  static $columns = ['active', 'address', 'cityId', 'createdAt', 'id', 'name', 'phone', 'tenantId', 'updatedAt'] as const
+  $columns = FranchiseSchema.$columns
+  @column()
+  declare active: boolean
+  @column()
+  declare address: string
+  @column()
+  declare cityId: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare name: string
+  @column()
+  declare phone: string | null
+  @column()
+  declare tenantId: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+}
+
+export class PassengerSchema extends BaseModel {
+  static $columns = ['boardedAt', 'bookingId', 'code', 'createdAt', 'firstName', 'id', 'lastName', 'phone', 'qrCode', 'seatNumber', 'status'] as const
+  $columns = PassengerSchema.$columns
+  @column.dateTime()
+  declare boardedAt: DateTime | null
+  @column()
+  declare bookingId: string
+  @column()
+  declare code: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare firstName: string
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare lastName: string
+  @column()
+  declare phone: string | null
+  @column()
+  declare qrCode: string
+  @column()
+  declare seatNumber: number
+  @column()
+  declare status: any
+}
+
+export class PaymentSchema extends BaseModel {
+  static $columns = ['amount', 'bookingId', 'createdAt', 'externalReference', 'id', 'operator', 'paidAt', 'paymentMethod', 'status'] as const
+  $columns = PaymentSchema.$columns
+  @column()
+  declare amount: string
+  @column()
+  declare bookingId: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare externalReference: string | null
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare operator: string | null
+  @column.dateTime()
+  declare paidAt: DateTime | null
+  @column()
+  declare paymentMethod: any
+  @column()
+  declare status: any
 }
 
 export class PermissionSchema extends BaseModel {
@@ -199,7 +335,7 @@ export class UserRoleAssignmentSchema extends BaseModel {
 }
 
 export class UserSchema extends BaseModel {
-  static $columns = ['createdAt', 'email', 'externalId', 'firstName', 'id', 'lastName', 'mfaEnabled', 'password', 'status', 'tenantId', 'updatedAt'] as const
+  static $columns = ['createdAt', 'email', 'externalId', 'firstName', 'franchiseId', 'id', 'lastName', 'mfaEnabled', 'password', 'phone', 'status', 'tenantId', 'updatedAt'] as const
   $columns = UserSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -209,6 +345,8 @@ export class UserSchema extends BaseModel {
   declare externalId: string | null
   @column()
   declare firstName: string
+  @column()
+  declare franchiseId: string | null
   @column({ isPrimary: true })
   declare id: string
   @column()
@@ -217,6 +355,8 @@ export class UserSchema extends BaseModel {
   declare mfaEnabled: boolean
   @column({ serializeAs: null })
   declare password: string
+  @column()
+  declare phone: string | null
   @column()
   declare status: any
   @column()

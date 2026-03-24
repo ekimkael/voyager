@@ -25,3 +25,6 @@ yarn-error.log
 # Platform specific
 .DS_Store
 .superpowers/
+
+# Misc
+docs/pdfs

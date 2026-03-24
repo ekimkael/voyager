@@ -1,0 +1,158 @@
+@layout.public()
+<div class="mx-auto max-w-lg" x-data="{
+      availableSeats: {{ availableSeats }},
+      subscription: null,
+      get seatsExhausted() {
+        return this.availableSeats <= 0
+      },
+      async init() {
+        const transmit = window.__transmit
+        if (transmit) {
+          this.subscription = transmit.subscription('trips/{{ booking.tripId }}/seats')
+          await this.subscription.create()
+          this.subscription.onMessage((data) => {
+            this.availableSeats = data.availableSeats
+          })
+        }
+      },
+      destroy() {
+        if (this.subscription) {
+          this.subscription.delete()
+        }
+      }
+    }">
+
+  {{-- Stepper --}}
+  <div class="mb-8 animate-fade-rise">
+    <div class="flex items-center gap-0">
+      {{-- Step 1 - completed --}}
+      <div class="flex items-center gap-2">
+        <span class="flex size-8 items-center justify-center rounded-full bg-emerald-500 text-on-primary">
+          <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </span>
+      </div>
+      <div class="mx-3 h-px flex-1 bg-primary"></div>
+      {{-- Step 2 - completed --}}
+      <div class="flex items-center gap-2">
+        <span class="flex size-8 items-center justify-center rounded-full bg-emerald-500 text-on-primary">
+          <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </span>
+      </div>
+      <div class="mx-3 h-px flex-1 bg-primary"></div>
+      {{-- Step 3 - completed --}}
+      <div class="flex items-center gap-2">
+        <span class="flex size-8 items-center justify-center rounded-full bg-emerald-500 text-on-primary">
+          <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </span>
+      </div>
+      <div class="mx-3 h-px flex-1 bg-primary"></div>
+      {{-- Step 4 - active --}}
+      <div class="flex items-center gap-2">
+        <span class="flex size-8 items-center justify-center rounded-full bg-primary text-xs font-bold text-on-primary">4</span>
+        <span class="text-sm font-medium text-on-surface-strong">Paiement</span>
+      </div>
+    </div>
+  </div>
+
+  {{-- Seat availability warning --}}
+  <div class="mb-5" x-show="availableSeats <= 3 && availableSeats > 0" x-transition>
+    <p class="rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-center text-sm font-medium text-amber-700"
+      x-text="'Attention : plus que ' + availableSeats + ' place(s) disponible(s)'"></p>
+  </div>
+
+  {{-- Payment form --}}
+  <div class="animate-fade-rise delay-100 rounded-2xl border border-outline/60 bg-surface/90 p-6 shadow-sm backdrop-blur-sm">
+    <h1 class="mb-1 text-xl font-semibold text-on-surface-strong">Paiement</h1>
+    <p class="mb-6 text-sm text-on-surface">
+      Montant à payer :
+      <span class="text-2xl font-bold text-primary">{{ booking.totalAmount }} FCFA</span>
+    </p>
+
+    <form method="POST" action="{{ route('public.bookings.processPayment', { id: booking.id }) }}" x-data="{
+          paymentMethod: 'cash',
+          get showOperator() {
+            return this.paymentMethod === 'mobile_money' || this.paymentMethod === 'card'
+          }
+        }">
+      {{ csrfField() }}
+
+      <div class="mb-5">
+        <p class="mb-3 text-sm font-medium text-on-surface-strong">Mode de paiement</p>
+        <div class="space-y-2">
+          <label
+            class="flex cursor-pointer items-center gap-3 rounded-xl border border-outline/60 bg-surface p-3.5 transition-all duration-200 hover:border-outline"
+            :class="paymentMethod === 'cash' ? 'border-primary bg-primary/5 shadow-sm' : ''">
+            <input type="radio" name="paymentMethod" value="cash" x-model="paymentMethod"
+              class="size-4 accent-primary" />
+            <div>
+              <span class="text-sm font-medium text-on-surface-strong">Espèces</span>
+              <p class="text-xs text-on-surface">Paiement en agence</p>
+            </div>
+          </label>
+          <label
+            class="flex cursor-pointer items-center gap-3 rounded-xl border border-outline/60 bg-surface p-3.5 transition-all duration-200 hover:border-outline"
+            :class="paymentMethod === 'mobile_money' ? 'border-primary bg-primary/5 shadow-sm' : ''">
+            <input type="radio" name="paymentMethod" value="mobile_money" x-model="paymentMethod"
+              class="size-4 accent-primary" />
+            <div>
+              <span class="text-sm font-medium text-on-surface-strong">Mobile Money</span>
+              <p class="text-xs text-on-surface">Orange Money, MTN MoMo...</p>
+            </div>
+          </label>
+          <label
+            class="flex cursor-pointer items-center gap-3 rounded-xl border border-outline/60 bg-surface p-3.5 transition-all duration-200 hover:border-outline"
+            :class="paymentMethod === 'card' ? 'border-primary bg-primary/5 shadow-sm' : ''">
+            <input type="radio" name="paymentMethod" value="card" x-model="paymentMethod"
+              class="size-4 accent-primary" />
+            <div>
+              <span class="text-sm font-medium text-on-surface-strong">Carte bancaire</span>
+              <p class="text-xs text-on-surface">Visa, Mastercard</p>
+            </div>
+          </label>
+        </div>
+        @if(flashMessages.has('errors.paymentMethod'))
+        <p class="mt-1.5 text-xs text-red-500">{{ flashMessages.get('errors.paymentMethod') }}</p>
+        @end
+      </div>
+
+      {{-- Operator field (conditional) --}}
+      <div x-show="showOperator" x-transition class="mb-5">
+        <label for="operator" class="mb-1.5 block text-sm font-medium text-on-surface-strong">
+          Opérateur
+        </label>
+        <input type="text" id="operator" name="operator" placeholder="Ex: Orange Money, MTN MoMo, Visa..."
+          class="h-10 w-full rounded-full border border-outline bg-surface px-4 text-sm text-on-surface focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
+        @if(flashMessages.has('errors.operator'))
+        <p class="mt-1.5 text-xs text-red-500">{{ flashMessages.get('errors.operator') }}</p>
+        @end
+      </div>
+
+      <div class="flex items-center justify-between border-t border-outline/60 pt-5">
+        <a href="{{ route('public.bookings.summary', { id: booking.id }) }}"
+          class="inline-flex items-center gap-1.5 text-sm text-on-surface transition-colors hover:text-on-surface-strong">
+          <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m12 19-7-7 7-7" />
+            <path d="M19 12H5" />
+          </svg>
+          Retour
+        </a>
+        <button type="submit" :disabled="seatsExhausted"
+          :class="seatsExhausted ? 'bg-neutral-300 cursor-not-allowed' : 'bg-primary hover:bg-secondary hover:-translate-y-0.5 hover:shadow-md'"
+          class="rounded-full px-7 py-2.5 text-sm font-medium text-on-primary transition-all duration-200">
+          Payer
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+@end

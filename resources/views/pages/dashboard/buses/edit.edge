@@ -1,0 +1,21 @@
+@layout.dashboard()
+  <div class="mx-auto max-w-lg">
+    <div class="mb-6">
+      <h1 class="text-2xl font-bold text-on-surface-strong">
+        {{ bus ? 'Modifier le véhicule' : 'Nouveau véhicule' }}
+      </h1>
+    </div>
+
+    <div class="rounded-radius border border-outline bg-surface p-6">
+      @if(bus)
+        @form({ route: 'buses.update', routeParams: { id: bus.id }, method: 'PUT' })
+          @include('pages/dashboard/buses/_form')
+        @end
+      @else
+        @form({ route: 'buses.store', method: 'POST' })
+          @include('pages/dashboard/buses/_form')
+        @end
+      @end
+    </div>
+  </div>
+@end

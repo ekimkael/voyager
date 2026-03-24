@@ -6,11 +6,11 @@ import { createCityValidator, updateCityValidator } from '#validators/city'
 export default class CitiesController {
   async index({ view }: HttpContext) {
     const cities = await City.query().orderBy('country').orderBy('name')
-    return view.render('pages/cities/index', { cities })
+    return view.render('pages/dashboard/cities/index', { cities })
   }
 
   async create({ view }: HttpContext) {
-    return view.render('pages/cities/form')
+    return view.render('pages/dashboard/cities/edit')
   }
 
   async store({ request, response, session }: HttpContext) {
@@ -32,7 +32,7 @@ export default class CitiesController {
 
   async edit({ params, view }: HttpContext) {
     const city = await City.findOrFail(params.id)
-    return view.render('pages/cities/form', { city })
+    return view.render('pages/dashboard/cities/edit', { city })
   }
 
   async update({ params, request, response, session }: HttpContext) {
@@ -63,7 +63,10 @@ export default class CitiesController {
       .count('* as total')
 
     if (Number(routeCount[0].$extras.total) > 0) {
-      session.flash('error', 'Impossible de supprimer cette ville car elle est utilisée par une ou plusieurs routes.')
+      session.flash(
+        'error',
+        'Impossible de supprimer cette ville car elle est utilisée par une ou plusieurs routes.'
+      )
       return response.redirect().toRoute('cities.index')
     }
 

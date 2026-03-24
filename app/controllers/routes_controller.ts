@@ -11,12 +11,12 @@ export default class RoutesController {
       .preload('arrivalCity')
       .orderBy('code')
 
-    return view.render('pages/routes/index', { routes })
+    return view.render('pages/dashboard/routes/index', { routes })
   }
 
   async create({ view }: HttpContext) {
     const cities = await City.query().orderBy('country').orderBy('name')
-    return view.render('pages/routes/form', { cities })
+    return view.render('pages/dashboard/routes/edit', { cities })
   }
 
   async store({ request, response, session, tenant }: HttpContext) {
@@ -39,7 +39,7 @@ export default class RoutesController {
         return response.redirect().back()
       }
       if (error.code === '23514') {
-        session.flash('error', 'La ville de départ et la ville d\'arrivée doivent être différentes.')
+        session.flash('error', "La ville de départ et la ville d'arrivée doivent être différentes.")
         return response.redirect().back()
       }
       throw error
@@ -56,7 +56,7 @@ export default class RoutesController {
       .firstOrFail()
 
     const cities = await City.query().orderBy('country').orderBy('name')
-    return view.render('pages/routes/form', { transportRoute, cities })
+    return view.render('pages/dashboard/routes/edit', { transportRoute, cities })
   }
 
   async update({ params, request, response, session, tenant }: HttpContext) {
@@ -84,7 +84,7 @@ export default class RoutesController {
         return response.redirect().back()
       }
       if (error.code === '23514') {
-        session.flash('error', 'La ville de départ et la ville d\'arrivée doivent être différentes.')
+        session.flash('error', "La ville de départ et la ville d'arrivée doivent être différentes.")
         return response.redirect().back()
       }
       throw error

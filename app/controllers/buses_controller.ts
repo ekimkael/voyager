@@ -10,11 +10,11 @@ export default class BusesController {
       .where('active', true)
       .orderBy('licensePlate')
 
-    return view.render('pages/buses/index', { buses })
+    return view.render('pages/dashboard/buses/index', { buses })
   }
 
   async create({ view }: HttpContext) {
-    return view.render('pages/buses/form')
+    return view.render('pages/dashboard/buses/edit')
   }
 
   async store({ request, response, session, tenant }: HttpContext) {
@@ -44,19 +44,13 @@ export default class BusesController {
   }
 
   async edit({ params, view, tenant }: HttpContext) {
-    const bus = await Bus.query()
-      .where('id', params.id)
-      .where('tenantId', tenant!.id)
-      .firstOrFail()
+    const bus = await Bus.query().where('id', params.id).where('tenantId', tenant!.id).firstOrFail()
 
-    return view.render('pages/buses/form', { bus })
+    return view.render('pages/dashboard/buses/edit', { bus })
   }
 
   async update({ params, request, response, session, tenant }: HttpContext) {
-    const bus = await Bus.query()
-      .where('id', params.id)
-      .where('tenantId', tenant!.id)
-      .firstOrFail()
+    const bus = await Bus.query().where('id', params.id).where('tenantId', tenant!.id).firstOrFail()
 
     const payload = await request.validateUsing(updateBusValidator)
 
@@ -84,10 +78,7 @@ export default class BusesController {
   }
 
   async destroy({ params, response, session, tenant }: HttpContext) {
-    const bus = await Bus.query()
-      .where('id', params.id)
-      .where('tenantId', tenant!.id)
-      .firstOrFail()
+    const bus = await Bus.query().where('id', params.id).where('tenantId', tenant!.id).firstOrFail()
 
     const activeTrips = await Trip.query()
       .where('busId', bus.id)

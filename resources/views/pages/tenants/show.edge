@@ -1,0 +1,70 @@
+@layout.public()
+<div class="mx-auto max-w-4xl space-y-6">
+
+  {{-- Tenant header --}}
+  <div class="animate-fade-rise rounded-2xl border border-outline/60 bg-surface/90 p-7 shadow-sm backdrop-blur-sm sm:p-8">
+    <p
+      class="mb-3 inline-flex items-center gap-2 rounded-full border border-outline/60 bg-surface-alt/60 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary">
+      Compagnie
+    </p>
+    <h1 class="text-3xl font-semibold text-on-surface-strong">{{ tenant.name }}</h1>
+    <div class="mt-4 flex flex-wrap items-center gap-2 text-sm text-on-surface">
+      <span class="rounded-full bg-surface-alt px-3 py-1 text-xs font-medium">{{ tenant.slug }}</span>
+      <span class="rounded-full bg-surface-alt px-3 py-1 text-xs font-medium capitalize">Plan : {{ tenant.plan }}</span>
+    </div>
+
+    <div class="mt-6">
+      <a href="{{ route('public.trips.index', { tenantSlug: tenant.slug }) }}"
+        class="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-on-primary transition-all duration-200 hover:-translate-y-0.5 hover:bg-secondary hover:shadow-md">
+        Voir les voyages disponibles
+        <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14" />
+          <path d="m12 5 7 7-7 7" />
+        </svg>
+      </a>
+    </div>
+  </div>
+
+  {{-- Upcoming trips --}}
+  <div class="animate-fade-rise delay-100 rounded-2xl border border-outline/60 bg-surface/90 p-6 shadow-sm backdrop-blur-sm sm:p-7">
+    <h2 class="text-lg font-semibold text-on-surface-strong">Prochains voyages</h2>
+
+    @if(upcomingTrips.length)
+    <div class="mt-4 space-y-3">
+      @each(trip in upcomingTrips)
+      <div
+        class="flex items-center justify-between rounded-xl border border-outline/60 bg-surface-alt/50 p-4 transition-colors hover:bg-surface-alt">
+        <div>
+          <p class="font-medium text-on-surface-strong">
+            {{ trip.route.departureCity.name }}
+            <span class="mx-1 text-on-surface">→</span>
+            {{ trip.route.arrivalCity.name }}
+          </p>
+          <p class="mt-1 text-sm text-on-surface">
+            <svg xmlns="http://www.w3.org/2000/svg" class="mr-1 inline-block size-3.5 align-text-bottom"
+              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+            {{ trip.departureTime.toFormat('dd/MM/yyyy HH:mm') }}
+          </p>
+        </div>
+        <form method="POST" action="{{ route('public.bookings.initiate') }}?trip={{ trip.id }}">
+          {{ csrfField() }}
+          <input type="text" name="website" class="sr-only" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <button type="submit"
+            class="rounded-full border border-outline px-4 py-1.5 text-xs font-medium text-on-surface-strong transition-all duration-200 hover:-translate-y-0.5 hover:border-primary hover:text-primary">
+            Réserver
+          </button>
+        </form>
+      </div>
+      @end
+    </div>
+    @else
+    <p class="mt-4 text-sm text-on-surface">Aucun voyage programmé pour le moment.</p>
+    @end
+  </div>
+</div>
+@end

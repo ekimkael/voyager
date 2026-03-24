@@ -17,12 +17,12 @@ export default class FranchisesController {
 
     franchises.baseUrl('/franchises')
 
-    return view.render('pages/franchises/index', { franchises })
+    return view.render('pages/dashboard/franchises/index', { franchises })
   }
 
   async create({ view }: HttpContext) {
     const cities = await City.query().orderBy('name')
-    return view.render('pages/franchises/form', { cities })
+    return view.render('pages/dashboard/franchises/edit', { cities })
   }
 
   async store({ request, response, session, tenant }: HttpContext) {
@@ -56,7 +56,7 @@ export default class FranchisesController {
 
     const cities = await City.query().orderBy('name')
 
-    return view.render('pages/franchises/form', { franchise, cities })
+    return view.render('pages/dashboard/franchises/edit', { franchise, cities })
   }
 
   async update({ params, request, response, session, tenant }: HttpContext) {
@@ -99,7 +99,10 @@ export default class FranchisesController {
       .count('* as total')
 
     if (Number(activeUsers[0].$extras.total) > 0) {
-      session.flash('error', 'Impossible de désactiver cette franchise car elle a des employés actifs.')
+      session.flash(
+        'error',
+        'Impossible de désactiver cette franchise car elle a des employés actifs.'
+      )
       return response.redirect().toRoute('franchises.index')
     }
 
@@ -117,6 +120,6 @@ export default class FranchisesController {
       .preload('city')
       .firstOrFail()
 
-    return view.render('pages/franchises/performance', { franchise })
+    return view.render('pages/dashboard/franchises/performance', { franchise })
   }
 }

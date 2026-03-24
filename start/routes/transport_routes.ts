@@ -11,5 +11,5 @@ router
     router.put('/:id', [controllers.Routes, 'update']).as('routes.update').use(middleware.permission({ keys: ['route:update'] }))
     router.delete('/:id', [controllers.Routes, 'destroy']).as('routes.destroy').use(middleware.permission({ keys: ['route:delete'] }))
   })
-  .prefix('routes')
+  .prefix('dashboard/routes')
   .use(middleware.auth())

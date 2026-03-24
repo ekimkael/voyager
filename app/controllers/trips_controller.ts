@@ -19,7 +19,7 @@ export default class TripsController {
       .preload('driver')
       .orderBy('departureTime', 'desc')
 
-    return view.render('pages/trips/index', { trips })
+    return view.render('pages/dashboard/trips/index', { trips })
   }
 
   async history({ view, request, tenant }: HttpContext) {
@@ -68,7 +68,7 @@ export default class TripsController {
 
     const { page, ...queryFilters } = filters
     const trips = await query.paginate(page, 20)
-    trips.baseUrl('/trips/history')
+    trips.baseUrl('/dashboard/trips/history')
     trips.queryString(queryFilters)
 
     // Load filter dropdown data in parallel — all queries are independent
@@ -81,13 +81,8 @@ export default class TripsController {
         .preload('departureCity')
         .preload('arrivalCity')
         .orderBy('code'),
-      Bus.query()
-        .where('tenantId', tenant!.id)
-        .orderBy('licensePlate'),
-      Role.query()
-        .where('tenantId', tenant!.id)
-        .where('name', 'Chauffeur')
-        .first(),
+      Bus.query().where('tenantId', tenant!.id).orderBy('licensePlate'),
+      Role.query().where('tenantId', tenant!.id).where('name', 'Chauffeur').first(),
     ])
 
     const drivers = chauffeurRole
@@ -100,7 +95,7 @@ export default class TripsController {
           .orderBy('lastName')
       : []
 
-    return view.render('pages/trips/history', { trips, routes, buses, drivers, filters })
+    return view.render('pages/dashboard/trips/history', { trips, routes, buses, drivers, filters })
   }
 
   async create({ view, tenant }: HttpContext) {
@@ -119,7 +114,7 @@ export default class TripsController {
 
     const drivers = await this.getDrivers(tenant!.id)
 
-    return view.render('pages/trips/form', { routes, buses, drivers })
+    return view.render('pages/dashboard/trips/edit', { routes, buses, drivers })
   }
 
   async store({ request, response, session, tenant }: HttpContext) {
@@ -215,7 +210,7 @@ export default class TripsController {
 
     const drivers = await this.getDrivers(tenant!.id, trip.driverId)
 
-    return view.render('pages/trips/form', { trip, routes, buses, drivers })
+    return view.render('pages/dashboard/trips/edit', { trip, routes, buses, drivers })
   }
 
   async update({ params, request, response, session, tenant }: HttpContext) {

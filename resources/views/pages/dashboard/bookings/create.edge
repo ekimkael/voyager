@@ -1,0 +1,210 @@
+@layout.dashboard()
+  <div class="mx-auto max-w-3xl"
+    x-data="{
+      selectedTripId: '{{ old('tripId') || '' }}',
+      seatCounts: {{ js.stringify(seatCounts) }},
+      availableSeats: null,
+      subscription: null,
+      get seatsExhausted() {
+        return this.availableSeats !== null && this.availableSeats <= 0
+      },
+      async selectTrip(tripId) {
+        if (this.subscription) {
+          await this.subscription.delete()
+          this.subscription = null
+        }
+        this.selectedTripId = tripId
+        if (!tripId) {
+          this.availableSeats = null
+          return
+        }
+        this.availableSeats = this.seatCounts[tripId] ?? null
+        const transmit = window.__transmit
+        if (transmit) {
+          this.subscription = transmit.subscription('trips/' + tripId + '/seats')
+          await this.subscription.create()
+          this.subscription.onMessage((data) => {
+            this.availableSeats = data.availableSeats
+          })
+        }
+      },
+      destroy() {
+        if (this.subscription) {
+          this.subscription.delete()
+        }
+      }
+    }"
+    x-init="if (selectedTripId) { selectTrip(selectedTripId) }"
+  >
+    <div class="mb-6 flex items-center justify-between">
+      <h1 class="text-2xl font-bold text-on-surface-strong">Nouvelle réservation</h1>
+      <a href="{{ route('dashboard.bookings.index') }}"
+        class="inline-flex items-center gap-2 rounded-radius border border-outline px-4 py-2.5 text-sm font-medium text-on-surface hover:bg-surface-alt transition-colors">
+        @svg('tabler:arrow-left', { class: 'size-4' })
+        <span>Retour</span>
+      </a>
+    </div>
+
+    {{-- Validation errors --}}
+    @if(flashMessages.has('errors'))
+      <div class="mb-6 rounded-radius border border-red-200 bg-red-50 p-4">
+        <p class="text-sm font-medium text-red-800">Veuillez corriger les erreurs suivantes :</p>
+        <ul class="mt-2 list-inside list-disc text-sm text-red-700">
+          @each(error in flashMessages.get('errors'))
+            <li>{{ error.message }}</li>
+          @end
+        </ul>
+      </div>
+    @end
+
+    @form({ route: 'dashboard.bookings.store', method: 'POST' })
+      <div class="space-y-6">
+
+        {{-- Trip selection --}}
+        <div class="rounded-radius border border-outline bg-surface p-6">
+          <h2 class="mb-4 text-base font-semibold text-on-surface-strong">Voyage</h2>
+          <div>
+            <label for="tripId" class="mb-1 block text-sm font-medium text-on-surface">
+              Sélectionner un voyage <span class="text-danger">*</span>
+            </label>
+            <select name="tripId" id="tripId"
+              x-model="selectedTripId"
+              x-on:change="selectTrip($event.target.value)"
+              class="h-10 w-full rounded-radius border border-neutral-300 bg-surface px-4 text-sm text-on-surface-strong outline-none focus:border-primary focus:ring-1 focus:ring-primary">
+              <option value="">-- Choisir un voyage --</option>
+              @each(trip in trips)
+                <option value="{{ trip.id }}">
+                  {{ trip.route.departureCity.name }} → {{ trip.route.arrivalCity.name }} —
+                  {{ trip.departureTime.toFormat('dd/MM/yyyy HH:mm') }} —
+                  {{ seatCounts[trip.id] }} places disponibles
+                </option>
+              @end
+            </select>
+            <p x-show="availableSeats !== null" x-transition
+              class="mt-2 text-sm font-semibold"
+              :class="availableSeats <= 0 ? 'text-red-600' : 'text-on-surface'"
+              x-text="availableSeats <= 0 ? 'Plus de places disponibles' : 'Places restantes : ' + availableSeats"
+            ></p>
+          </div>
+        </div>
+
+        {{-- Customer section --}}
+        <div class="rounded-radius border border-outline bg-surface p-6">
+          <h2 class="mb-4 text-base font-semibold text-on-surface-strong">Client</h2>
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <label for="customer_firstName" class="mb-1 block text-sm font-medium text-on-surface">
+                Prénom <span class="text-danger">*</span>
+              </label>
+              <input type="text" name="customer[firstName]" id="customer_firstName"
+                value="{{ old('customer.firstName') || '' }}"
+                class="h-10 w-full rounded-radius border border-neutral-300 bg-surface px-4 text-sm text-on-surface-strong outline-none focus:border-primary focus:ring-1 focus:ring-primary" />
+            </div>
+            <div>
+              <label for="customer_lastName" class="mb-1 block text-sm font-medium text-on-surface">
+                Nom <span class="text-danger">*</span>
+              </label>
+              <input type="text" name="customer[lastName]" id="customer_lastName"
+                value="{{ old('customer.lastName') || '' }}"
+                class="h-10 w-full rounded-radius border border-neutral-300 bg-surface px-4 text-sm text-on-surface-strong outline-none focus:border-primary focus:ring-1 focus:ring-primary" />
+            </div>
+            <div>
+              <label for="customer_phone" class="mb-1 block text-sm font-medium text-on-surface">
+                Téléphone <span class="text-danger">*</span>
+              </label>
+              <input type="tel" name="customer[phone]" id="customer_phone"
+                value="{{ old('customer.phone') || '' }}"
+                class="h-10 w-full rounded-radius border border-neutral-300 bg-surface px-4 text-sm text-on-surface-strong outline-none focus:border-primary focus:ring-1 focus:ring-primary" />
+            </div>
+            <div>
+              <label for="customer_email" class="mb-1 block text-sm font-medium text-on-surface">Email</label>
+              <input type="email" name="customer[email]" id="customer_email"
+                value="{{ old('customer.email') || '' }}"
+                class="h-10 w-full rounded-radius border border-neutral-300 bg-surface px-4 text-sm text-on-surface-strong outline-none focus:border-primary focus:ring-1 focus:ring-primary" />
+            </div>
+          </div>
+        </div>
+
+        {{-- Passengers section (Alpine.js dynamic rows) --}}
+        <div class="rounded-radius border border-outline bg-surface p-6"
+          x-data="{
+            passengers: [{ firstName: '', lastName: '', phone: '' }],
+            addPassenger() {
+              this.passengers.push({ firstName: '', lastName: '', phone: '' })
+            },
+            removePassenger(index) {
+              if (this.passengers.length > 1) {
+                this.passengers.splice(index, 1)
+              }
+            }
+          }">
+          <div class="mb-4 flex items-center justify-between">
+            <h2 class="text-base font-semibold text-on-surface-strong">Passagers</h2>
+            <button type="button" x-on:click="addPassenger()"
+              class="inline-flex items-center gap-1.5 rounded-radius border border-outline px-3 py-1.5 text-sm font-medium text-on-surface hover:bg-surface-alt transition-colors">
+              @svg('tabler:plus', { class: 'size-4' })
+              <span>Ajouter un passager</span>
+            </button>
+          </div>
+
+          <div class="space-y-4">
+            <template x-for="(passenger, index) in passengers" :key="index">
+              <div class="rounded-radius border border-outline p-4">
+                <div class="mb-3 flex items-center justify-between">
+                  <span class="text-sm font-medium text-on-surface-strong" x-text="'Passager ' + (index + 1)"></span>
+                  <button type="button" x-on:click="removePassenger(index)"
+                    x-show="passengers.length > 1"
+                    class="cursor-pointer text-on-surface hover:text-danger transition-colors">
+                    @svg('tabler:trash', { class: 'size-4' })
+                  </button>
+                </div>
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                  <div>
+                    <label class="mb-1 block text-sm font-medium text-on-surface">
+                      Prénom <span class="text-danger">*</span>
+                    </label>
+                    <input type="text"
+                      :name="'passengers[' + index + '][firstName]'"
+                      x-model="passenger.firstName"
+                      class="h-10 w-full rounded-radius border border-neutral-300 bg-surface px-4 text-sm text-on-surface-strong outline-none focus:border-primary focus:ring-1 focus:ring-primary" />
+                  </div>
+                  <div>
+                    <label class="mb-1 block text-sm font-medium text-on-surface">
+                      Nom <span class="text-danger">*</span>
+                    </label>
+                    <input type="text"
+                      :name="'passengers[' + index + '][lastName]'"
+                      x-model="passenger.lastName"
+                      class="h-10 w-full rounded-radius border border-neutral-300 bg-surface px-4 text-sm text-on-surface-strong outline-none focus:border-primary focus:ring-1 focus:ring-primary" />
+                  </div>
+                  <div>
+                    <label class="mb-1 block text-sm font-medium text-on-surface">Téléphone</label>
+                    <input type="tel"
+                      :name="'passengers[' + index + '][phone]'"
+                      x-model="passenger.phone"
+                      class="h-10 w-full rounded-radius border border-neutral-300 bg-surface px-4 text-sm text-on-surface-strong outline-none focus:border-primary focus:ring-1 focus:ring-primary" />
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+
+        {{-- Submit --}}
+        <div class="flex items-center gap-4">
+          <button type="submit"
+            :disabled="seatsExhausted"
+            :class="seatsExhausted ? 'bg-gray-400 cursor-not-allowed' : 'bg-primary hover:bg-secondary'"
+            class="inline-flex items-center gap-2 rounded-radius px-6 py-2.5 text-sm font-medium text-on-primary transition-colors">
+            @svg('tabler:check', { class: 'size-4' })
+            <span>Créer la réservation</span>
+          </button>
+          <a href="{{ route('dashboard.bookings.index') }}"
+            class="text-sm text-on-surface hover:text-on-surface-strong transition-colors">
+            Annuler
+          </a>
+        </div>
+      </div>
+    @end
+  </div>
+@end

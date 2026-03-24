@@ -1,0 +1,69 @@
+@layout.dashboard()
+  <div class="mx-auto max-w-lg">
+    <div class="mb-6">
+      <h1 class="text-2xl font-bold text-on-surface-strong">Validation d'embarquement</h1>
+      <p class="mt-1 text-sm text-on-surface">Saisissez le code passager ou scannez le QR code pour valider l'embarquement.</p>
+    </div>
+
+    {{-- Flash messages (inline, more prominent for boarding context) --}}
+    @if(flashMessages.has('success'))
+      <div class="mb-6 rounded-radius border border-green-200 bg-green-50 p-4">
+        <div class="flex items-start gap-3">
+          @svg('tabler:circle-check', { class: 'size-5 shrink-0 text-green-600 mt-0.5' })
+          <div>
+            <p class="text-sm font-semibold text-green-800">Embarquement validé</p>
+            <p class="mt-1 text-sm text-green-700">{{ flashMessages.get('success') }}</p>
+          </div>
+        </div>
+      </div>
+    @end
+
+    @if(flashMessages.has('warning'))
+      <div class="mb-6 rounded-radius border border-yellow-200 bg-yellow-50 p-4">
+        <div class="flex items-start gap-3">
+          @svg('tabler:alert-triangle', { class: 'size-5 shrink-0 text-yellow-600 mt-0.5' })
+          <div>
+            <p class="text-sm font-semibold text-yellow-800">Attention</p>
+            <p class="mt-1 text-sm text-yellow-700">{{ flashMessages.get('warning') }}</p>
+          </div>
+        </div>
+      </div>
+    @end
+
+    @if(flashMessages.has('error'))
+      <div class="mb-6 rounded-radius border border-red-200 bg-red-50 p-4">
+        <div class="flex items-start gap-3">
+          @svg('tabler:circle-x', { class: 'size-5 shrink-0 text-red-600 mt-0.5' })
+          <div>
+            <p class="text-sm font-semibold text-red-800">Erreur</p>
+            <p class="mt-1 text-sm text-red-700">{{ flashMessages.get('error') }}</p>
+          </div>
+        </div>
+      </div>
+    @end
+
+    {{-- Boarding form --}}
+    <div class="rounded-radius border border-outline bg-surface p-6">
+      @form({ route: 'dashboard.boarding.validate', method: 'POST' })
+        <div class="space-y-5">
+          <div>
+            <label for="code" class="mb-2 block text-sm font-medium text-on-surface">
+              Code passager / QR Code
+            </label>
+            <input type="text" name="code" id="code"
+              autofocus
+              autocomplete="off"
+              placeholder="Ex: ABC-1234"
+              class="h-14 w-full rounded-radius border border-neutral-300 bg-surface px-5 text-lg font-medium text-on-surface-strong outline-none focus:border-primary focus:ring-2 focus:ring-primary" />
+          </div>
+
+          <button type="submit"
+            class="inline-flex w-full items-center justify-center gap-2 rounded-radius bg-primary px-6 py-3 text-base font-medium text-on-primary hover:bg-secondary transition-colors">
+            @svg('tabler:scan', { class: 'size-5' })
+            <span>Valider</span>
+          </button>
+        </div>
+      @end
+    </div>
+  </div>
+@end

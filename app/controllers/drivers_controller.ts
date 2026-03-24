@@ -10,7 +10,7 @@ export default class DriversController {
       .first()
 
     if (!chauffeurRole) {
-      return view.render('pages/drivers/index', { drivers: [] })
+      return view.render('pages/dashboard/drivers/index', { drivers: [] })
     }
 
     const drivers = await User.query()
@@ -21,6 +21,6 @@ export default class DriversController {
       .orderBy('firstName')
       .orderBy('lastName')
 
-    return view.render('pages/drivers/index', { drivers })
+    return view.render('pages/dashboard/drivers/index', { drivers })
   }
 }

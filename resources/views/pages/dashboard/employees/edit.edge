@@ -1,0 +1,21 @@
+@layout.dashboard()
+  <div class="mx-auto max-w-lg">
+    <div class="mb-6">
+      <h1 class="text-2xl font-bold text-on-surface-strong">
+        {{ employee ? 'Modifier l\'employé' : 'Nouvel employé' }}
+      </h1>
+    </div>
+
+    <div class="rounded-radius border border-outline bg-surface p-6">
+      @if(employee)
+        @form({ route: 'employees.update', routeParams: { id: employee.id }, method: 'PUT' })
+          @include('pages/dashboard/employees/_form')
+        @end
+      @else
+        @form({ route: 'employees.store', method: 'POST' })
+          @include('pages/dashboard/employees/_form')
+        @end
+      @end
+    </div>
+  </div>
+@end

@@ -1,0 +1,115 @@
+@layout.public()
+<div class="mx-auto max-w-lg">
+
+  {{-- Stepper --}}
+  <div class="mb-8 animate-fade-rise">
+    <div class="flex items-center gap-0">
+      {{-- Step 1 - completed --}}
+      <div class="flex items-center gap-2">
+        <span class="flex size-8 items-center justify-center rounded-full bg-emerald-500 text-on-primary">
+          <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </span>
+        <span class="hidden text-sm text-on-surface sm:inline">Passagers</span>
+      </div>
+      <div class="mx-3 h-px flex-1 bg-primary"></div>
+      {{-- Step 2 - active --}}
+      <div class="flex items-center gap-2">
+        <span class="flex size-8 items-center justify-center rounded-full bg-primary text-xs font-bold text-on-primary">2</span>
+        <span class="text-sm font-medium text-on-surface-strong">Coordonnées</span>
+      </div>
+      <div class="mx-3 h-px flex-1 bg-outline"></div>
+      {{-- Step 3 --}}
+      <div class="flex items-center gap-2">
+        <span class="flex size-8 items-center justify-center rounded-full border-2 border-outline text-xs font-bold text-on-surface">3</span>
+        <span class="hidden text-sm text-on-surface sm:inline">Récap</span>
+      </div>
+      <div class="mx-3 h-px flex-1 bg-outline"></div>
+      {{-- Step 4 --}}
+      <div class="flex items-center gap-2">
+        <span class="flex size-8 items-center justify-center rounded-full border-2 border-outline text-xs font-bold text-on-surface">4</span>
+        <span class="hidden text-sm text-on-surface sm:inline">Paiement</span>
+      </div>
+    </div>
+  </div>
+
+  {{-- Customer form --}}
+  <div class="animate-fade-rise delay-100 rounded-2xl border border-outline/60 bg-surface/90 p-6 shadow-sm backdrop-blur-sm">
+    <h1 class="mb-5 text-xl font-semibold text-on-surface-strong">Vos coordonnées</h1>
+
+    <form method="POST" action="{{ route('public.bookings.storeCustomer', { id: booking.id }) }}">
+      {{ csrfField() }}
+
+      <div class="flex flex-col gap-4">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label for="firstName" class="mb-1.5 block text-sm font-medium text-on-surface-strong">
+              Prénom <span class="text-red-500">*</span>
+            </label>
+            <input type="text" id="firstName" name="firstName" value="{{ flashMessages.get('firstName') ?? '' }}"
+              placeholder="Ex: Jean" required
+              class="h-10 w-full rounded-full border border-outline bg-surface px-4 text-sm text-on-surface focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
+            @if(flashMessages.has('errors.firstName'))
+            <p class="mt-1 text-xs text-red-500">{{ flashMessages.get('errors.firstName') }}</p>
+            @end
+          </div>
+
+          <div>
+            <label for="lastName" class="mb-1.5 block text-sm font-medium text-on-surface-strong">
+              Nom <span class="text-red-500">*</span>
+            </label>
+            <input type="text" id="lastName" name="lastName" value="{{ flashMessages.get('lastName') ?? '' }}"
+              placeholder="Ex: Dupont" required
+              class="h-10 w-full rounded-full border border-outline bg-surface px-4 text-sm text-on-surface focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
+            @if(flashMessages.has('errors.lastName'))
+            <p class="mt-1 text-xs text-red-500">{{ flashMessages.get('errors.lastName') }}</p>
+            @end
+          </div>
+        </div>
+
+        <div>
+          <label for="phone" class="mb-1.5 block text-sm font-medium text-on-surface-strong">
+            Téléphone <span class="text-red-500">*</span>
+          </label>
+          <input type="tel" id="phone" name="phone" value="{{ flashMessages.get('phone') ?? '' }}"
+            placeholder="Ex: +237 6XX XXX XXX" required
+            class="h-10 w-full rounded-full border border-outline bg-surface px-4 text-sm text-on-surface focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
+          @if(flashMessages.has('errors.phone'))
+          <p class="mt-1 text-xs text-red-500">{{ flashMessages.get('errors.phone') }}</p>
+          @end
+        </div>
+
+        <div>
+          <label for="email" class="mb-1.5 block text-sm font-medium text-on-surface-strong">
+            Email (optionnel)
+          </label>
+          <input type="email" id="email" name="email" value="{{ flashMessages.get('email') ?? '' }}"
+            placeholder="Ex: jean.dupont@example.com"
+            class="h-10 w-full rounded-full border border-outline bg-surface px-4 text-sm text-on-surface focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
+          @if(flashMessages.has('errors.email'))
+          <p class="mt-1 text-xs text-red-500">{{ flashMessages.get('errors.email') }}</p>
+          @end
+        </div>
+      </div>
+
+      <div class="mt-6 flex items-center justify-between border-t border-outline/60 pt-5">
+        <a href="{{ route('public.bookings.passengers', { id: booking.id }) }}"
+          class="inline-flex items-center gap-1.5 text-sm text-on-surface transition-colors hover:text-on-surface-strong">
+          <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m12 19-7-7 7-7" />
+            <path d="M19 12H5" />
+          </svg>
+          Retour
+        </a>
+        <button type="submit"
+          class="rounded-full bg-primary px-7 py-2.5 text-sm font-medium text-on-primary transition-all duration-200 hover:-translate-y-0.5 hover:bg-secondary hover:shadow-md">
+          Suivant
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+@end

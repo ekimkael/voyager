@@ -4,12 +4,26 @@
  */
 
 export const controllers = {
-  Dashboard: () => import('#controllers/dashboard_controller'),
-  NewAccount: () => import('#controllers/new_account_controller'),
-  Session: () => import('#controllers/session_controller'),
-  Cities: () => import('#controllers/cities_controller'),
-  Routes: () => import('#controllers/routes_controller'),
+  Bookings: () => import('#controllers/bookings_controller'),
   Buses: () => import('#controllers/buses_controller'),
+  Cities: () => import('#controllers/cities_controller'),
+  Dashboard: () => import('#controllers/dashboard_controller'),
+  dashboard: {
+    Boarding: () => import('#controllers/dashboard/boarding_controller'),
+    Bookings: () => import('#controllers/dashboard/bookings_controller'),
+    Tickets: () => import('#controllers/dashboard/tickets_controller'),
+  },
   Drivers: () => import('#controllers/drivers_controller'),
+  EmailChange: () => import('#controllers/email_change_controller'),
+  Employees: () => import('#controllers/employees_controller'),
+  Franchises: () => import('#controllers/franchises_controller'),
+  NewAccount: () => import('#controllers/new_account_controller'),
+  Profile: () => import('#controllers/profile_controller'),
+  Roles: () => import('#controllers/roles_controller'),
+  Routes: () => import('#controllers/routes_controller'),
+  Search: () => import('#controllers/search_controller'),
+  Security: () => import('#controllers/security_controller'),
+  Session: () => import('#controllers/session_controller'),
+  Tickets: () => import('#controllers/tickets_controller'),
   Trips: () => import('#controllers/trips_controller'),
 }

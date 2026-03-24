@@ -8,6 +8,9 @@
 */
 
 import router from '@adonisjs/core/services/router'
+import transmit from '@adonisjs/transmit/services/main'
+
+transmit.registerRoutes()
 
 router.on('/').render('pages/home').as('home')
 
@@ -20,3 +23,9 @@ import '#start/routes/drivers'
 import '#start/routes/franchises'
 import '#start/routes/employees'
 import '#start/routes/trips'
+import '#start/routes/bookings'
+import '#start/routes/dashboard/bookings'
+import '#start/routes/dashboard/boarding'
+import '#start/routes/search'
+import '#start/routes/roles'
+import '#start/routes/profile'

@@ -11,5 +11,5 @@ router
     router.put('/:id', [controllers.Cities, 'update']).as('cities.update').use(middleware.permission({ keys: ['city:update'] }))
     router.delete('/:id', [controllers.Cities, 'destroy']).as('cities.destroy').use(middleware.permission({ keys: ['city:delete'] }))
   })
-  .prefix('cities')
+  .prefix('dashboard/cities')
   .use(middleware.auth())

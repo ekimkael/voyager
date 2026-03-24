@@ -1,0 +1,84 @@
+@layout.dashboard()
+  <div class="mx-auto max-w-3xl">
+    <div class="mb-6 flex items-center justify-between">
+      <h1 class="text-2xl font-bold text-on-surface-strong">Modifier la réservation</h1>
+      <a href="{{ route('dashboard.bookings.show', { id: booking.id }) }}"
+        class="inline-flex items-center gap-2 rounded-radius border border-outline px-4 py-2.5 text-sm font-medium text-on-surface hover:bg-surface-alt transition-colors">
+        @svg('tabler:arrow-left', { class: 'size-4' })
+        <span>Retour</span>
+      </a>
+    </div>
+
+    {{-- Validation errors --}}
+    @if(flashMessages.has('errors'))
+      <div class="mb-6 rounded-radius border border-red-200 bg-red-50 p-4">
+        <p class="text-sm font-medium text-red-800">Veuillez corriger les erreurs suivantes :</p>
+        <ul class="mt-2 list-inside list-disc text-sm text-red-700">
+          @each(error in flashMessages.get('errors'))
+            <li>{{ error.message }}</li>
+          @end
+        </ul>
+      </div>
+    @end
+
+    @form({ route: 'dashboard.bookings.update', routeParams: { id: booking.id }, method: 'PUT' })
+      <div class="space-y-4">
+
+        {{-- Passenger rows --}}
+        @each((passenger, index) in booking.passengers)
+          <div class="rounded-radius border border-outline bg-surface p-5">
+            <h2 class="mb-4 text-sm font-semibold text-on-surface-strong">
+              Passager — Siège {{ passenger.seatNumber }}
+            </h2>
+
+            <input type="hidden" name="passengers[{{ index }}][id]" value="{{ passenger.id }}" />
+
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <div>
+                <label for="p{{ index }}_firstName" class="mb-1 block text-sm font-medium text-on-surface">
+                  Prénom <span class="text-danger">*</span>
+                </label>
+                <input type="text"
+                  name="passengers[{{ index }}][firstName]"
+                  id="p{{ index }}_firstName"
+                  value="{{ old('passengers.' + index + '.firstName') || passenger.firstName }}"
+                  class="h-10 w-full rounded-radius border border-neutral-300 bg-surface px-4 text-sm text-on-surface-strong outline-none focus:border-primary focus:ring-1 focus:ring-primary" />
+              </div>
+              <div>
+                <label for="p{{ index }}_lastName" class="mb-1 block text-sm font-medium text-on-surface">
+                  Nom <span class="text-danger">*</span>
+                </label>
+                <input type="text"
+                  name="passengers[{{ index }}][lastName]"
+                  id="p{{ index }}_lastName"
+                  value="{{ old('passengers.' + index + '.lastName') || passenger.lastName }}"
+                  class="h-10 w-full rounded-radius border border-neutral-300 bg-surface px-4 text-sm text-on-surface-strong outline-none focus:border-primary focus:ring-1 focus:ring-primary" />
+              </div>
+              <div>
+                <label for="p{{ index }}_phone" class="mb-1 block text-sm font-medium text-on-surface">Téléphone</label>
+                <input type="tel"
+                  name="passengers[{{ index }}][phone]"
+                  id="p{{ index }}_phone"
+                  value="{{ old('passengers.' + index + '.phone') || passenger.phone || '' }}"
+                  class="h-10 w-full rounded-radius border border-neutral-300 bg-surface px-4 text-sm text-on-surface-strong outline-none focus:border-primary focus:ring-1 focus:ring-primary" />
+              </div>
+            </div>
+          </div>
+        @end
+
+        {{-- Submit --}}
+        <div class="flex items-center gap-4">
+          <button type="submit"
+            class="inline-flex items-center gap-2 rounded-radius bg-primary px-6 py-2.5 text-sm font-medium text-on-primary hover:bg-secondary transition-colors">
+            @svg('tabler:check', { class: 'size-4' })
+            <span>Enregistrer</span>
+          </button>
+          <a href="{{ route('dashboard.bookings.show', { id: booking.id }) }}"
+            class="text-sm text-on-surface hover:text-on-surface-strong transition-colors">
+            Annuler
+          </a>
+        </div>
+      </div>
+    @end
+  </div>
+@end

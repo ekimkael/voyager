@@ -1,0 +1,174 @@
+@layout.dashboard()
+  <div class="mx-auto max-w-5xl">
+
+    {{-- Header --}}
+    <div class="mb-6 flex items-center justify-between">
+      <div>
+        <div class="flex items-center gap-3">
+          <h1 class="text-2xl font-bold text-on-surface-strong">{{ role.name }}</h1>
+          @if(role.isSystem)
+            <span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">Système</span>
+          @end
+        </div>
+        @if(role.parent)
+          <p class="mt-1 text-sm text-on-surface">
+            Hérite de :
+            <a href="{{ route('roles.show', { id: role.parent.id }) }}" class="text-primary hover:underline">{{ role.parent.name }}</a>
+          </p>
+        @end
+      </div>
+      <div class="flex items-center gap-2">
+        @if(!role.isSystem)
+          @can('permission', 'role:update')
+            <a href="{{ route('roles.edit', { id: role.id }) }}"
+              class="inline-flex items-center gap-2 rounded-radius bg-primary px-4 py-2.5 text-sm font-medium text-on-primary hover:bg-secondary transition-colors">
+              @svg('tabler:edit', { class: 'size-4' })
+              <span>Modifier</span>
+            </a>
+          @end
+        @end
+        <a href="{{ route('roles.index') }}" class="text-sm text-on-surface hover:text-on-surface-strong transition-colors">
+          Retour à la liste
+        </a>
+      </div>
+    </div>
+
+    {{-- Permission Grid --}}
+    <div class="mb-8">
+      <h2 class="mb-4 text-lg font-semibold text-on-surface-strong">Permissions</h2>
+
+      @form({ route: 'roles.syncPermissions', routeParams: { id: role.id }, method: 'POST' })
+
+        {{-- CRUD Grid --}}
+        <div class="mb-6 overflow-hidden rounded-radius border border-outline bg-surface">
+          <table class="w-full text-left text-sm">
+            <thead class="border-b border-outline bg-surface-alt text-xs uppercase tracking-wider text-on-surface">
+              <tr>
+                <th class="px-6 py-3">Ressource</th>
+                @each(action in crudActions)
+                  <th class="px-6 py-3 text-center">{{ action }}</th>
+                @end
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-outline">
+              @each(row in crudGrid)
+                <tr class="hover:bg-surface-alt/50">
+                  <td class="px-6 py-4 font-medium text-on-surface-strong capitalize">{{ row.resource }}</td>
+                  @each(action in crudActions)
+                    <td class="px-6 py-4 text-center">
+                      @let(cell = row.actions[action])
+                      @if(cell && cell.permissionId)
+                        @if(cell.inherited)
+                          <label class="inline-flex items-center gap-1 cursor-default" title="Hérité de {{ cell.from }}">
+                            <input type="checkbox" checked disabled
+                              class="size-4 rounded border-neutral-300 text-primary/50" />
+                            <span class="text-xs text-on-surface">hérité</span>
+                          </label>
+                        @elseif(role.isSystem)
+                          <input type="checkbox" {{ cell.granted ? 'checked' : '' }} disabled
+                            class="size-4 rounded border-neutral-300 text-primary/50" />
+                        @else
+                          <input type="checkbox" name="permissions[]" value="{{ cell.permissionId }}"
+                            {{ cell.granted ? 'checked' : '' }}
+                            class="size-4 rounded border-neutral-300 text-primary focus:ring-primary" />
+                        @end
+                      @else
+                        <span class="text-on-surface">—</span>
+                      @end
+                    </td>
+                  @end
+                </tr>
+              @end
+            </tbody>
+          </table>
+        </div>
+
+        {{-- Special Permissions --}}
+        @if(specialPermissions.length)
+          <div class="mb-6 rounded-radius border border-outline bg-surface p-6">
+            <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-on-surface">Permissions spéciales</h3>
+            <div class="space-y-3">
+              @each(perm in specialPermissions)
+                <label class="flex items-center gap-3 {{ perm.inherited ? 'cursor-default' : '' }}">
+                  @if(perm.inherited)
+                    <input type="checkbox" checked disabled
+                      class="size-4 rounded border-neutral-300 text-primary/50" />
+                    <span class="text-sm text-on-surface-strong">{{ perm.key }}</span>
+                    <span class="text-xs text-on-surface">(hérité de {{ perm.from }})</span>
+                  @elseif(role.isSystem)
+                    <input type="checkbox" {{ perm.granted ? 'checked' : '' }} disabled
+                      class="size-4 rounded border-neutral-300 text-primary/50" />
+                    <span class="text-sm text-on-surface-strong">{{ perm.key }}</span>
+                  @else
+                    <input type="checkbox" name="permissions[]" value="{{ perm.permissionId }}"
+                      {{ perm.granted ? 'checked' : '' }}
+                      class="size-4 rounded border-neutral-300 text-primary focus:ring-primary" />
+                    <span class="text-sm text-on-surface-strong">{{ perm.key }}</span>
+                  @end
+                  @if(perm.description)
+                    <span class="text-xs text-on-surface">— {{ perm.description }}</span>
+                  @end
+                </label>
+              @end
+            </div>
+          </div>
+        @end
+
+        {{-- Submit button (only for custom roles) --}}
+        @if(!role.isSystem)
+          <div class="flex items-center gap-3">
+            @!button({ text: 'Enregistrer les permissions', type: 'submit' })
+          </div>
+        @end
+
+      @end
+    </div>
+
+    {{-- Assigned Users --}}
+    <div>
+      <h2 class="mb-4 text-lg font-semibold text-on-surface-strong">Utilisateurs assignés</h2>
+      <div class="overflow-hidden rounded-radius border border-outline bg-surface">
+        <table class="w-full text-left text-sm">
+          <thead class="border-b border-outline bg-surface-alt text-xs uppercase tracking-wider text-on-surface">
+            <tr>
+              <th class="px-6 py-3">Nom</th>
+              <th class="px-6 py-3">Email</th>
+              <th class="px-6 py-3">Assigné le</th>
+              <th class="px-6 py-3">Expire le</th>
+              <th class="px-6 py-3">Accordé par</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-outline">
+            @each(assignment in role.userRoleAssignments)
+              <tr class="hover:bg-surface-alt/50 {{ assignment.expiresAt && assignment.expiresAt < new Date() ? 'opacity-50' : '' }}">
+                <td class="px-6 py-4 font-medium text-on-surface-strong">{{ assignment.user.fullName }}</td>
+                <td class="px-6 py-4 text-on-surface">{{ assignment.user.email }}</td>
+                <td class="px-6 py-4 text-on-surface">{{ assignment.createdAt.toFormat('dd/MM/yyyy') }}</td>
+                <td class="px-6 py-4 text-on-surface">
+                  @if(assignment.expiresAt)
+                    @if(assignment.expiresAt < new Date())
+                      <span class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">
+                        Expiré {{ assignment.expiresAt.toFormat('dd/MM/yyyy') }}
+                      </span>
+                    @else
+                      {{ assignment.expiresAt.toFormat('dd/MM/yyyy') }}
+                    @end
+                  @else
+                    <span class="text-on-surface">Permanent</span>
+                  @end
+                </td>
+                <td class="px-6 py-4 text-on-surface">{{ assignment.granter?.fullName || '—' }}</td>
+              </tr>
+            @end
+          </tbody>
+        </table>
+
+        @if(!role.userRoleAssignments.length)
+          <div class="px-6 py-12 text-center text-on-surface">
+            Aucun utilisateur assigné à ce rôle.
+          </div>
+        @end
+      </div>
+    </div>
+  </div>
+@end

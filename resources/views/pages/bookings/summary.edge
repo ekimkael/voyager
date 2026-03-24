@@ -1,0 +1,163 @@
+@layout.public()
+<div class="mx-auto max-w-2xl">
+
+  {{-- Stepper --}}
+  <div class="mb-8 animate-fade-rise">
+    <div class="flex items-center gap-0">
+      {{-- Step 1 - completed --}}
+      <div class="flex items-center gap-2">
+        <span class="flex size-8 items-center justify-center rounded-full bg-emerald-500 text-on-primary">
+          <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </span>
+        <span class="hidden text-sm text-on-surface sm:inline">Passagers</span>
+      </div>
+      <div class="mx-3 h-px flex-1 bg-primary"></div>
+      {{-- Step 2 - completed --}}
+      <div class="flex items-center gap-2">
+        <span class="flex size-8 items-center justify-center rounded-full bg-emerald-500 text-on-primary">
+          <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </span>
+        <span class="hidden text-sm text-on-surface sm:inline">Coordonnées</span>
+      </div>
+      <div class="mx-3 h-px flex-1 bg-primary"></div>
+      {{-- Step 3 - active --}}
+      <div class="flex items-center gap-2">
+        <span class="flex size-8 items-center justify-center rounded-full bg-primary text-xs font-bold text-on-primary">3</span>
+        <span class="text-sm font-medium text-on-surface-strong">Récapitulatif</span>
+      </div>
+      <div class="mx-3 h-px flex-1 bg-outline"></div>
+      {{-- Step 4 --}}
+      <div class="flex items-center gap-2">
+        <span class="flex size-8 items-center justify-center rounded-full border-2 border-outline text-xs font-bold text-on-surface">4</span>
+        <span class="hidden text-sm text-on-surface sm:inline">Paiement</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="space-y-4">
+
+    {{-- Trip details --}}
+    <div class="animate-fade-rise delay-100 rounded-2xl border border-outline/60 bg-surface/90 p-6 shadow-sm backdrop-blur-sm">
+      <h2 class="mb-4 text-base font-semibold text-on-surface-strong">Détails du voyage</h2>
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Route</p>
+          <p class="mt-1.5 text-sm font-medium text-on-surface-strong">
+            {{ booking.trip.route.departureCity.name }} → {{ booking.trip.route.arrivalCity.name }}
+          </p>
+        </div>
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Classe</p>
+          <p class="mt-1.5">
+            @if(booking.trip.travelClass === 'vip')
+            <span
+              class="inline-flex items-center rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800">VIP</span>
+            @else
+            <span
+              class="inline-flex items-center rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-medium text-neutral-700">Standard</span>
+            @end
+          </p>
+        </div>
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Départ</p>
+          <p class="mt-1.5 text-sm font-medium text-on-surface-strong">
+            {{ booking.trip.departureTime.toFormat('dd/MM/yyyy HH:mm') }}
+          </p>
+        </div>
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Arrivée</p>
+          <p class="mt-1.5 text-sm font-medium text-on-surface-strong">
+            {{ booking.trip.arrivalTime.toFormat('dd/MM/yyyy HH:mm') }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    {{-- Passengers --}}
+    <div class="animate-fade-rise delay-200 rounded-2xl border border-outline/60 bg-surface/90 p-6 shadow-sm backdrop-blur-sm">
+      <h2 class="mb-4 text-base font-semibold text-on-surface-strong">
+        Passagers ({{ booking.passengers.length }})
+      </h2>
+      <div class="overflow-hidden rounded-xl border border-outline/60">
+        <table class="w-full text-left text-sm">
+          <thead class="border-b border-outline/60 bg-surface-alt/60 text-xs uppercase tracking-wider text-on-surface">
+            <tr>
+              <th class="px-4 py-2.5">Nom</th>
+              <th class="px-4 py-2.5">Siège</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-outline/60">
+            @each(passenger in booking.passengers)
+            <tr class="transition-colors hover:bg-surface-alt/30">
+              <td class="px-4 py-2.5 text-on-surface-strong">
+                {{ passenger.firstName }} {{ passenger.lastName }}
+              </td>
+              <td class="px-4 py-2.5">
+                <span class="inline-flex items-center rounded-full bg-surface-alt px-2.5 py-0.5 text-xs font-medium text-on-surface-strong">
+                  {{ passenger.seatNumber }}
+                </span>
+              </td>
+            </tr>
+            @end
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    {{-- Customer info --}}
+    <div class="animate-fade-rise delay-300 rounded-2xl border border-outline/60 bg-surface/90 p-6 shadow-sm backdrop-blur-sm">
+      <h2 class="mb-4 text-base font-semibold text-on-surface-strong">Coordonnées</h2>
+      <div class="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Nom complet</p>
+          <p class="mt-1 text-on-surface-strong">{{ booking.customer.firstName }} {{ booking.customer.lastName }}</p>
+        </div>
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Téléphone</p>
+          <p class="mt-1 text-on-surface-strong">{{ booking.customer.phone }}</p>
+        </div>
+        @if(booking.customer.email)
+        <div class="sm:col-span-2">
+          <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Email</p>
+          <p class="mt-1 text-on-surface-strong">{{ booking.customer.email }}</p>
+        </div>
+        @end
+      </div>
+    </div>
+
+    {{-- Total & confirm --}}
+    <div class="animate-fade-rise delay-400 rounded-2xl border border-outline/60 bg-surface/90 p-6 shadow-sm backdrop-blur-sm">
+      <div class="flex items-center justify-between">
+        <p class="text-base font-semibold text-on-surface-strong">Montant total</p>
+        <p class="text-2xl font-bold text-primary">{{ booking.totalAmount }} FCFA</p>
+      </div>
+
+      <form method="POST" action="{{ route('public.bookings.confirm', { id: booking.id }) }}" class="mt-5">
+        {{ csrfField() }}
+        <div class="flex items-center justify-between border-t border-outline/60 pt-5">
+          <a href="{{ route('public.bookings.customer', { id: booking.id }) }}"
+            class="inline-flex items-center gap-1.5 text-sm text-on-surface transition-colors hover:text-on-surface-strong">
+            <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m12 19-7-7 7-7" />
+              <path d="M19 12H5" />
+            </svg>
+            Retour
+          </a>
+          <button type="submit"
+            class="rounded-full bg-primary px-7 py-2.5 text-sm font-medium text-on-primary transition-all duration-200 hover:-translate-y-0.5 hover:bg-secondary hover:shadow-md">
+            Confirmer et payer
+          </button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</div>
+@end

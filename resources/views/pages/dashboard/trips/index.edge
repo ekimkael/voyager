@@ -1,0 +1,131 @@
+@layout.dashboard()
+  <div class="mx-auto max-w-7xl">
+    <div class="mb-6 flex items-center justify-between">
+      <h1 class="text-2xl font-bold text-on-surface-strong">Voyages</h1>
+      <div class="flex items-center gap-3">
+        <a href="{{ route('trips.history') }}"
+          class="inline-flex items-center gap-2 rounded-radius border border-outline bg-surface px-4 py-2.5 text-sm font-medium text-on-surface hover:bg-surface-alt transition-colors">
+          @svg('tabler:history', { class: 'size-4' })
+          <span>Historique</span>
+        </a>
+        @can('permission', 'trip:create')
+          <a href="{{ route('trips.create') }}"
+            class="inline-flex items-center gap-2 rounded-radius bg-primary px-4 py-2.5 text-sm font-medium text-on-primary hover:bg-secondary transition-colors">
+            @svg('tabler:plus', { class: 'size-4' })
+            <span>Nouveau voyage</span>
+          </a>
+        @end
+      </div>
+    </div>
+
+    <div class="overflow-hidden rounded-radius border border-outline bg-surface">
+      <table class="w-full text-left text-sm">
+        <thead class="border-b border-outline bg-surface-alt text-xs uppercase tracking-wider text-on-surface">
+          <tr>
+            <th class="px-6 py-3">Route</th>
+            <th class="px-6 py-3">Bus</th>
+            <th class="px-6 py-3">Chauffeur</th>
+            <th class="px-6 py-3">Départ</th>
+            <th class="px-6 py-3">Classe</th>
+            <th class="px-6 py-3">Tarif</th>
+            <th class="px-6 py-3">Statut</th>
+            <th class="px-6 py-3 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-outline">
+          @each(item in trips)
+            <tr class="hover:bg-surface-alt/50">
+              <td class="px-6 py-4 font-medium text-on-surface-strong">
+                {{ item.route.departureCity.name }} → {{ item.route.arrivalCity.name }}
+              </td>
+              <td class="px-6 py-4 text-on-surface">{{ item.bus.licensePlate }}</td>
+              <td class="px-6 py-4 text-on-surface">{{ item.driver.fullName }}</td>
+              <td class="px-6 py-4 text-on-surface">{{ item.departureTime.toFormat('dd/MM/yyyy HH:mm') }}</td>
+              <td class="px-6 py-4">
+                @if(item.travelClass === 'vip')
+                  <span class="inline-flex items-center rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800">VIP</span>
+                @else
+                  <span class="inline-flex items-center rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-medium text-neutral-800">Standard</span>
+                @end
+              </td>
+              <td class="px-6 py-4 text-on-surface">{{ item.price }} FCFA</td>
+              <td class="px-6 py-4">
+                @if(item.status === 'scheduled')
+                  <span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">Planifié</span>
+                @else
+                  <span class="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">En cours</span>
+                @end
+              </td>
+              <td class="px-6 py-4 text-right">
+                <div class="flex items-center justify-end gap-2">
+                  @can('permission', 'trip:update')
+                    @if(item.status === 'scheduled')
+                      @form({ route: 'trips.transition', routeParams: { id: item.id }, method: 'PUT' })
+                        <input type="hidden" name="status" value="in_progress" />
+                        <button type="submit"
+                          class="cursor-pointer text-on-surface hover:text-green-600 transition-colors"
+                          title="Démarrer le voyage"
+                          onclick="return confirm('Démarrer ce voyage ?')">
+                          @svg('tabler:player-play', { class: 'size-4' })
+                        </button>
+                      @end
+                    @end
+                    @if(item.status === 'in_progress')
+                      @form({ route: 'trips.transition', routeParams: { id: item.id }, method: 'PUT' })
+                        <input type="hidden" name="status" value="completed" />
+                        <button type="submit"
+                          class="cursor-pointer text-on-surface hover:text-green-600 transition-colors"
+                          title="Terminer le voyage"
+                          onclick="return confirm('Marquer ce voyage comme terminé ?')">
+                          @svg('tabler:circle-check', { class: 'size-4' })
+                        </button>
+                      @end
+                    @end
+                    @if(item.status === 'scheduled' || item.status === 'in_progress')
+                      @form({ route: 'trips.transition', routeParams: { id: item.id }, method: 'PUT' })
+                        <input type="hidden" name="status" value="cancelled" />
+                        <button type="submit"
+                          class="cursor-pointer text-on-surface hover:text-orange-600 transition-colors"
+                          title="Annuler le voyage"
+                          onclick="return confirm('Annuler ce voyage ?')">
+                          @svg('tabler:x', { class: 'size-4' })
+                        </button>
+                      @end
+                    @end
+                  @end
+                  @if(item.status === 'scheduled' || item.status === 'in_progress')
+                    @can('permission', 'trip:update')
+                      <a href="{{ route('trips.edit', { id: item.id }) }}"
+                        class="text-on-surface hover:text-primary transition-colors"
+                        title="Modifier">
+                        @svg('tabler:edit', { class: 'size-4' })
+                      </a>
+                    @end
+                  @end
+                  @if(item.status === 'scheduled')
+                    @can('permission', 'trip:delete')
+                      @form({ route: 'trips.destroy', routeParams: { id: item.id }, method: 'DELETE' })
+                        <button type="submit"
+                          class="cursor-pointer text-on-surface hover:text-danger transition-colors"
+                          title="Supprimer"
+                          onclick="return confirm('Supprimer ce voyage ?')">
+                          @svg('tabler:trash', { class: 'size-4' })
+                        </button>
+                      @end
+                    @end
+                  @end
+                </div>
+              </td>
+            </tr>
+          @end
+        </tbody>
+      </table>
+
+      @if(!trips.length)
+        <div class="px-6 py-12 text-center text-on-surface">
+          Aucun voyage enregistré.
+        </div>
+      @end
+    </div>
+  </div>
+@end
