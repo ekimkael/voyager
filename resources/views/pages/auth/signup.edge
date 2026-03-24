@@ -1,7 +1,7 @@
 @layout.base()
 <div class="flex min-h-screen">
   {{-- Left panel - decorative --}}
-  <div class="auth-panel-bg relative hidden flex-col justify-between overflow-hidden p-10 lg:flex lg:w-1/2 xl:w-[45%]">
+  <div class="auth-panel-bg relative hidden flex-col justify-between overflow-hidden p-10 lg:flex lg:w-1/2 xl:w-[50%]">
     <div class="pointer-events-none absolute inset-0 opacity-[0.04]"
       style="background-image: url(&quot;data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E&quot;)">
     </div>
@@ -29,13 +29,6 @@
 
   {{-- Right panel - form --}}
   <div class="flex flex-1 flex-col">
-    <div class="flex items-center justify-between px-6 py-4 lg:px-10">
-      <a href="/" class="text-xl font-bold tracking-tight text-on-surface-strong lg:invisible">Voyager</a>
-      <a href="{{ route('session.create') }}"
-        class="rounded-full border border-outline px-4 py-1.5 text-sm font-medium text-on-surface transition-all duration-200 hover:-translate-y-0.5 hover:border-on-surface-strong hover:text-on-surface-strong">
-        Se connecter
-      </a>
-    </div>
 
     @include('partials/flash_alerts')
 
