@@ -4,6 +4,11 @@
  */
 
 export const controllers = {
+  auth: {
+    NewAccount: () => import('#controllers/auth/new_account_controller'),
+    PasswordReset: () => import('#controllers/auth/password_reset_controller'),
+    Session: () => import('#controllers/auth/session_controller'),
+  },
   Bookings: () => import('#controllers/bookings_controller'),
   Buses: () => import('#controllers/buses_controller'),
   Cities: () => import('#controllers/cities_controller'),
@@ -23,9 +28,4 @@ export const controllers = {
   Security: () => import('#controllers/security_controller'),
   Tickets: () => import('#controllers/tickets_controller'),
   Trips: () => import('#controllers/trips_controller'),
-  auth: {
-    NewAccount: () => import('#controllers/auth/new_account_controller'),
-    PasswordReset: () => import('#controllers/auth/password_reset_controller'),
-    Session: () => import('#controllers/auth/session_controller'),
-  },
 }
