@@ -6,7 +6,7 @@ router.get('/trips', [SearchController, 'index']).as('public.globalTrips.index')
 
 router
   .group(() => {
-    router.get('/', [SearchController, 'tenantShow']).as('public.tenants.show')
+    router.get('/', [SearchController, 'companyShow']).as('public.companies.show')
     router.get('/trips', [SearchController, 'index']).as('public.trips.index')
   })
-  .prefix(':tenantSlug')
+  .prefix(':companySlug')

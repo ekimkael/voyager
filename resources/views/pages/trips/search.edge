@@ -17,7 +17,7 @@
   {{-- Search form --}}
   <div class="mb-8 animate-fade-rise delay-100 rounded-2xl border border-outline/60 bg-surface/90 p-6 shadow-sm backdrop-blur-sm">
     <form method="GET"
-      action="{{ tenantSlug ? route('public.trips.index', { tenantSlug }) : route('public.globalTrips.index') }}"
+      action="{{ companySlug ? route('public.trips.index', { companySlug }) : route('public.globalTrips.index') }}"
       class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       <div>
         <label for="from" class="mb-1.5 block text-sm font-medium text-on-surface-strong">Départ</label>
@@ -93,11 +93,11 @@
                 <circle cx="12" cy="12" r="10" />
                 <polyline points="12 6 12 12 16 14" />
               </svg>
-              {{ item.trip.departureTime.toFormat('dd/MM/yyyy HH:mm') }}
+              {{ item.trip.departureTime.toFormat('dd MMM yyyy à HH:mm', { locale: 'fr' }) }}
             </span>
             <span>
-              <a href="{{ route('public.tenants.show', { tenantSlug: item.trip.tenant.slug }) }}"
-                class="font-medium text-on-surface-strong hover:underline">{{ item.trip.tenant.name }}</a>
+              <a href="{{ route('public.companies.show', { companySlug: item.trip.company.slug }) }}"
+                class="font-medium text-on-surface-strong hover:underline">{{ item.trip.company.name }}</a>
             </span>
           </div>
           <div class="flex flex-wrap items-center gap-2.5 text-sm">
@@ -108,8 +108,8 @@
             <span
               class="inline-flex items-center rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-medium text-neutral-700">Standard</span>
             @end
-            <span class="font-semibold text-on-surface-strong">{{ item.trip.price }} FCFA</span>
-            <span class="text-on-surface">{{ item.availableSeats }} place(s)</span>
+            <span class="font-semibold text-on-surface-strong">{{ Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XAF' }).format(item.trip.price) }}</span>
+            <span class="text-on-surface">{{ Intl.NumberFormat('fr-FR').format(item.availableSeats) }} place(s)</span>
           </div>
         </div>
         <div class="shrink-0">

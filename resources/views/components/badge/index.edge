@@ -1,0 +1,22 @@
+@let(badgeTextFromSlot = await $slots.main())
+@let(badgeText = badgeTextFromSlot.trim() ? badgeTextFromSlot : $props.get('text') ?? '')
+@let(variant = $props.get('variant') || 'neutral')
+
+@let(variantConfig = {
+  success: { icon: 'tabler:circle-check', class: 'text-success' },
+  warning: { icon: 'tabler:clock', class: 'text-warning' },
+  danger: { icon: 'tabler:circle-x', class: 'text-danger' },
+  info: { icon: 'tabler:circle-dot', class: 'text-info' },
+  neutral: { icon: 'tabler:circle', class: 'text-on-surface' },
+})
+
+@let(config = variantConfig[variant] || variantConfig['neutral'])
+
+<span {{ $props.except(['variant', 'text']).merge({
+  class: ['inline-flex', 'items-center', 'gap-1.5', 'text-sm', config.class],
+  'data-slot': 'badge',
+  'data-variant': variant,
+}).toAttrs() }}>
+  @svg(config.icon, { class: 'size-4' })
+  {{{ badgeText }}}
+</span>

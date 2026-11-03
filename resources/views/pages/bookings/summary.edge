@@ -67,13 +67,13 @@
         <div>
           <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Départ</p>
           <p class="mt-1.5 text-sm font-medium text-on-surface-strong">
-            {{ booking.trip.departureTime.toFormat('dd/MM/yyyy HH:mm') }}
+            {{ booking.trip.departureTime.toFormat('dd MMM yyyy à HH:mm', { locale: 'fr' }) }}
           </p>
         </div>
         <div>
           <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Arrivée</p>
           <p class="mt-1.5 text-sm font-medium text-on-surface-strong">
-            {{ booking.trip.arrivalTime.toFormat('dd/MM/yyyy HH:mm') }}
+            {{ booking.trip.arrivalTime.toFormat('dd MMM yyyy à HH:mm', { locale: 'fr' }) }}
           </p>
         </div>
       </div>
@@ -135,7 +135,7 @@
     <div class="animate-fade-rise delay-400 rounded-2xl border border-outline/60 bg-surface/90 p-6 shadow-sm backdrop-blur-sm">
       <div class="flex items-center justify-between">
         <p class="text-base font-semibold text-on-surface-strong">Montant total</p>
-        <p class="text-2xl font-bold text-primary">{{ booking.totalAmount }} FCFA</p>
+        <p class="text-2xl font-bold text-primary">{{ Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XAF' }).format(booking.totalAmount) }}</p>
       </div>
 
       <form method="POST" action="{{ route('public.bookings.confirm', { id: booking.id }) }}" class="mt-5">

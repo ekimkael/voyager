@@ -1,6 +1,6 @@
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
 import { DateTime } from 'luxon'
-import Tenant from '#models/tenant'
+import Company from '#models/company'
 import Route from '#models/route'
 import Bus from '#models/bus'
 import User from '#models/user'
@@ -39,21 +39,21 @@ const tripsTemplate: TripDef[] = [
 // Non-idempotent: uses Trip.create. Run after `node ace migration:fresh` for clean state.
 export default class extends BaseSeeder {
   async run() {
-    const tenants = await Tenant.all()
+    const companies = await Company.all()
 
-    for (const tenant of tenants) {
-      const routes = await Route.query().where('tenantId', tenant.id)
+    for (const company of companies) {
+      const routes = await Route.query().where('companyId', company.id)
       const routeMap = new Map(routes.map((r) => [r.code, r]))
 
-      const buses = await Bus.query().where('tenantId', tenant.id).where('active', true).orderBy('createdAt')
+      const buses = await Bus.query().where('companyId', company.id).where('active', true).orderBy('createdAt')
 
       const chauffeurRole = await Role.query()
-        .where('tenantId', tenant.id)
+        .where('companyId', company.id)
         .where('name', 'Chauffeur')
         .firstOrFail()
 
       const drivers = await User.query()
-        .where('tenantId', tenant.id)
+        .where('companyId', company.id)
         .whereHas('roleAssignments', (q) => q.where('roleId', chauffeurRole.id))
         .orderBy('createdAt')
 
@@ -74,7 +74,7 @@ export default class extends BaseSeeder {
         const arrival = departure.plus({ minutes: route.estimatedDurationMinutes })
 
         await Trip.create({
-          tenantId: tenant.id,
+          companyId: company.id,
           routeId: route.id,
           busId: bus.id,
           driverId: driver.id,

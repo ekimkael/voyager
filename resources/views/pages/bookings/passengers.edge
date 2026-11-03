@@ -42,8 +42,8 @@
       </p>
     </div>
     <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-on-surface">
-      <span>{{ trip.departureTime.toFormat('dd/MM/yyyy HH:mm') }}</span>
-      <span>{{ trip.price }} FCFA / passager</span>
+      <span>{{ trip.departureTime.toFormat('dd MMM yyyy à HH:mm', { locale: 'fr' }) }}</span>
+      <span>{{ Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XAF' }).format(trip.price) }} / passager</span>
     </div>
     <p class="mt-2 text-sm font-medium" :class="availableSeats <= 0 ? 'text-red-600' : 'text-emerald-600'"
       x-text="availableSeats <= 0 ? 'Plus de places disponibles' : availableSeats + ' place(s) restante(s)'"

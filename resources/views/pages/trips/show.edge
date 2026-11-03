@@ -1,7 +1,7 @@
 @layout.public()
 <div class="mx-auto max-w-2xl">
   <div class="mb-5 animate-fade-rise">
-    <a href="{{ tenantSlug ? route('public.trips.index', { tenantSlug }) : route('public.globalTrips.index') }}"
+    <a href="{{ companySlug ? route('public.trips.index', { companySlug }) : route('public.globalTrips.index') }}"
       class="inline-flex items-center gap-1.5 text-sm text-on-surface transition-colors hover:text-on-surface-strong">
       <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -34,14 +34,14 @@
         <div class="rounded-xl border border-outline/60 bg-surface-alt/50 p-4">
           <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Départ</p>
           <p class="mt-1.5 text-sm font-medium text-on-surface-strong">
-            {{ trip.departureTime.toFormat('dd/MM/yyyy HH:mm') }}
+            {{ trip.departureTime.toFormat('dd MMM yyyy à HH:mm', { locale: 'fr' }) }}
           </p>
           <p class="mt-0.5 text-sm text-on-surface">{{ trip.route.departureCity.name }}</p>
         </div>
         <div class="rounded-xl border border-outline/60 bg-surface-alt/50 p-4">
           <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Arrivée</p>
           <p class="mt-1.5 text-sm font-medium text-on-surface-strong">
-            {{ trip.arrivalTime.toFormat('dd/MM/yyyy HH:mm') }}
+            {{ trip.arrivalTime.toFormat('dd MMM yyyy à HH:mm', { locale: 'fr' }) }}
           </p>
           <p class="mt-0.5 text-sm text-on-surface">{{ trip.route.arrivalCity.name }}</p>
         </div>
@@ -69,11 +69,11 @@
         </div>
         <div>
           <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Prix</p>
-          <p class="mt-1.5 text-sm font-medium text-on-surface-strong">{{ trip.price }} FCFA</p>
+          <p class="mt-1.5 text-sm font-medium text-on-surface-strong">{{ Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XAF' }).format(trip.price) }}</p>
         </div>
         <div>
           <p class="text-xs font-semibold uppercase tracking-wider text-on-surface">Places</p>
-          <p class="mt-1.5 text-sm font-medium text-on-surface-strong">{{ availableSeats }}</p>
+          <p class="mt-1.5 text-sm font-medium text-on-surface-strong">{{ Intl.NumberFormat('fr-FR').format(availableSeats) }}</p>
         </div>
       </div>
 

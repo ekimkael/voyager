@@ -5,11 +5,11 @@ import TicketGenerator from '#services/ticket_generator'
 export default class DashboardTicketsController {
   private ticketGenerator = new TicketGenerator()
 
-  async download({ params, response, tenant }: HttpContext) {
+  async download({ params, response, company }: HttpContext) {
     const passenger = await Passenger.query()
       .where('id', params.passengerId)
       .whereHas('booking', (query) => {
-        query.where('id', params.id).where('tenantId', tenant!.id).where('status', 'confirmed')
+        query.where('id', params.id).where('companyId', company!.id).where('status', 'confirmed')
       })
       .preload('booking', (query) => {
         query.preload('trip', (tripQuery) => {
@@ -25,7 +25,7 @@ export default class DashboardTicketsController {
     const route = trip.route
 
     const pdfBuffer = await this.ticketGenerator.generate({
-      tenant: tenant!,
+      company: company!,
       passenger,
       tripInfo: {
         departureCity: route.departureCity.name,

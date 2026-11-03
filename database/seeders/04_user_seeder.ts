@@ -1,5 +1,5 @@
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
-import Tenant from '#models/tenant'
+import Company from '#models/company'
 import User from '#models/user'
 import Role from '#models/role'
 import UserRoleAssignment from '#models/user_role_assignment'
@@ -11,7 +11,7 @@ interface UserDef {
   role: string
 }
 
-const usersPerTenant: Record<string, UserDef[]> = {
+const usersPerCompany: Record<string, UserDef[]> = {
   'general-express-voyages': [
     { firstName: 'Kouamé', lastName: 'Diallo', email: 'admin@general-express-voyages.com', role: 'Admin' },
     { firstName: 'Aminata', lastName: 'Traoré', email: 'aminata.traore@general-express-voyages.com', role: 'Dispatcher' },
@@ -38,14 +38,14 @@ const usersPerTenant: Record<string, UserDef[]> = {
 
 export default class extends BaseSeeder {
   async run() {
-    const tenants = await Tenant.all()
+    const companies = await Company.all()
 
-    for (const tenant of tenants) {
-      const userDefs = usersPerTenant[tenant.slug]
+    for (const company of companies) {
+      const userDefs = usersPerCompany[company.slug]
       if (!userDefs) continue
 
       const admin = await User.updateOrCreate(
-        { tenantId: tenant.id, email: userDefs[0].email },
+        { companyId: company.id, email: userDefs[0].email },
         {
           firstName: userDefs[0].firstName,
           lastName: userDefs[0].lastName,
@@ -57,7 +57,7 @@ export default class extends BaseSeeder {
 
       // Assign admin role
       const adminRole = await Role.query()
-        .where('tenantId', tenant.id)
+        .where('companyId', company.id)
         .where('name', 'Admin')
         .firstOrFail()
 
@@ -69,7 +69,7 @@ export default class extends BaseSeeder {
       // Create remaining users
       for (const userDef of userDefs.slice(1)) {
         const user = await User.updateOrCreate(
-          { tenantId: tenant.id, email: userDef.email },
+          { companyId: company.id, email: userDef.email },
           {
             firstName: userDef.firstName,
             lastName: userDef.lastName,
@@ -81,7 +81,7 @@ export default class extends BaseSeeder {
         )
 
         const role = await Role.query()
-          .where('tenantId', tenant.id)
+          .where('companyId', company.id)
           .where('name', userDef.role)
           .firstOrFail()
 

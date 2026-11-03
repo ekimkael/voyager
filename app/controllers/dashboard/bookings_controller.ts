@@ -13,7 +13,7 @@ import { agentBookingValidator, updateBookingValidator } from '#validators/booki
 export default class DashboardBookingsController {
   private seatAllocator = new SeatAllocator()
 
-  async index({ view, tenant, auth, request }: HttpContext) {
+  async index({ view, company, auth, request }: HttpContext) {
     const page = request.input('page', 1)
     const date = request.input('date') || null
     const tripId = request.input('trip_id') || null
@@ -21,10 +21,10 @@ export default class DashboardBookingsController {
     const code = request.input('code') || null
 
     const isScopedToFranchise = !!(
-      auth.user!.franchiseId && !(await this.isAdminOrDispatcher(auth.user!.id, tenant!.id))
+      auth.user!.franchiseId && !(await this.isAdminOrDispatcher(auth.user!.id, company!.id))
     )
 
-    const query = Booking.query().where('tenantId', tenant!.id)
+    const query = Booking.query().where('companyId', company!.id)
 
     if (isScopedToFranchise) {
       query.where('franchiseId', auth.user!.franchiseId!)
@@ -79,9 +79,9 @@ export default class DashboardBookingsController {
     })
   }
 
-  async create({ view, tenant }: HttpContext) {
+  async create({ view, company }: HttpContext) {
     const trips = await Trip.query()
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .where('status', 'scheduled')
       .where('departureTime', '>', DateTime.now().toSQL()!)
       .preload('route', (q) => {
@@ -99,24 +99,24 @@ export default class DashboardBookingsController {
     return view.render('pages/dashboard/bookings/create', { trips, seatCounts })
   }
 
-  async store({ request, response, session, tenant, auth }: HttpContext) {
+  async store({ request, response, session, company, auth }: HttpContext) {
     const payload = await request.validateUsing(agentBookingValidator)
 
     try {
       const booking = await db.transaction(async (trx) => {
-        // 1. Verify trip belongs to tenant, is scheduled, departure > NOW()
+        // 1. Verify trip belongs to company, is scheduled, departure > NOW()
         const trip = await Trip.query({ client: trx })
           .where('id', payload.tripId)
-          .where('tenantId', tenant!.id)
+          .where('companyId', company!.id)
           .where('status', 'scheduled')
           .where('departureTime', '>', DateTime.now().toSQL()!)
           .firstOrFail()
 
-        // 2. Find or create customer by (tenantId, phone)
+        // 2. Find or create customer by (companyId, phone)
         const customer = await Customer.firstOrCreate(
-          { tenantId: tenant!.id, phone: payload.customer.phone },
+          { companyId: company!.id, phone: payload.customer.phone },
           {
-            tenantId: tenant!.id,
+            companyId: company!.id,
             firstName: payload.customer.firstName,
             lastName: payload.customer.lastName,
             phone: payload.customer.phone,
@@ -128,7 +128,7 @@ export default class DashboardBookingsController {
         // 3. Create booking
         const newBooking = await Booking.create(
           {
-            tenantId: tenant!.id,
+            companyId: company!.id,
             tripId: trip.id,
             customerId: customer.id,
             agentId: auth.user!.id,
@@ -171,10 +171,10 @@ export default class DashboardBookingsController {
     }
   }
 
-  async show({ params, view, tenant }: HttpContext) {
+  async show({ params, view, company }: HttpContext) {
     const booking = await Booking.query()
       .where('id', params.id)
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .preload('trip', (q) => {
         q.preload('route', (rq) => {
           rq.preload('departureCity').preload('arrivalCity')
@@ -189,10 +189,10 @@ export default class DashboardBookingsController {
     return view.render('pages/dashboard/bookings/show', { booking })
   }
 
-  async edit({ params, view, response, session, tenant }: HttpContext) {
+  async edit({ params, view, response, session, company }: HttpContext) {
     const booking = await Booking.query()
       .where('id', params.id)
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .preload('trip')
       .preload('passengers')
       .firstOrFail()
@@ -210,10 +210,10 @@ export default class DashboardBookingsController {
     return view.render('pages/dashboard/bookings/edit', { booking })
   }
 
-  async update({ params, request, response, session, tenant }: HttpContext) {
+  async update({ params, request, response, session, company }: HttpContext) {
     const booking = await Booking.query()
       .where('id', params.id)
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .preload('passengers')
       .firstOrFail()
 
@@ -235,10 +235,10 @@ export default class DashboardBookingsController {
     return response.redirect().toRoute('dashboard.bookings.show', { id: booking.id })
   }
 
-  async destroy({ params, response, session, tenant }: HttpContext) {
+  async destroy({ params, response, session, company }: HttpContext) {
     const booking = await Booking.query()
       .where('id', params.id)
-      .where('tenantId', tenant!.id)
+      .where('companyId', company!.id)
       .preload('trip')
       .firstOrFail()
 
@@ -257,11 +257,11 @@ export default class DashboardBookingsController {
     return response.redirect().toRoute('dashboard.bookings.index')
   }
 
-  private async isAdminOrDispatcher(userId: string, tenantId: string): Promise<boolean> {
+  private async isAdminOrDispatcher(userId: string, companyId: string): Promise<boolean> {
     const assignment = await UserRoleAssignment.query()
       .where('userId', userId)
       .whereHas('role', (q) => {
-        q.where('tenantId', tenantId).whereIn('name', ['Admin', 'Dispatcher'])
+        q.where('companyId', companyId).whereIn('name', ['Admin', 'Dispatcher'])
       })
       .first()
 

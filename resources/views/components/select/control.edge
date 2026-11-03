@@ -1,23 +1,23 @@
-@let(classes = ['h-10', 'w-full', 'rounded-radius', 'border', 'border-neutral-300', 'bg-surface', 'px-4', 'text-sm', 'text-on-surface-strong', 'outline-none', 'focus:border-primary', 'focus:ring-1', 'focus:ring-primary', 'aria-[invalid=true]:border-danger'])
+@let(classes = [
+'h-9', 'w-full', 'min-w-0', 'rounded-md', 'border', 'border-outline', 'bg-transparent', 'px-3', 'py-1',
+'text-base', 'text-on-surface-strong', 'shadow-xs', 'outline-none',
+'transition-[color,box-shadow]',
+'disabled:pointer-events-none', 'disabled:cursor-not-allowed', 'disabled:opacity-50',
+'md:text-sm',
+'focus-visible:border-primary', 'focus-visible:ring-[3px]', 'focus-visible:ring-primary/50',
+'aria-[invalid=true]:border-danger', 'aria-[invalid=true]:ring-danger/20',
+])
 
-<select {{ $props
-  .except(['options'])
-  .merge({
-    name: $context.name,
-    id: $context.id,
-    class: classes,
-    'aria-invalid': $context.hasErrors ? 'true' : false,
-    'data-invalid': $context.hasErrors ? 'true' : false,
-    'aria-describedby': $context.hasErrors ? `${$context.id}-error` : '',
-  })
-  .toAttrs() }}>
-@each(option in $props.get('options'))
+<select {{ $props .except(['options']) .merge({ name: $context.name, id: $context.id, class: classes, 'aria-invalid' :
+  $context.hasErrors ? 'true' : false, 'data-invalid' : $context.hasErrors ? 'true' : false, 'aria-describedby' :
+  $context.hasErrors ? `${$context.id}-error` : '' , }) .toAttrs() }}>
+  @each(option in $props.get('options'))
   @let(isSelected = option.isSelected
-    ? true
-    : $context.oldValue && $context.oldValue === option.value
+  ? true
+  : $context.oldValue && $context.oldValue === option.value
   )
   <option value="{{ option.value }}" {{ isSelected ? 'selected' : '' }}>
     {{ option.name ?? option.value }}
   </option>
-@end
+  @end
 </select>

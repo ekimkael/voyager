@@ -1,0 +1,15 @@
+@if(!isScopedToFranchise)
+  @filter.bar({ action: route('employees.index') })
+    @filter.field()
+      <select name="franchise_id" id="franchise_id"
+        class="h-9 w-full min-w-0 rounded-md border border-outline bg-transparent px-3 py-1 text-sm text-on-surface-strong shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-primary focus-visible:ring-[3px] focus-visible:ring-primary/50">
+        <option value="">Toutes les franchises</option>
+        @each(f in franchises)
+          <option value="{{ f.id }}" {{ filterFranchiseId === f.id ? 'selected' : '' }}>
+            {{ f.name }} — {{ f.city.name }}
+          </option>
+        @end
+      </select>
+    @end
+  @end
+@end

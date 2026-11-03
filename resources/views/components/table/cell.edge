@@ -1,0 +1,15 @@
+@let(isHead = $props.get('head') === true || $props.get('head') === 'true')
+
+@if(isHead)
+  <th {{ $props.except(['head']).merge({
+    class: ['px-4', 'py-3', 'text-xs', 'font-medium', 'text-on-surface', 'whitespace-nowrap'],
+  }).toAttrs() }}>
+    {{{ await $slots.main() }}}
+  </th>
+@else
+  <td {{ $props.except(['head']).merge({
+    class: ['px-4', 'py-3', 'text-on-surface-strong', 'whitespace-nowrap'],
+  }).toAttrs() }}>
+    {{{ await $slots.main() }}}
+  </td>
+@end

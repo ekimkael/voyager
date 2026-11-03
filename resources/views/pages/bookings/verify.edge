@@ -77,7 +77,7 @@
       <div>
         <p class="text-xs font-semibold uppercase tracking-wider text-emerald-700">Départ</p>
         <p class="mt-1 font-medium text-emerald-900">
-          {{ passenger.booking.trip.departureTime.toFormat('dd/MM/yyyy HH:mm') }}
+          {{ passenger.booking.trip.departureTime.toFormat('dd MMM yyyy à HH:mm', { locale: 'fr' }) }}
         </p>
       </div>
     </div>

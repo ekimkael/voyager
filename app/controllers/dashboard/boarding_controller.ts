@@ -9,11 +9,11 @@ export default class BoardingController {
     return view.render('pages/dashboard/boarding/index')
   }
 
-  async validate({ request, response, session, tenant, auth }: HttpContext) {
+  async validate({ request, response, session, company, auth }: HttpContext) {
     const payload = await request.validateUsing(validateBoardingValidator)
     const code = payload.code
 
-    // Look up passenger by code OR qrCode, scoped to tenant
+    // Look up passenger by code OR qrCode, scoped to company
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
     const passenger = await Passenger.query()
       .where((query) => {
@@ -23,7 +23,7 @@ export default class BoardingController {
         }
       })
       .whereHas('booking', (q) => {
-        q.where('tenantId', tenant!.id).where('status', 'confirmed')
+        q.where('companyId', company!.id).where('status', 'confirmed')
       })
       .preload('booking', (q) => {
         q.preload('trip', (tq) => {

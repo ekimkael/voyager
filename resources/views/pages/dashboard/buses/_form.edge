@@ -1,69 +1,87 @@
 <div class="flex flex-col gap-6">
   <div>
     @field.root({ name: 'licensePlate' })
-      @!field.label({ text: 'Immatriculation' })
-      @!input.control({ placeholder: 'Ex: LT-1234-AB', value: bus?.licensePlate ?? '' })
-      @!field.error()
+    @!field.label({ text: 'Immatriculation' })
+    @!input.control({ placeholder: 'Ex: LT-1234-AB', value: bus?.licensePlate ?? '' })
+    @!field.error()
     @end
   </div>
 
-  <div>
-    @field.root({ name: 'brand' })
+  <div class="grid sm:grid-cols-2 gap-2">
+    <section>
+      @field.root({ name: 'brand' })
       @!field.label({ text: 'Marque' })
       @!input.control({ placeholder: 'Ex: Mercedes-Benz', value: bus?.brand ?? '' })
       @!field.error()
-    @end
-  </div>
+      @end
+    </section>
 
-  <div>
-    @field.root({ name: 'model' })
+    <section>
+      @field.root({ name: 'model' })
       @!field.label({ text: 'Modèle' })
       @!input.control({ placeholder: 'Ex: Sprinter 516', value: bus?.model ?? '' })
       @!field.error()
-    @end
+      @end
+    </section>
   </div>
 
-  <div>
-    @field.root({ name: 'capacity' })
-      @!field.label({ text: 'Capacité (places)' })
-      @!input.control({ type: 'number', min: '1', placeholder: 'Ex: 70', value: bus?.capacity ?? '' })
+  <div class="grid sm:grid-cols-2 gap-2">
+    <section>
+      @field.root({ name: 'capacity' })
+      @!field.label({ text: 'Capacité' })
+      @input.group()
+        @!input.groupControl({ type: 'number', min: '1', placeholder: 'Ex: 70', value: bus?.capacity ?? '' })
+        @input.addon({ align: 'inline-end' })
+          <span class="text-sm text-on-surface">places</span>
+        @end
+      @end
       @!field.error()
-    @end
-  </div>
+      @end
+    </section>
 
-  <div>
-    @field.root({ name: 'year' })
+    <section>
+      @field.root({ name: 'year' })
       @!field.label({ text: 'Année de mise en service' })
-      @!input.control({ type: 'number', min: '1990', max: '2035', placeholder: 'Ex: 2022', value: bus?.year ?? '' })
+      @input.group()
+        @input.addon({ align: 'inline-start' })
+          @svg('tabler:calendar')
+        @end
+        @!input.groupControl({ type: 'number', min: '1990', max: '2035', placeholder: 'Ex: 2022', value: bus?.year ?? '' })
+      @end
       @!field.error()
-    @end
+      @end
+    </section>
+
   </div>
 
-  <div>
-    @field.root({ name: 'status' })
+  <div class="grid sm:grid-cols-3 gap-2">
+    <section>
+      @field.root({ name: 'status' })
       @!field.label({ text: 'Statut' })
       @!select.control({
-        options: [
-          { value: 'available', name: 'Disponible', isSelected: bus?.status === 'available' || !bus },
-          { value: 'on_trip', name: 'En voyage', isSelected: bus?.status === 'on_trip' },
-          { value: 'maintenance', name: 'Maintenance', isSelected: bus?.status === 'maintenance' },
-          { value: 'out_of_service', name: 'Hors service', isSelected: bus?.status === 'out_of_service' },
-        ]
+      options: [
+      { value: 'available', name: 'Disponible', isSelected: bus?.status === 'available' || !bus },
+      { value: 'on_trip', name: 'En voyage', isSelected: bus?.status === 'on_trip' },
+      { value: 'maintenance', name: 'Maintenance', isSelected: bus?.status === 'maintenance' },
+      { value: 'out_of_service', name: 'Hors service', isSelected: bus?.status === 'out_of_service' },
+      ]
       })
       @!field.error()
-    @end
-  </div>
+      @end
+    </section>
 
-  <div>
-    @field.root({ name: 'nextMaintenanceDate' })
+    <section class="sm:col-span-2">
+      @field.root({ name: 'nextMaintenanceDate' })
       @!field.label({ text: 'Prochaine maintenance' })
       @!input.control({ type: 'date', value: bus?.nextMaintenanceDate ?? '' })
       @!field.error()
-    @end
+      @end
+    </section>
   </div>
 
   <div class="flex items-center gap-3">
     @!button({ text: bus ? 'Mettre à jour' : 'Créer', type: 'submit' })
-    <a href="{{ route('buses.index') }}" class="text-sm text-on-surface hover:text-on-surface-strong transition-colors">Annuler</a>
+    <a href="{{ route('buses.index') }}"
+      class="text-sm text-on-surface hover:text-on-surface-strong transition-colors">Annuler</a>
   </div>
 </div>

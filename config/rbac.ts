@@ -1,7 +1,7 @@
 /**
  * RBAC configuration.
  * Defines the global permissions catalog and system roles
- * that are auto-created for each new tenant.
+ * that are auto-created for each new company.
  */
 
 export const permissions = [
@@ -58,7 +58,7 @@ export const permissions = [
   // Boarding permissions
   { resource: 'boarding', action: 'validate', description: 'Validate passenger boarding' },
 
-  // Users & Roles (tenant admin)
+  // Users & Roles (company admin)
   { resource: 'user', action: 'create', description: 'Invite a user' },
   { resource: 'user', action: 'read', description: 'View users' },
   { resource: 'user', action: 'update', description: 'Update user info' },
@@ -71,7 +71,7 @@ export const permissions = [
 ] as const
 
 /**
- * System roles created for each new tenant.
+ * System roles created for each new company.
  * `permissions` is a list of `resource:action` keys from the catalog above.
  * `'*'` means all permissions.
  */

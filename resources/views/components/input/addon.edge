@@ -1,0 +1,19 @@
+@let(align = $props.get('align') || 'inline-start')
+@let(alignClasses = {
+'inline-start': 'order-first pl-3',
+'inline-end': 'order-last pr-3',
+'block-start': 'order-first w-full justify-start px-3 pt-2.5',
+'block-end': 'order-last w-full justify-start px-3 pb-2.5',
+})
+
+@let(classes = [
+'flex', 'h-auto', 'items-center', 'justify-center', 'gap-2', 'py-1.5',
+'text-sm', 'font-medium', 'text-on-surface', 'select-none',
+'group-data-[disabled=true]/input-group:opacity-50',
+'[&>svg:not([class*=size-])]:size-4',
+alignClasses[align] || alignClasses['inline-start'],
+])
+
+<div {{ $props.except(['align']).merge({ 'data-slot': 'input-group-addon', 'data-align': align, class: classes }).toAttrs() }}>
+  {{{ await $slots.main() }}}
+</div>

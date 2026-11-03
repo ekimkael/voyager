@@ -1,77 +1,93 @@
 <div class="flex flex-col gap-6">
   <div>
     @field.root({ name: 'code' })
-      @!field.label({ text: 'Code' })
-      @!input.control({ placeholder: 'Ex: N3', value: transportRoute?.code ?? '' })
-      @!field.error()
+    @!field.label({ text: 'Code' })
+    @!input.control({ placeholder: 'Ex: N3', value: transportRoute?.code ?? '' })
+    @!field.error()
     @end
   </div>
 
-  <div>
-    @field.root({ name: 'departureCityId' })
+  <div class="grid sm:grid-cols-2 gap-2">
+    <section>
+      @field.root({ name: 'departureCityId' })
       @!field.label({ text: 'Ville de départ' })
       @!select.control({
-        options: [
-          { value: '', name: 'Sélectionner une ville' },
-          ...cities.map((city) => ({
-            value: city.id,
-            name: `${city.name}, ${city.country}`,
-            isSelected: transportRoute?.departureCityId === city.id,
-          }))
-        ]
+      options: [
+      { value: '', name: 'Sélectionner une ville' },
+      ...cities.map((city) => ({
+      value: city.id,
+      name: `${city.name}, ${city.country}`,
+      isSelected: transportRoute?.departureCityId === city.id,
+      }))
+      ]
       })
       @!field.error()
-    @end
-  </div>
+      @end
+    </section>
 
-  <div>
-    @field.root({ name: 'arrivalCityId' })
+    <section>
+      @field.root({ name: 'arrivalCityId' })
       @!field.label({ text: "Ville d'arrivée" })
       @!select.control({
-        options: [
-          { value: '', name: 'Sélectionner une ville' },
-          ...cities.map((city) => ({
-            value: city.id,
-            name: `${city.name}, ${city.country}`,
-            isSelected: transportRoute?.arrivalCityId === city.id,
-          }))
-        ]
+      options: [
+      { value: '', name: 'Sélectionner une ville' },
+      ...cities.map((city) => ({
+      value: city.id,
+      name: `${city.name}, ${city.country}`,
+      isSelected: transportRoute?.arrivalCityId === city.id,
+      }))
+      ]
       })
       @!field.error()
-    @end
+      @end
+    </section>
   </div>
 
-  <div>
-    @field.root({ name: 'distanceKm' })
-      @!field.label({ text: 'Distance (km)' })
-      @!input.control({ type: 'number', step: '0.01', min: '0.01', placeholder: 'Ex: 260.50', value: transportRoute?.distanceKm ?? '' })
+  <div class="grid sm:grid-cols-2 gap-2">
+    <section>
+      @field.root({ name: 'distanceKm' })
+      @!field.label({ text: 'Distance' })
+      @input.group()
+        @!input.groupControl({ type: 'number', step: '0.01', min: '0.01', placeholder: 'Ex: 260.50', value:
+        transportRoute?.distanceKm ?? '' })
+        @input.addon({ align: 'inline-end' })
+          <span class="text-sm text-on-surface">km</span>
+        @end
+      @end
       @!field.error()
-    @end
-  </div>
+      @end
+    </section>
 
-  <div>
-    @field.root({ name: 'estimatedDuration' })
+    <section>
+      @field.root({ name: 'estimatedDuration' })
       @!field.label({ text: 'Durée estimée' })
-      @!input.control({ type: 'time', value: transportRoute?.durationTimeValue ?? '' })
+      @input.group()
+        @input.addon({ align: 'inline-start' })
+          @svg('tabler:clock')
+        @end
+        @!input.groupControl({ type: 'time', value: transportRoute?.durationTimeValue ?? '' })
+      @end
       @!field.error()
-    @end
+      @end
+    </section>
   </div>
 
   <div>
     @field.root({ name: 'status' })
-      @!field.label({ text: 'Statut' })
-      @!select.control({
-        options: [
-          { value: 'active', name: 'Active', isSelected: transportRoute?.status === 'active' || !transportRoute },
-          { value: 'inactive', name: 'Inactive', isSelected: transportRoute?.status === 'inactive' },
-        ]
-      })
-      @!field.error()
+    @!field.label({ text: 'Statut' })
+    @!select.control({
+    options: [
+    { value: 'active', name: 'Active', isSelected: transportRoute?.status === 'active' || !transportRoute },
+    { value: 'inactive', name: 'Inactive', isSelected: transportRoute?.status === 'inactive' },
+    ]
+    })
+    @!field.error()
     @end
   </div>
 
   <div class="flex items-center gap-3">
     @!button({ text: transportRoute ? 'Mettre à jour' : 'Créer', type: 'submit' })
-    <a href="{{ route('routes.index') }}" class="text-sm text-on-surface hover:text-on-surface-strong transition-colors">Annuler</a>
+    <a href="{{ route('routes.index') }}"
+      class="text-sm text-on-surface hover:text-on-surface-strong transition-colors">Annuler</a>
   </div>
 </div>

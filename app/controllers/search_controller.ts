@@ -7,7 +7,7 @@ import { DateTime } from 'luxon'
 export default class SearchController {
   private seatAllocator = new SeatAllocator()
 
-  async index({ view, tenant, request }: HttpContext) {
+  async index({ view, company, request }: HttpContext) {
     const { from, to, date } = request.qs()
     const cities = await City.query().orderBy('name')
 
@@ -19,12 +19,12 @@ export default class SearchController {
       .preload('route', (query) => {
         query.preload('departureCity').preload('arrivalCity')
       })
-      .preload('tenant')
+      .preload('company')
       .preload('bus')
       .orderBy('departureTime')
 
-    if (tenant) {
-      query.where('tenantId', tenant.id)
+    if (company) {
+      query.where('companyId', company.id)
     }
 
     if (hasSearchFilters) {
@@ -50,11 +50,11 @@ export default class SearchController {
       cities,
       trips: tripsWithSeats,
       filters: { from, to, date },
-      tenantSlug: tenant?.slug,
+      companySlug: company?.slug,
     })
   }
 
-  async show({ params, view, tenant }: HttpContext) {
+  async show({ params, view, company }: HttpContext) {
     const query = Trip.query()
       .where('id', params.id)
       .where('status', 'scheduled')
@@ -62,11 +62,11 @@ export default class SearchController {
       .preload('route', (query) => {
         query.preload('departureCity').preload('arrivalCity')
       })
-      .preload('tenant')
+      .preload('company')
       .preload('bus')
 
-    if (tenant) {
-      query.where('tenantId', tenant.id)
+    if (company) {
+      query.where('companyId', company.id)
     }
 
     const trip = await query.firstOrFail()
@@ -76,17 +76,17 @@ export default class SearchController {
     return view.render('pages/trips/show', {
       trip,
       availableSeats,
-      tenantSlug: tenant?.slug,
+      companySlug: company?.slug,
     })
   }
 
-  async tenantShow({ view, tenant, response }: HttpContext) {
-    if (!tenant) {
+  async companyShow({ view, company, response }: HttpContext) {
+    if (!company) {
       return response.notFound()
     }
 
     const upcomingTrips = await Trip.query()
-      .where('tenantId', tenant.id)
+      .where('companyId', company.id)
       .where('status', 'scheduled')
       .where('departureTime', '>', DateTime.now().toSQL()!)
       .preload('route', (query) => {
@@ -95,8 +95,8 @@ export default class SearchController {
       .orderBy('departureTime')
       .limit(5)
 
-    return view.render('pages/tenants/show', {
-      tenant,
+    return view.render('pages/companies/show', {
+      company,
       upcomingTrips,
     })
   }

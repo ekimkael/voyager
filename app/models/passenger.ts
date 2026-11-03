@@ -20,6 +20,12 @@ export default class Passenger extends BaseModel {
   declare phone: string | null
 
   @column()
+  declare idDocumentType: 'cni' | 'passport' | 'permit' | 'other' | null
+
+  @column()
+  declare idDocumentNumber: string | null
+
+  @column()
   declare seatNumber: number
 
   @column()

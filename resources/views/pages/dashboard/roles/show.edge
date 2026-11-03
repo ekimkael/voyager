@@ -7,7 +7,7 @@
         <div class="flex items-center gap-3">
           <h1 class="text-2xl font-bold text-on-surface-strong">{{ role.name }}</h1>
           @if(role.isSystem)
-            <span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">Système</span>
+            @!badge({ variant: 'info', text: 'Système' })
           @end
         </div>
         @if(role.parent)
@@ -21,9 +21,9 @@
         @if(!role.isSystem)
           @can('permission', 'role:update')
             <a href="{{ route('roles.edit', { id: role.id }) }}"
-              class="inline-flex items-center gap-2 rounded-radius bg-primary px-4 py-2.5 text-sm font-medium text-on-primary hover:bg-secondary transition-colors">
+              class="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-on-primary shadow-xs hover:bg-primary/90">
               @svg('tabler:edit', { class: 'size-4' })
-              <span>Modifier</span>
+              Modifier
             </a>
           @end
         @end
@@ -40,22 +40,25 @@
       @form({ route: 'roles.syncPermissions', routeParams: { id: role.id }, method: 'POST' })
 
         {{-- CRUD Grid --}}
-        <div class="mb-6 overflow-hidden rounded-radius border border-outline bg-surface">
-          <table class="w-full text-left text-sm">
-            <thead class="border-b border-outline bg-surface-alt text-xs uppercase tracking-wider text-on-surface">
-              <tr>
-                <th class="px-6 py-3">Ressource</th>
-                @each(action in crudActions)
-                  <th class="px-6 py-3 text-center">{{ action }}</th>
-                @end
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-outline">
+        <div class="mb-6">
+          @table.root()
+            @table.header()
+              @table.cell({ head: true })
+                Ressource
+              @end
+              @each(action in crudActions)
+                <th class="px-4 py-3 text-xs font-medium text-on-surface whitespace-nowrap text-center">{{ action }}</th>
+              @end
+            @end
+
+            <tbody>
               @each(row in crudGrid)
-                <tr class="hover:bg-surface-alt/50">
-                  <td class="px-6 py-4 font-medium text-on-surface-strong capitalize">{{ row.resource }}</td>
+                @table.row()
+                  @table.cell()
+                    <span class="font-medium capitalize">{{ row.resource }}</span>
+                  @end
                   @each(action in crudActions)
-                    <td class="px-6 py-4 text-center">
+                    <td class="px-4 py-3 text-on-surface-strong whitespace-nowrap text-center">
                       @let(cell = row.actions[action])
                       @if(cell && cell.permissionId)
                         @if(cell.inherited)
@@ -77,15 +80,15 @@
                       @end
                     </td>
                   @end
-                </tr>
+                @end
               @end
             </tbody>
-          </table>
+          @end
         </div>
 
         {{-- Special Permissions --}}
         @if(specialPermissions.length)
-          <div class="mb-6 rounded-radius border border-outline bg-surface p-6">
+          <div class="mb-6 rounded-lg border border-outline bg-surface p-6">
             <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-on-surface">Permissions spéciales</h3>
             <div class="space-y-3">
               @each(perm in specialPermissions)
@@ -127,48 +130,52 @@
     {{-- Assigned Users --}}
     <div>
       <h2 class="mb-4 text-lg font-semibold text-on-surface-strong">Utilisateurs assignés</h2>
-      <div class="overflow-hidden rounded-radius border border-outline bg-surface">
-        <table class="w-full text-left text-sm">
-          <thead class="border-b border-outline bg-surface-alt text-xs uppercase tracking-wider text-on-surface">
-            <tr>
-              <th class="px-6 py-3">Nom</th>
-              <th class="px-6 py-3">Email</th>
-              <th class="px-6 py-3">Assigné le</th>
-              <th class="px-6 py-3">Expire le</th>
-              <th class="px-6 py-3">Accordé par</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-outline">
-            @each(assignment in role.userRoleAssignments)
-              <tr class="hover:bg-surface-alt/50 {{ assignment.expiresAt && assignment.expiresAt < new Date() ? 'opacity-50' : '' }}">
-                <td class="px-6 py-4 font-medium text-on-surface-strong">{{ assignment.user.fullName }}</td>
-                <td class="px-6 py-4 text-on-surface">{{ assignment.user.email }}</td>
-                <td class="px-6 py-4 text-on-surface">{{ assignment.createdAt.toFormat('dd/MM/yyyy') }}</td>
-                <td class="px-6 py-4 text-on-surface">
-                  @if(assignment.expiresAt)
-                    @if(assignment.expiresAt < new Date())
-                      <span class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">
-                        Expiré {{ assignment.expiresAt.toFormat('dd/MM/yyyy') }}
-                      </span>
-                    @else
-                      {{ assignment.expiresAt.toFormat('dd/MM/yyyy') }}
-                    @end
-                  @else
-                    <span class="text-on-surface">Permanent</span>
-                  @end
-                </td>
-                <td class="px-6 py-4 text-on-surface">{{ assignment.granter?.fullName || '—' }}</td>
-              </tr>
-            @end
-          </tbody>
-        </table>
 
-        @if(!role.userRoleAssignments.length)
-          <div class="px-6 py-12 text-center text-on-surface">
-            Aucun utilisateur assigné à ce rôle.
-          </div>
+      @table.root()
+        @table.header()
+          @table.cell({ head: true })
+            Nom
+          @end
+          @table.cell({ head: true })
+            Email
+          @end
+          @table.cell({ head: true })
+            Assigné le
+          @end
+          @table.cell({ head: true })
+            Expire le
+          @end
+          @table.cell({ head: true })
+            Accordé par
+          @end
         @end
-      </div>
+
+        <tbody>
+          @each(assignment in role.userRoleAssignments)
+            <tr class="border-b border-outline last:border-0 hover:bg-surface-alt/50 transition-colors {{ assignment.expiresAt && assignment.expiresAt < new Date() ? 'opacity-50' : '' }}">
+              <td class="px-4 py-3 text-on-surface-strong whitespace-nowrap font-medium">{{ assignment.user.fullName }}</td>
+              <td class="px-4 py-3 text-on-surface-strong whitespace-nowrap">{{ assignment.user.email }}</td>
+              <td class="px-4 py-3 text-on-surface-strong whitespace-nowrap">{{ assignment.createdAt.toFormat('dd MMM yyyy', { locale: 'fr' }) }}</td>
+              <td class="px-4 py-3 text-on-surface-strong whitespace-nowrap">
+                @if(assignment.expiresAt)
+                  @if(assignment.expiresAt < new Date())
+                    @!badge({ variant: 'danger', text: 'Expiré ' + assignment.expiresAt.toFormat('dd MMM yyyy', { locale: 'fr' }) })
+                  @else
+                    {{ assignment.expiresAt.toFormat('dd MMM yyyy', { locale: 'fr' }) }}
+                  @end
+                @else
+                  <span class="text-on-surface">Permanent</span>
+                @end
+              </td>
+              <td class="px-4 py-3 text-on-surface-strong whitespace-nowrap">{{ assignment.granter?.fullName || '—' }}</td>
+            </tr>
+          @end
+
+          @if(!role.userRoleAssignments.length)
+            @!table.empty({ colspan: 5, message: 'Aucun utilisateur assigné à ce rôle.' })
+          @end
+        </tbody>
+      @end
     </div>
   </div>
 @end

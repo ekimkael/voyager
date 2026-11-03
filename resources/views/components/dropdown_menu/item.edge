@@ -1,0 +1,49 @@
+@let(variant = $props.get('variant') || 'default')
+@let(href = $props.get('href'))
+@let(method = $props.get('method'))
+@let(hiddenInputs = $props.get('hiddenInputs') || {})
+
+@let(variantClasses = {
+  default: 'text-on-surface-strong',
+  destructive: 'text-danger',
+})
+
+@let(baseClasses = ['flex', 'w-full', 'items-center', 'gap-2', 'rounded-md', 'px-3', 'py-1.5', 'text-sm', 'cursor-pointer', 'hover:bg-surface-alt', 'transition-colors', variantClasses[variant] || variantClasses['default']])
+
+@if(method)
+  <form action="{{ href }}" method="POST" class="w-full">
+    {{ csrfField() }}
+    @if(method.toUpperCase() !== 'POST')
+      <input type="hidden" name="_method" value="{{ method.toUpperCase() }}" />
+    @end
+    @each(key in Object.keys(hiddenInputs))
+      <input type="hidden" name="{{ key }}" value="{{ hiddenInputs[key] }}" />
+    @end
+    <button {{ $props.except(['variant', 'href', 'method', 'hiddenInputs']).merge({
+      type: 'submit',
+      class: baseClasses,
+      role: 'menuitem',
+      '@click': 'open = false',
+    }).toAttrs() }}>
+      {{{ await $slots.main() }}}
+    </button>
+  </form>
+@elseif(href)
+  <a {{ $props.except(['variant', 'method']).merge({
+    href: href,
+    class: baseClasses,
+    role: 'menuitem',
+    '@click': 'open = false',
+  }).toAttrs() }}>
+    {{{ await $slots.main() }}}
+  </a>
+@else
+  <button {{ $props.except(['variant', 'href', 'method']).merge({
+    type: 'button',
+    class: baseClasses,
+    role: 'menuitem',
+    '@click': 'open = false',
+  }).toAttrs() }}>
+    {{{ await $slots.main() }}}
+  </button>
+@end

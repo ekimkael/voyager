@@ -1,0 +1,20 @@
+@let(useOldValue = !['password', 'file', 'checkbox', 'radio'].includes($props.get('type')))
+@let(inputValue = useOldValue
+? $context.oldValue || $props.get('value') || ''
+: $props.get('value') || ''
+)
+@let(classes = [
+'flex-1', 'min-w-0', 'rounded-none', 'border-0', 'bg-transparent', 'px-3', 'py-1',
+'text-base', 'text-on-surface-strong', 'shadow-none', 'outline-none',
+'placeholder:text-on-surface',
+'disabled:pointer-events-none', 'disabled:cursor-not-allowed', 'disabled:opacity-50',
+'md:text-sm',
+'focus-visible:ring-0',
+])
+
+<input {{ $props .except(['value']) .merge({ name: $context.name, id: $context.id, value: inputValue, class: classes,
+  type: 'text', 'data-slot': 'input-group-control',
+  'aria-invalid' : $context.hasErrors ? 'true' : false, 'data-invalid' : $context.hasErrors ? 'true' :
+  false, 'autofocus' : $context.hasErrors ? 'true' : false, 'aria-describedby' : $context.hasErrors ?
+  `${$context.id}-error` : '' , }) .mergeIf($props.get('keepChecked'), { checked: !!( $context.oldValue &&
+  ($context.oldValue===inputValue || $context.oldValue==='on' ) ), }) .toAttrs() }} />

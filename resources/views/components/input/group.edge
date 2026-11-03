@@ -1,0 +1,18 @@
+@let(align = $props.get('align') || 'inline')
+@let(isBlock = align === 'block-start' || align === 'block-end')
+@let(classes = [
+'group/input-group', 'relative', 'flex', 'w-full', 'items-center', 'rounded-md', 'border', 'border-outline',
+'shadow-xs', 'outline-none', 'transition-[color,box-shadow]',
+'h-9', 'min-w-0',
+'has-[[data-slot=input-group-control]:focus-visible]:border-primary',
+'has-[[data-slot=input-group-control]:focus-visible]:ring-[3px]',
+'has-[[data-slot=input-group-control]:focus-visible]:ring-primary/50',
+'has-[[aria-invalid=true]]:border-danger',
+'has-[[aria-invalid=true]]:ring-danger/20',
+isBlock ? 'h-auto' : '',
+isBlock ? 'flex-col' : '',
+])
+
+<div {{ $props.except(['align']).merge({ role: 'group', 'data-slot': 'input-group', class: classes }).toAttrs() }}>
+  {{{ await $slots.main() }}}
+</div>
