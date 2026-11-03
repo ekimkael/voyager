@@ -24,6 +24,19 @@ npm run dev
 
 Before opening a PR, run `npm run typecheck`, `npm run lint` and `npm test`.
 
+## CI
+
+GitHub Actions runs on every PR (`.github/workflows/`):
+
+- **CI** (`ci.yml`): the `guard` job checks the Git Flow rules (`scripts/check-git-flow.sh`: branch prefix, PRs into `main` only from `release/*` or `hotfix/*`, Conventional Commits). The `check` job runs `npm run lint`, `npm run typecheck`, `node ace migration:run`, `npm test`, `npm run build` and `npm run validate:changelog` against a PostgreSQL 16 service container, with throwaway env values set in the workflow.
+- **Security** (`security.yml`): a gitleaks scan of the history and `npm audit --audit-level=high`; actionlint and zizmor check the workflows. It also runs every Monday on `develop`.
+- **Release** (`release.yml`): on a push to `main`, see [docs/release.md](docs/release.md).
+
+Dependabot opens weekly grouped updates for npm and GitHub Actions.
+GitHub Free does not enforce required checks on private repos: merge only once CI is green.
+
+To check workflow changes locally: `actionlint` (1.7.12) and `uvx "zizmor==1.32.0" --offline .github/workflows`.
+
 ## Commits
 
 [Conventional Commits](https://www.conventionalcommits.org/): `type(scope): description`.
