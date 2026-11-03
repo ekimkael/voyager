@@ -1,6 +1,6 @@
 {
   "name": "voyager",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "type": "module",
   "license": "UNLICENSED",
@@ -91,5 +91,8 @@
       "./app/middleware/*.ts"
     ]
   },
-  "prettier": "@adonisjs/prettier-config"
+  "prettier": "@adonisjs/prettier-config",
+  "overrides": {
+    "nodemailer": "^10.3.1"
+  }
 }
