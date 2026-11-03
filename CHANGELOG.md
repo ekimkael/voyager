@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.0.0] - 2026-03-24
+## [1.0.0] - 2026-11-03
 
 ### Added
 
@@ -50,17 +50,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Profile editing (personal information)
 - Password change functionality
 - Email change with confirmation flow and transactional email
+- Password reset through an emailed link
 
 #### Email System
 
 - SMTP transport configuration via @adonisjs/mail
-- Transactional email support (email change confirmation)
+- Transactional email support (email change confirmation, password reset)
 - Mail classes with Edge.js email templates
 
 #### Dashboard
 
 - Admin UI with sidebar navigation
-- Edge.js component library (forms, inputs, selects, checkboxes, alerts, buttons, pagination)
+- Edge.js component library (forms, inputs, selects, checkboxes, alerts, buttons, badges, dropdown menus, tables, filters, pagination)
+- Dashboard lists (bookings, trips, trip history, roles, routes) shown as tables with inline filters and row action menus
+- Dates displayed in French format
 - Flash messages for user feedback
 - Alpine.js-powered interactivity
 
