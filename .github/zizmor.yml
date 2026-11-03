@@ -1,0 +1,4 @@
+rules:
+  self-repository:
+    # shortcut: keeps `./` for local workflow calls because actionlint 1.7.12 rejects GitHub's `$/` syntax (July 2026); switch to `$/` once actionlint supports it.
+    disable: true
