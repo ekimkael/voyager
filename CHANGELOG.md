@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-11-03
+
+### Security
+
+- Upgrade dependencies with known vulnerabilities: a critical issue in proxy address handling (`proxy-addr`) and high-severity issues in request body parsing, form-data uploads, the Vite dev server and email address parsing (Nodemailer 10).
+
+### Fixed
+
+- The production build no longer stops on a TypeScript error in the test suite.
+
 ## [1.0.0] - 2026-11-03
 
 ### Added
