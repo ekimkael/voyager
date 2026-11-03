@@ -27,7 +27,7 @@ test.group('Permission ability', (group) => {
   })
 
   test('user without permission is denied', async ({ assert }) => {
-    const { user, company } = await CompanyService.createWithAdmin({
+    const { company } = await CompanyService.createWithAdmin({
       companyName: 'Test Co',
       firstName: 'A',
       lastName: 'B',
