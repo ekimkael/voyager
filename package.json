@@ -14,7 +14,8 @@
     "test": "node ace test",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "validate:changelog": "node scripts/validate-changelog.mjs"
   },
   "imports": {
     "#controllers/*": "./app/controllers/*.js",
